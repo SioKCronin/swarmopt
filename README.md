@@ -1,10 +1,10 @@
-# Swarm RL
+# Swarm Reinforcement Learning
 
-Can swarm optimization improve upon Deep Q-learning in a classic RL problem? If so, which variation?
+Can swarm optimization improve upon Q-learning in a classic RL problem? If so, which variation?
 
 ## CartPole
 
-* Tradtional Q-learning
+* Deep Q-learning (after Keon)
 * Traditional PSO
 * MS-PSO (Chow & Tsui)
 * MLPS (Wang, Yang & Chen) 
