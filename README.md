@@ -21,4 +21,5 @@ Can swarm optimization improve upon Q-learning in a classic RL problem? If so, w
 * What about the nature of this project would lead us to suspect one method over another?
 * Why might we be seeing the performance we're seeing?
 * Are our metrics effectively capturing the learning rate/timecourse of learning?
-* What other RL problems 
+* What other RL problems should we try these on?
+* Any other notable PSO variants we should consider?
