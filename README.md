@@ -1,3 +1,3 @@
-# Deep Swarm
+# Swarm RL
 
 Swarm Reinforcement Learning
