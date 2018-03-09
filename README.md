@@ -2,7 +2,7 @@
 
 Can swarm optimization improve upon Deep Q-learning in a classic RL problem? If so, which variation?
 
-## Cart and Pole
+## CartPole
 
 * Tradtional Q-learning
 * Traditional PSO
