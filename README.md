@@ -1,6 +1,6 @@
 # Swarm Reinforcement Learning
 
-Can swarm optimization improve upon Q-learning in a classic RL problem? If so, which variation?
+Can swarm optimization improve upon Q-learning in a classic RL problem? If so, which variation? (prepare yourself for an onlsaught of acroynyms)
 
 ## CartPole
 
