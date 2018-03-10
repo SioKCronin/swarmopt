@@ -1,7 +1,9 @@
 # Swarm Reinforcement Learning
 
 ![cartpole](./media/cartpole.gif)
-![pso](./media/pso.gif)
+![cartpole](./media/cartpole.gif)
+![cartpole](./media/cartpole.gif)
+![cartpole](./media/cartpole.gif)
 
 Can swarm optimization improve upon Q-learning in a classic RL problem? 
 
