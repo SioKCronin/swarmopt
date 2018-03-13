@@ -35,4 +35,6 @@ if __name__ == "__main__":
 
                 break
 
-        agent.replay(32)
+        if len(agent.memory) > batch_size:
+            agent.replay(batch_size)
+
