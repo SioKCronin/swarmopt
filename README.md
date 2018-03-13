@@ -13,7 +13,6 @@ If so, which variation? (prepare yourself for an onlsaught of acroynyms)
 
 Particle swarm optimization (PSO) refers to one of several varations of the classic stochastic optimization heuristic developed by Kennedy and Eberhart. 
 
-* Deep Q-learning (after Keon)
 * PSO (local best, global best)
 * MS-PSO (Chow & Tsui)
 * MLPS (Wang, Yang & Chen) 
