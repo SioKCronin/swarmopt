@@ -9,7 +9,9 @@ Can swarm optimization improve upon Q-learning in a classic RL problem?
 
 If so, which variation? (prepare yourself for an onlsaught of acroynyms)
 
-## CartPole
+## Particle Swarm Optimization (PSO) Variations
+
+Particle swarm optimization (PSO) refers to one of several varations of the classic stochastic optimization heuristic developed by Kennedy and Eberhart. 
 
 * Deep Q-learning (after Keon)
 * Traditional PSO
@@ -17,6 +19,10 @@ If so, which variation? (prepare yourself for an onlsaught of acroynyms)
 * MLPS (Wang, Yang & Chen) 
 * DMS-PSO (Liang & Suganthan)
 * SRL-PSOs (Iima & Kuroe)
+
+## CartPole
+
+The CartoPole is a benchmark problem in reinforcement learning. 
 
 ## Tuning enhancements
 
