@@ -14,20 +14,13 @@ In addition to the implementations, I have included information in the docs abou
 ## Variations
 | Name  | layers | params  | X  | Y  |
 |---|---|---|---|---|
-| [PSO_GBEST](./PSO_BEST) |   | c1, c2, w  |   |   |
+| PSO_GBEST |   | c1, c2, w  |   |   |
 | PSO_LBEST |   | c1, c2, w, k, p |   |   |
-| MS-PSO | X |   |   |   |
+| MS-PSO | X | c1, c2, w, n |   |   |
 | MLPS | X |   |   |   |
 | DMS-PSO |   |   |   |   |
 | SRL-PSOs |   |   |   |   |
 | QSO |   |   |   |   |
-
-* PSO (local best, global best)
-* MS-PSO (Chow & Tsui)
-* MLPS (Wang, Yang & Chen) 
-* DMS-PSO (Liang & Suganthan)
-* SRL-PSOs (Iima & Kuroe)
-* QSO (Hsieh & Su)
 
 ## Comparison Benchmark Functions
 
