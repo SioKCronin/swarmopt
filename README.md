@@ -45,16 +45,11 @@ Single/Multi test functions:
 RL test environment:
 * CartPole
 
-## Tuning utilities
-
-* Gridsearch & RandomSearch (from Pyswarms)
-* PPSO (Nobiile, Pasi & Cazzaniga)
-
-## Questions to ask throughout
+## Questions to ask yourself
 
 * What about the nature of this search space would lead us to select one method over another?
 * Why might we be seeing the performance we're seeing?
 * Are our metrics effectively capturing the learning rate/timecourse of learning?
 * What other RL problems should we try these on?
 * Any other notable PSO variants we should consider?
-* How to best measure performance (mean and sd of performance?)
+* How to best measure performance and compare across algorithms? 
