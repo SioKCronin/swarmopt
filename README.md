@@ -12,9 +12,10 @@ These implementations require PySwarms, an open-source research toolkit. Some re
 In addition to the implementations, I have included information in the docs about what differentiates them, and when each might be used (particularly in reinforcement learning). 
 
 ## Variations
-| Name  | layers | Y  | X  | Y  |
+| Name  | layers | params  | X  | Y  |
 |---|---|---|---|---|
-| PSO |   |   |   |   |
+| PSO_GBEST |   | c1, c2, w  |   |   |
+| PSO_LBEST |   | c1, c2, w, k, p |   |   |
 | MS-PSO | X |   |   |   |
 | MLPS | X |   |   |   |
 | DMS-PSO |   |   |   |   |
