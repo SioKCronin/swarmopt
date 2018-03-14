@@ -15,10 +15,10 @@ In addition to the implementations, I have included information in the docs abou
 ### Single Objective 
 | Name  | layers | params  | X  | Y  |
 |---|---|---|---|---|
-| PSO_GBEST |   | n, i, c1, c2, w  |   |   |
-| PSO_LBEST |   | n, i, c1, c2, w, k, p |   |   |
+| PSO_GBEST |  2 | n, i, c1, c2, w  |   |   |
+| PSO_LBEST |  2 | n, i, c1, c2, w, k, p |   |   |
 | DMS-PSO |  | n, R   |   |   |
-| MLPSO | X |   |   |   |
+| MLPSO | n |   |   |   |
 
 ### Multi Objective 
 | Name  | layers | params  | X  | Y  |
