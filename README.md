@@ -17,13 +17,13 @@ In addition to the implementations, I have included information in the docs abou
 |---|---|---|---|---|
 | PSO_GBEST |   | n, i, c1, c2, w  |   |   |
 | PSO_LBEST |   | n, i, c1, c2, w, k, p |   |   |
+| DMS-PSO |  | n, R   |   |   |
+| MLPSO | X |   |   |   |
 
 ### Multi Objective 
 | Name  | layers | params  | X  | Y  |
 |---|---|---|---|---|
 | MS-PSO | X | n, i, c1, c2, w, n |   |   |
-| MLPSO | X |   |   |   |
-| DMS-PSO |  | n, R   |   |   |
 
 ### RL algorithms
 | Name  | layers | params  | X  | Y  |
