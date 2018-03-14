@@ -34,13 +34,16 @@ In addition to the implementations, I have included information in the docs abou
 
 ## Comparison Benchmark Functions
 
-Optimization test functions used for comparison:
+Single/Multi test functions:
 * Sphere Function
 * Rosenbrock's Function
 * Ackley's Function
 * Griewank's Function
 * Rastrigin's Function
 * Weierstrass Function
+
+RL test environment:
+* CartPole
 
 ## Tuning enhancements
 
