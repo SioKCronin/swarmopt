@@ -9,7 +9,7 @@ Particle swarm optimization (PSO) refers to one of several varations of the clas
 
 These implementations require PySwarms, an open-source research toolkit. Some require gym. 
 
-What differentiates them, and when might each be used (if at all) in reinforcement learning? 
+In addition to the implementations, I have included information in the docs about what differentiates them, and when each might be used (particularly in reinforcement learning). 
 
 ## Variations
 
