@@ -23,7 +23,7 @@ Particle swarm optimization (PSO) refers to one of several varations of the clas
 
 ## Test Functions
 
-Optimization test functions used in our meta-analysis are:
+Optimization test functions used in our meta-analysis my:
 * Sphere Function
 * Rosenbrock's Function
 * Ackley's Function
