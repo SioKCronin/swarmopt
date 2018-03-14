@@ -5,9 +5,7 @@
 ![cartpole](./media/cartpole.gif)
 ![cartpole](./media/cartpole.gif)
 
-Can swarm optimization improve upon Q-learning in a classic RL problem? 
-
-If so, which variation? (prepare yourself for an onlsaught of acroynyms)
+There are many particle swarm optimization (PSO) variations out there (prepare yourself for an onlsaught of acroynyms). How different are they from one another, and when it comes to RL, how do they stack up against methods like Deep Q-learning?
 
 ## Particle Swarm Optimization (PSO) Variations
 
