@@ -20,12 +20,7 @@ In addition to the implementations, I have included information in the docs abou
 | DMS-PSO | 2 | n, R   |   |   |
 | MLPSO | n |   |   |   |
 
-### Multi Objective 
-| Name  | layers | params  | X  | Y  |
-|---|---|---|---|---|
-| MS-PSO | X | n, i, c1, c2, w, n |   |   |
-
-### RL algorithms
+### Combined with Q-Learning for RL
 | Name  | layers | params  | X  | Y  |
 |---|---|---|---|---|
 | SRL-PSO |  | c1, c2, w |   |   |
