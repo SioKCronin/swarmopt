@@ -7,6 +7,8 @@
 
 Particle swarm optimization (PSO) refers to one of several varations of the classic stochastic optimization heuristic developed by Kennedy and Eberhart. There are many particle swarm optimization (PSO) variations out there (prepare yourself for an onlsaught of acroynyms). 
 
+These implementations require PySwarms, an open-source research toolkit. Some require gym. 
+
 What differentiates them, and when might each be used (if at all) in reinforcement learning? 
 
 ## Variations
