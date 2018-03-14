@@ -12,14 +12,25 @@ These implementations require PySwarms, an open-source research toolkit. Some re
 In addition to the implementations, I have included information in the docs about what differentiates them, and when each might be used (particularly in reinforcement learning). 
 
 ## Variations
+### Single Objective 
 | Name  | layers | params  | X  | Y  |
 |---|---|---|---|---|
 | PSO_GBEST |   | n, i, c1, c2, w  |   |   |
 | PSO_LBEST |   | n, i, c1, c2, w, k, p |   |   |
+
+### Multi Objective 
+| Name  | layers | params  | X  | Y  |
+|---|---|---|---|---|
 | MS-PSO | X | n, i, c1, c2, w, n |   |   |
 | MLPSO | X |   |   |   |
 | DMS-PSO |  | n, R   |   |   |
-| SRL-PSOs |   |   |   |   |
+
+### RL algorithms
+| Name  | layers | params  | X  | Y  |
+|---|---|---|---|---|
+| SRL-PSO |  | c1, c2, w |   |   |
+| QSO|   |   |   |   |
+| Intelligent PSO |   |   |   |   |
 
 ## Comparison Benchmark Functions
 
