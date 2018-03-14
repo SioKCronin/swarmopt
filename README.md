@@ -18,6 +18,8 @@ Particle swarm optimization (PSO) refers to one of several varations of the clas
 * MLPS (Wang, Yang & Chen) 
 * DMS-PSO (Liang & Suganthan)
 * SRL-PSOs (Iima & Kuroe)
+* QSO (Hsieh & Su)
+* Intelligent PSO (Khajenejad et al.) 
 
 ## CartPole
 
