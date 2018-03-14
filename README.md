@@ -12,6 +12,14 @@ These implementations require PySwarms, an open-source research toolkit. Some re
 In addition to the implementations, I have included information in the docs about what differentiates them, and when each might be used (particularly in reinforcement learning). 
 
 ## Variations
+| Name  | layers | Y  | X  | Y  |
+|---|---|---|---|---|
+| PSO |   |   |   |   |
+| MS-PSO | X |   |   |   |
+| MLPS | X |   |   |   |
+| DMS-PSO |   |   |   |   |
+| SRL-PSOs |   |   |   |   |
+| QSO |   |   |   |   |
 
 * PSO (local best, global best)
 * MS-PSO (Chow & Tsui)
@@ -19,7 +27,6 @@ In addition to the implementations, I have included information in the docs abou
 * DMS-PSO (Liang & Suganthan)
 * SRL-PSOs (Iima & Kuroe)
 * QSO (Hsieh & Su)
-* Intelligent PSO (Khajenejad et al.) 
 
 ## Comparison Benchmark Functions
 
