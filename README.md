@@ -12,6 +12,11 @@ These implementations require PySwarms, an open-source research toolkit. Some re
 In addition to the implementations, I have included information in the docs about what differentiates them, and when each might be used (particularly in reinforcement learning). 
 
 ## Variations
+|   |   |   |   |   |
+|---|---|---|---|---|
+|   |   |   |   |   |
+|   |   |   |   |   |
+|   |   |   |   |   |
 
 * PSO (local best, global best)
 * MS-PSO (Chow & Tsui)
