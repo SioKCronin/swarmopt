@@ -14,11 +14,11 @@ In addition to the implementations, I have included information in the docs abou
 ## Variations
 | Name  | layers | params  | X  | Y  |
 |---|---|---|---|---|
-| PSO_GBEST |   | c1, c2, w  |   |   |
-| PSO_LBEST |   | c1, c2, w, k, p |   |   |
-| MS-PSO | X | c1, c2, w, n |   |   |
+| PSO_GBEST |   | n, i, c1, c2, w  |   |   |
+| PSO_LBEST |   | n, i, c1, c2, w, k, p |   |   |
+| MS-PSO | X | n, i, c1, c2, w, n |   |   |
 | MLPSO | X |   |   |   |
-| DMS-PSO |   |   |   |   |
+| DMS-PSO | n, R |   |   |   |
 | SRL-PSOs |   |   |   |   |
 | QSO |   |   |   |   |
 
