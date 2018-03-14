@@ -5,7 +5,9 @@
 ![cartpole](./media/cartpole.gif)
 ![cartpole](./media/cartpole.gif)
 
-There are many particle swarm optimization (PSO) variations out there (prepare yourself for an onlsaught of acroynyms). How different are they from one another, and when it comes to RL, how do they stack up against methods like Deep Q-learning?
+There are many particle swarm optimization (PSO) variations out there (prepare yourself for an onlsaught of acroynyms). 
+
+When differentiates them? Are the reported observed differences between them truly significant? And when it comes to RL, how do they stack up against methods like Deep Q-learning?
 
 ## Particle Swarm Optimization (PSO) Variations
 
