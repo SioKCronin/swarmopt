@@ -20,7 +20,6 @@ In addition to the implementations, I have included information in the docs abou
 | DMS-PSO |   |   |   |   |
 | SRL-PSOs |   |   |   |   |
 | QSO |   |   |   |   |
-| Intelligent PSO |   |   |   |   |
 
 * PSO (local best, global best)
 * MS-PSO (Chow & Tsui)
@@ -28,7 +27,6 @@ In addition to the implementations, I have included information in the docs abou
 * DMS-PSO (Liang & Suganthan)
 * SRL-PSOs (Iima & Kuroe)
 * QSO (Hsieh & Su)
-* Intelligent PSO (Khajenejad et al.) 
 
 ## Comparison Benchmark Functions
 
