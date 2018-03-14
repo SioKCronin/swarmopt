@@ -20,7 +20,7 @@ In addition to the implementations, I have included information in the docs abou
 | DMS-PSO | 2 | n, R   |   |   |
 | MLPSO | n |   |   |   |
 
-### Combined with Q-Learning for RL
+### PSO + Q-learning
 | Name  | layers | params  | X  | Y  |
 |---|---|---|---|---|
 | SRL-PSO |  | c1, c2, w |   |   |
@@ -29,7 +29,7 @@ In addition to the implementations, I have included information in the docs abou
 
 ## Comparison Benchmark Functions
 
-Single/Multi test functions:
+Single objective test functions:
 * Sphere Function
 * Rosenbrock's Function
 * Ackley's Function
@@ -37,7 +37,7 @@ Single/Multi test functions:
 * Rastrigin's Function
 * Weierstrass Function
 
-RL test environment:
+PSO + Q-learning:
 * CartPole
 
 ## Questions to ask yourself
