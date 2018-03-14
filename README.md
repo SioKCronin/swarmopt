@@ -7,7 +7,7 @@
 
 Particle swarm optimization (PSO) refers to one of several varations of the classic stochastic optimization heuristic developed by Kennedy and Eberhart. There are many particle swarm optimization (PSO) variations out there (prepare yourself for an onlsaught of acroynyms). 
 
-When differentiates them, and are the reported observed differences between them truly significant? 
+What differentiates them, and when might each be used (if at all) in reinforcement learning? 
 
 ## Variations
 
@@ -19,9 +19,9 @@ When differentiates them, and are the reported observed differences between them
 * QSO (Hsieh & Su)
 * Intelligent PSO (Khajenejad et al.) 
 
-## Benchmark Functions
+## Comparison Benchmark Functions
 
-Optimization test functions used in our meta-analysis my:
+Optimization test functions used for comparison:
 * Sphere Function
 * Rosenbrock's Function
 * Ackley's Function
