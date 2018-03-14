@@ -2,7 +2,7 @@
 
 import gym
 import numpy as np
-from agents import DQNAgent
+from common.dqn_agent import DQNAgent
 from collections import deque
 
 if __name__ == "__main__":

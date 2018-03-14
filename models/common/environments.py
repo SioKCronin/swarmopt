@@ -16,7 +16,6 @@ class EnvWorker(Process):
         self.delay = delay
         print("Environment initialized.", self.name)
 
-    -- child processes do this:
     def run(self):
         observation=self.env.reset()
         param=self.pipe.recv()
