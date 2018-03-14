@@ -1,4 +1,4 @@
-# Particle Swarm Optimization Variations
+# PSO Variations
 
 ![cartpole](./media/cartpole.gif)
 ![cartpole](./media/cartpole.gif)
