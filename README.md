@@ -17,7 +17,7 @@ In addition to the implementations, I have included information in the docs abou
 |---|---|---|---|---|
 | PSO_GBEST |  2 | n, i, c1, c2, w  |   |   |
 | PSO_LBEST |  2 | n, i, c1, c2, w, k, p |   |   |
-| DMS-PSO |  | n, R   |   |   |
+| DMS-PSO | 2 | n, R   |   |   |
 | MLPSO | n |   |   |   |
 
 ### Multi Objective 
