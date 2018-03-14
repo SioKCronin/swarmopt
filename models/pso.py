@@ -3,17 +3,12 @@
 import time
 import pyswarms as ps
 from pyswarms.utils.functions import single_obj as fx
-from multiprocessing import Process, Pipe
-from environments import EnvWorker, ParallelEnvironment
 import numpy as np
+import gym
 
-# For multiproessing
-num_envs = 10
-NotDisplay = False
+num_envs = 15
 velocity_alpha = 0.01
 env_name = "CartPole-v1"
-#env_name = "MsPacman-v0"
-p_env = ParallelEnvironment(env_name, num_envs, NotDisplay)
 
 params = []
 best_params = []
@@ -25,8 +20,6 @@ iter_cnt = 0
 intertia = 1
 cognitive = 1
 social = 1
-
-# def forward_prop(params):
 
 for i in range(num_envs):
     # Random initialized for 4 cart params - TODO: use priors?
@@ -42,7 +35,30 @@ for i in range(num_envs):
     velocity.append(np.array([0.0 for i in range(4)]))
 
 while True:
-    returns = p_env.episode(params)
+    env = gym.make(env_name)
+
+    def episode(env, params):
+        returns = []
+        for idx in range(num_envs):
+            return_ = run(env, params[idx])
+            env.reset()
+            returns.append(return_)
+        return returns
+
+    def run(env, params):
+        observation=env.reset()
+        episode_return=0
+        while True:
+            decision = np.matmul(observation, param) # could use torch here
+            action = 1 if decision>0 else 0
+            observation, reward, done, _ = env.step(action)
+            episode_return += reward
+            env.render(close=True)
+
+            if done:
+                return episode_return
+
+    returns = episode(env, params)
 
     iter_cnt +=1
     print("Number of batch episodes ran -> ", iter_cnt)
@@ -56,19 +72,8 @@ while True:
     # with the final parameters and EXIT.
     if returns==best_returns:
         print("Batch converged after {} iterations".format(iter_cnt))
-
-        p_env.__del__()
-        p_start, p_end = Pipe()
-        env_worker = EnvWorker("CartPole-v1", p_end, name="Worker", NotDisplay=True, delay=0.02)
-        #env_worker = EnvWorker("MsPacman-v0", p_end, name="Worker", NotDisplay=True, delay=0.02)
-        env_worker.start()
-        p_start.send(np.sum(best_params, axis=0)/num_envs)
-        episode_return = p_start.recv()
-        print("Reward for the final episode ->", episode_return)
-        print("Best params:", best_params)
-        # TODO print("Converged in:", time_end - time_start)
-        p_start.send("EXIT")
-        env_worker.terminate()
+        env.render()
+        break
 
     for i in range(num_envs):
         #optimizer = ps.single.GlobalBestPSO(n_particles=10, dimensions=2, options=options)
@@ -81,8 +86,6 @@ while True:
 
     # Set up hyperparameters
     options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
-
-    # Call instance of PSO
 
     for i in range(num_envs):
 
