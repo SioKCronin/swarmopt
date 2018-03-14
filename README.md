@@ -1,4 +1,4 @@
-# PSO Variations
+# PSO Baselines
 
 ![cartpole](./media/cartpole.gif)
 ![cartpole](./media/cartpole.gif)
