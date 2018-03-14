@@ -17,6 +17,10 @@ In addition to the implementations, I have included information in the docs abou
 | PSO |   |   |   |   |
 | MS-PSO |   |   |   |   |
 | MLPS |   |   |   |   |
+| DMS-PSO |   |   |   |   |
+| SRL-PSOs |   |   |   |   |
+| QSO |   |   |   |   |
+| Intelligent PSO |   |   |   |   |
 
 * PSO (local best, global best)
 * MS-PSO (Chow & Tsui)
