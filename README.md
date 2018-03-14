@@ -17,7 +17,7 @@ In addition to the implementations, I have included information in the docs abou
 | PSO_GBEST |   | c1, c2, w  |   |   |
 | PSO_LBEST |   | c1, c2, w, k, p |   |   |
 | MS-PSO | X | c1, c2, w, n |   |   |
-| MLPS | X |   |   |   |
+| MLPSO | X |   |   |   |
 | DMS-PSO |   |   |   |   |
 | SRL-PSOs |   |   |   |   |
 | QSO |   |   |   |   |
