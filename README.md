@@ -18,9 +18,8 @@ In addition to the implementations, I have included information in the docs abou
 | PSO_LBEST |   | n, i, c1, c2, w, k, p |   |   |
 | MS-PSO | X | n, i, c1, c2, w, n |   |   |
 | MLPSO | X |   |   |   |
-| DMS-PSO | n, R |   |   |   |
+| DMS-PSO |  | n, R   |   |   |
 | SRL-PSOs |   |   |   |   |
-| QSO |   |   |   |   |
 
 ## Comparison Benchmark Functions
 
