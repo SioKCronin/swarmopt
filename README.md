@@ -14,7 +14,7 @@ In addition to the implementations, I have included information in the docs abou
 ## Variations
 | Name  | layers | params  | X  | Y  |
 |---|---|---|---|---|
-| [PSO_GBEST](PSO_BEST) |   | c1, c2, w  |   |   |
+| [PSO_GBEST](./PSO_BEST) |   | c1, c2, w  |   |   |
 | PSO_LBEST |   | c1, c2, w, k, p |   |   |
 | MS-PSO | X |   |   |   |
 | MLPS | X |   |   |   |
