@@ -1,17 +1,15 @@
-# Swarm Reinforcement Learning
+# Particle Swarm Optimization Variations
 
 ![cartpole](./media/cartpole.gif)
 ![cartpole](./media/cartpole.gif)
 ![cartpole](./media/cartpole.gif)
 ![cartpole](./media/cartpole.gif)
 
-There are many particle swarm optimization (PSO) variations out there (prepare yourself for an onlsaught of acroynyms). 
+Particle swarm optimization (PSO) refers to one of several varations of the classic stochastic optimization heuristic developed by Kennedy and Eberhart. There are many particle swarm optimization (PSO) variations out there (prepare yourself for an onlsaught of acroynyms). 
 
 When differentiates them, and are the reported observed differences between them truly significant? 
 
-## Particle Swarm Optimization (PSO) Variations
-
-Particle swarm optimization (PSO) refers to one of several varations of the classic stochastic optimization heuristic developed by Kennedy and Eberhart. 
+## Variations
 
 * PSO (local best, global best)
 * MS-PSO (Chow & Tsui)
