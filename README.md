@@ -45,9 +45,9 @@ Single/Multi test functions:
 RL test environment:
 * CartPole
 
-## Tuning enhancements
+## Tuning utilities
 
-* Gridsearch & RandomSearch to tune PSO hyperparameters
+* Gridsearch & RandomSearch (from Pyswarms)
 * PPSO (Nobiile, Pasi & Cazzaniga)
 
 ## Questions to ask throughout
