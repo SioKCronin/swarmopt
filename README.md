@@ -11,7 +11,7 @@ These implementations require PySwarms, an open-source research toolkit. Some re
 
 In addition to the implementations, I have included information in the docs about what differentiates them, and when each might be used (particularly in reinforcement learning). 
 
-## Variations
+## Algorithms
 ### Single Objective 
 | Name  | layers | params  | X  | Y  |
 |---|---|---|---|---|
@@ -20,7 +20,7 @@ In addition to the implementations, I have included information in the docs abou
 | DMS-PSO | 2 | n, R   |   |   |
 | MLPSO | n |   |   |   |
 
-### PSO + Q-learning
+### PSO + Q-learning combinations
 | Name  | layers | params  | X  | Y  |
 |---|---|---|---|---|
 | SRL-PSO |  | c1, c2, w |   |   |
