@@ -15,7 +15,7 @@ In addition to the implementations, I have included information in the docs abou
 | DMS-PSO | 2 | n, R   |
 | MLPSO | n |   |
 
-### PSO + Q-learning combinations
+### PSO + Q-learning
 | Name  | layers | params  |
 |---|---|---|
 | SRL-PSO |  | c1, c2, w |
