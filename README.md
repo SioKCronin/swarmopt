@@ -10,8 +10,8 @@ In addition to the implementations, I have included information in the docs abou
 ### Single Objective 
 | Name  | layers | params  | 
 |---|---|---|
-| PSO_GBEST |  2 | n, i, c1, c2, w  | 
-| PSO_LBEST |  2 | n, i, c1, c2, w, k, p |
+| GBEST |  2 | n, i, c1, c2, w  | 
+| LBEST |  2 | n, i, c1, c2, w, k, p |
 | DMS-PSO | 2 | n, R   |
 | MLPSO | n |   |
 
