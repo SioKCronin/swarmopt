@@ -8,19 +8,19 @@ In addition to the implementations, I have included information in the docs abou
 
 ## Algorithms
 ### Single Objective 
-| Name  | layers | params  | X  | Y  |
-|---|---|---|---|---|
-| PSO_GBEST |  2 | n, i, c1, c2, w  |   |   |
-| PSO_LBEST |  2 | n, i, c1, c2, w, k, p |   |   |
-| DMS-PSO | 2 | n, R   |   |   |
-| MLPSO | n |   |   |   |
+| Name  | layers | params  | 
+|---|---|---|
+| GBEST |  2 | n, i, c1, c2, w  | 
+| LBEST |  2 | n, i, c1, c2, w, k, p |
+| DMS-PSO | 2 | n, R   |
+| MLPSO | n |   |
 
-### PSO + Q-learning combinations
-| Name  | layers | params  | X  | Y  |
-|---|---|---|---|---|
-| SRL-PSO |  | c1, c2, w |   |   |
-| QSO|   |   |   |   |
-| Intelligent PSO |   |   |   |   |
+### PSO + Q-learning
+| Name  | layers | params  |
+|---|---|---|
+| SRL-PSO |  | c1, c2, w |
+| QSO|   |   |
+| Intelligent PSO |   |   |
 
 ## Comparison Benchmark Functions
 
