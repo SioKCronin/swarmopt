@@ -9,33 +9,17 @@ c1 = 0.5
 c2 = 0.3
 w = 0.9
 p = 2
-k = 2
+k = 1
 R = 10
-max_gen = 10
+max_gen = 100
 dimensions = 2
 
 pos = []
 personal_best_pos = []
 pbest_cost = []
 best_cost = []
+best_pos = [[0, 0]]
 velocity = []
-
-def _get_neighbors(pbest_cost, i):
-    # Use cKDTree to get the indices of the nearest neighbors
-    tree = KDTree(pos[i])
-    _, idx = tree.query(pos, p, k)
-
-    # Map the computed costs to the neighbour indices and take the
-    # argmin. If k-neighbors is equal to 1, then the swarm acts
-    # independently of each other.
-    if k == 1:
-            # The minimum index is itself, no mapping needed.
-            best_neighbor = pbest_cost[idx][:, np.newaxis].argmin(axis=1)
-    else:
-        idx_min = pbest_cost[idx].argmin(axis=1)
-        best_neighbor = idx[np.arange(len(idx)), idx_min]
-
-    return best_neighbor
 
 for i in range(n):
     subswarm_pos = []
@@ -46,15 +30,13 @@ for i in range(n):
 
     for i in range(m):
         subswarm_pos.append(np.random.uniform(-1, 1, dimensions))
-        subswarm_personal_best_pos.append([0 for i in range(dimensions)])
-        subswarm_pbest_cost.append(0)
-        subswarm_best_cost.append(0)
-        subswarm_velocity.append([0.0 for i in range(dimensions)])
+        subswarm_personal_best_pos.append(np.random.uniform(-1, 1, dimensions))
+        subswarm_pbest_cost.append(1)
+        subswarm_velocity.append(np.random.uniform(-1, 1, dimensions))
 
     pos.append(subswarm_pos)
     personal_best_pos.append(subswarm_personal_best_pos)
     pbest_cost.append(subswarm_pbest_cost)
-    best_cost.append(subswarm_best_cost)
     velocity.append(subswarm_velocity)
 
 i = 1
@@ -68,18 +50,14 @@ while i < (0.9 * max_gen):
             if current_cost < personal_best_cost:
                 personal_best_pos[i][j] = pos[i][j]
                 pbest_cost[i][j] = current_cost
-
-            # Get neighbors
-            nmin_idx = _get_neighbors(pbest_cost, i)
-            best_cost[i][j] = pbest_cost[nmin_idx]
-            best_pos[i][j] = best_pos[nmin_idx]
-
-            # Update velocity
+            if personal_best_cost < best_cost:
+                best_cost = pbest_cost[i][j]
+                best_pos = personal_best_pos[i][j]
 
 	    # Compute for cognitive and social terms
-            cognitive = (c1 * np.random.uniform(0, 1, n) * (personal_best_pos - pos))
-            social = (c2 * np.random.uniform(0, 1, n) * (best_pos - pos))
-            velocity = (w * velocity) + cognitive + social
+            cognitive = (c1 * np.random.uniform(0, 1, 2)) * (personal_best_pos[i][j] - pos[i][j])
+            social = (c2 * np.random.uniform(0, 1, 2)) * (best_pos - pos[i][j])
+            velocity = w + cognitive + social
 
             # Update positions
 
