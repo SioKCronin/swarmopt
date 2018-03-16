@@ -1,9 +1,6 @@
 # PSO Baselines
 
-![cartpole](./media/cartpole.gif)
-![cartpole](./media/cartpole.gif)
-![cartpole](./media/cartpole.gif)
-![cartpole](./media/cartpole.gif)
+![pso](./media/pso.gif)
 
 Particle swarm optimization (PSO) refers to one of several varations of the classic stochastic optimization heuristic developed by Kennedy and Eberhart. There are many particle swarm optimization (PSO) variations out there (prepare yourself for an onlsaught of acroynyms). 
 
