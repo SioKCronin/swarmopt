@@ -11,27 +11,25 @@ These implementations require PySwarms, an open-source research toolkit. Some re
 
 In addition to the implementations, I have included information in the docs about what differentiates them, and when each might be used (particularly in reinforcement learning). 
 
-## Variations
+## Algorithms
+### Single Objective 
 | Name  | layers | params  | X  | Y  |
 |---|---|---|---|---|
-| [PSO_GBEST](./PSO_BEST) |   | c1, c2, w  |   |   |
-| PSO_LBEST |   | c1, c2, w, k, p |   |   |
-| MS-PSO | X |   |   |   |
-| MLPS | X |   |   |   |
-| DMS-PSO |   |   |   |   |
-| SRL-PSOs |   |   |   |   |
-| QSO |   |   |   |   |
+| PSO_GBEST |  2 | n, i, c1, c2, w  |   |   |
+| PSO_LBEST |  2 | n, i, c1, c2, w, k, p |   |   |
+| DMS-PSO | 2 | n, R   |   |   |
+| MLPSO | n |   |   |   |
 
-* PSO (local best, global best)
-* MS-PSO (Chow & Tsui)
-* MLPS (Wang, Yang & Chen) 
-* DMS-PSO (Liang & Suganthan)
-* SRL-PSOs (Iima & Kuroe)
-* QSO (Hsieh & Su)
+### PSO + Q-learning combinations
+| Name  | layers | params  | X  | Y  |
+|---|---|---|---|---|
+| SRL-PSO |  | c1, c2, w |   |   |
+| QSO|   |   |   |   |
+| Intelligent PSO |   |   |   |   |
 
 ## Comparison Benchmark Functions
 
-Optimization test functions used for comparison:
+Single objective test functions:
 * Sphere Function
 * Rosenbrock's Function
 * Ackley's Function
@@ -39,16 +37,14 @@ Optimization test functions used for comparison:
 * Rastrigin's Function
 * Weierstrass Function
 
-## Tuning enhancements
+PSO + Q-learning:
+* CartPole
 
-* Gridsearch & RandomSearch to tune PSO hyperparameters
-* PPSO (Nobiile, Pasi & Cazzaniga)
-
-## Questions to ask throughout
+## Questions to ask yourself
 
 * What about the nature of this search space would lead us to select one method over another?
 * Why might we be seeing the performance we're seeing?
 * Are our metrics effectively capturing the learning rate/timecourse of learning?
 * What other RL problems should we try these on?
 * Any other notable PSO variants we should consider?
-* How to best measure performance (mean and sd of performance?)
+* How to best measure performance and compare across algorithms? 
