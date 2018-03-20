@@ -1,6 +1,7 @@
 # DMPSO
 
 import numpy as np
+from random import shuffle
 
 n = 10 # Number of groups in swarm (10, 20, 50 tested)
 m = 3 # Each swarm's population size (2, 3, 5 tested)
@@ -8,7 +9,7 @@ dimensions = 2
 c1 = 0.5 # Cognitive weight (how much each particle references their memory)
 c2 = 0.3 # Social weight (how much each particle references swarm/metaswarm memory)
 w = 0.9 # Velocity weight
-R = 5 # Swarm reshuffling interval
+R = 1000 # Swarm reshuffling interval
 iters = 2000 
 
 swarm = []
@@ -47,9 +48,12 @@ x = 0
 while x < (0.9 * iters):
 
     if (x % R)== 0:
-        pass
+        flattened_list = [particle for group in swarm for particle in group]
+        shuffle(flattened_list)
+        swarm = [flattened_list[i:i + n] for i in range(0, len(flattened_list), 3)]
 
     for group in range(n):
+        if group == 1:
 
         for particle in range(m):
             current_cost = sum([i**2 for i in (swarm[group][particle][P_POS_IDX])])
