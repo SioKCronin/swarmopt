@@ -10,7 +10,10 @@ c1 = 0.5 # Cognitive weight (how much each particle references their memory)
 c2 = 0.3 # Social weight (how much each particle references swarm/metaswarm memory)
 w = 0.9 # Velocity weight
 R = 1000 # Swarm reshuffling interval
-iters = 2000 
+iters = 2000
+
+search_range = np.array([0, 0])
+vmax = 0.2 * search_range # Use if lower than returned velocity
 
 swarm = []
 swarm_best_pos = [0, 0]
@@ -53,7 +56,6 @@ while x < (0.9 * iters):
         swarm = [flattened_list[i:i + n] for i in range(0, len(flattened_list), 3)]
 
     for group in range(n):
-        if group == 1:
 
         for particle in range(m):
             current_cost = sum([i**2 for i in (swarm[group][particle][P_POS_IDX])])
@@ -70,10 +72,21 @@ while x < (0.9 * iters):
 	    # Compute velocity
             cognitive = (c1 * np.random.uniform(0, 1, 2)) * (swarm[group][particle][P_BEST_POS_IDX] - swarm[group][particle][P_POS_IDX])
             social = (c2 * np.random.uniform(0, 1, 2)) * (group_data[group][GROUP_BEST_POS_IDX] - swarm[group][particle][P_POS_IDX])
-            swarm[group][particle][P_VELOCITY_IDX] = (w * swarm[group][particle][P_VELOCITY_IDX]) + cognitive + social
 
-            # Update poss
+            # Check to see if velocity is within search range
+            if swarm[group][particle][P_POS_IDX][0] > search_range[0] or swarm[group][particle][P_POS_IDX][1] > search_range[1]:
+                swarm[group][particle][P_VELOCITY_IDX] = (w * search_range) + cognitive + social
+            else:
+                swarm[group][particle][P_VELOCITY_IDX] = (w * swarm[group][particle][P_VELOCITY_IDX]) + cognitive + social
+
+            # Update pos
             swarm[group][particle][P_POS_IDX] += swarm[group][particle][P_VELOCITY_IDX]
+
+            # Update search range
+            if swarm[group][particle][P_POS_IDX][0] > search_range[0]:
+                search_range[0] = swarm[group][particle][P_POS_IDX][0]
+            if swarm[group][particle][P_POS_IDX][1] > search_range[1]:
+                search_range[1] = swarm[group][particle][P_POS_IDX][1]
 
     x += 1
 
