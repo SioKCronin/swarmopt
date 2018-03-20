@@ -1,10 +1,8 @@
 # PSO Baselines
 
-Particle swarm optimization (PSO) refers to one of several varations of the classic stochastic optimization heuristic developed by Kennedy and Eberhart. There are many particle swarm optimization (PSO) variations out there (prepare yourself for an onlsaught of acroynyms). 
+Particle swarm optimization (PSO) refers to one of several varations of the classic stochastic optimization heuristic developed by Kennedy and Eberhart. There are many particle swarm optimization (PSO) variations out there (prepare yourself for an onlsaught of acroynyms), and the goal of this repo is to provide implementations. 
 
-These implementations require PySwarms, an open-source research toolkit. Some require gym. 
-
-In addition to the implementations, I have included information in the docs about what differentiates them, and when each might be used (particularly in reinforcement learning). 
+I have also included information in the docs about what differentiates these variations, and when each might be used (particularly in reinforcement learning). 
 
 ## Algorithms
 ### Single Objective 
