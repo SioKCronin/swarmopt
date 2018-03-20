@@ -1,4 +1,4 @@
-# Functional PSO
+# DMPSO
 
 import numpy as np
 
@@ -13,32 +13,29 @@ R = 5
 iters = 2000
 dimensions = 2
 
-pos = []
-personal_best_pos = []
-pbest_cost = []
-best_cost = [5]
-best_pos = [0, 0]
-velocity = []
+metaswarm = []
+global_best_pos = [0, 0]
+global_best_cost = [5]
+
+swarm_data = []
 
 for i in range(n):
-    subswarm_pos = []
-    subswarm_personal_best_pos = []
-    subswarm_pbest_cost = []
-    subswarm_best_cost = []
-    subswarm_velocity = []
+    swarm = []
+    swarm_best_pos = np.array([0, 0])
+    swarm_best_cost = 5
+    swarm_data.append([swarm_best_pos, swarm_best_cost])
 
     for i in range(m):
-        subswarm_pos.append(np.random.uniform(-1, 1, dimensions))
-        subswarm_personal_best_pos.append(np.random.uniform(-1, 1, dimensions))
-        subswarm_pbest_cost.append(1)
-        subswarm_velocity.append(np.random.uniform(-1, 1, dimensions))
+        position = np.random.uniform(-1, 1, dimensions)
+        velocity = np.random.uniform(-1, 1, dimensions)
+        personal_best_pos = np.random.uniform(-1, 1, dimensions)
+        personal_best_cost = 1
+        swarm.append([position, velocity, personal_best_pos, personal_best_cost])
 
-    pos.append(subswarm_pos)
-    personal_best_pos.append(subswarm_personal_best_pos)
-    pbest_cost.append(subswarm_pbest_cost)
-    velocity.append(subswarm_velocity)
+    metaswarm.append(swarm)
 
 x = 0
+
 # LSPO for the first 0.9 iterations
 while x < (0.9 * iters):
 
@@ -46,53 +43,56 @@ while x < (0.9 * iters):
         pass
 
     for i in range(n):
+
         for j in range(m):
-            current_cost = sum([i**2 for i in (pos[i][j])])
-            personal_best_cost = sum([i**2 for i in (personal_best_pos[i][j])])
+            current_cost = sum([i**2 for i in (metaswarm[i][j][0])])
+            personal_best_cost = metaswarm[i][j][3]
             if current_cost < personal_best_cost:
-                personal_best_pos[i][j] = pos[i][j]
-                pbest_cost[i][j] = current_cost
+                metaswarm[i][j][2] = metaswarm[i][j][0]
+                metaswarm[i][j][3] = current_cost
+
+            # print("Swarm data", swarm_data[i])
 
             # Update swarm global best
-            if personal_best_cost < best_cost:
-                best_cost = personal_best_cost
-                best_pos = personal_best_pos[i][j]
+            if personal_best_cost < swarm_data[i][1]:
+                swarm_data[i][1] = personal_best_cost
+                swarm_data[i][0] = metaswarm[i][j][2]
 
-	    # Compute for cognitive and social terms
-            cognitive = (c1 * np.random.uniform(0, 1, 2)) * (personal_best_pos[i][j] - pos[i][j])
-            social = (c2 * np.random.uniform(0, 1, 2)) * (best_pos - pos[i][j])
-            velocity[i][j] = (w * velocity[i][j]) + cognitive + social
+	    # Compute velocity
+            cognitive = (c1 * np.random.uniform(0, 1, 2)) * (metaswarm[i][j][2] - metaswarm[i][j][0])
+            social = (c2 * np.random.uniform(0, 1, 2)) * (global_best_pos - metaswarm[i][j][0])
+            metaswarm[i][j][1] = (w * metaswarm[i][j][1]) + cognitive + social
 
             # Update positions
-            pos += velocity
+            metaswarm[i][j][0] += metaswarm[i][j][1]
 
     x += 1
 
 x = 0
+
 # GPSO for the last 0.1 iterations
 while x < (0.1 * iters):
     for i in range(n):
         for j in range(m):
-            current_cost = sum([i**2 for i in (pos[i][j])])
-            pbest_cost = sum([i**2 for i in (personal_best_pos[i][j])])
-            if current_cost < pbest_cost:
-                best_pos[i][j] = pos[i][j]
-                best_cost = current_cost
+            current_cost = sum([i**2 for i in (metaswarm[i][j][0])])
+            personal_best_cost = metaswarm[i][j][3]
+            if current_cost < personal_best_cost:
+                metaswarm[i][j][2] = metaswarm[i][j][0]
+                metaswarm[i][j][3] = current_cost
 
-            # Update global best (across all swarms) personal best is better
-            if np.min(pbest_cost) < best_cost:
-                print("pbest", np.min(pbest_cost))
-                best_cost = np.min(pbest_cost)
-                best_pos = personal_best_pos[np.argmin(pbest_cost)]
+            # Update swarm global best
+            if personal_best_cost < global_best_cost:
+                global_best_cost = personal_best_cost
+                global_best_pos = metaswarm[i][j][2]
 
-	    # Compute for cognitive and social terms
-            cognitive = (c1 * np.random.uniform(0, 1, 2) * (personal_best_pos[i][j] - pos[i][j]))
-            social = (c2 * np.random.uniform(0, 1, 2) * (best_pos - pos[i][j]))
-            velocity[i][j] = (w * velocity[i][j]) + cognitive + social
+	    # Compute velocity
+            cognitive = (c1 * np.random.uniform(0, 1, 2)) * (metaswarm[i][j][2] - metaswarm[i][j][0])
+            social = (c2 * np.random.uniform(0, 1, 2)) * (global_best_pos - metaswarm[i][j][0])
+            metaswarm[i][j][1] = (w * metaswarm[i][j][1]) + cognitive + social
 
             # Update positions
-            pos += velocity
+            metaswarm[i][j][0] += metaswarm[i][j][1]
 
     x += 1
 
-print(best_cost)
+print(global_best_cost)
