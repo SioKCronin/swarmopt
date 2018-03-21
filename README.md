@@ -8,7 +8,7 @@ These range from particle swarm optimization (PSO) variations to the Krill herd 
 
 * Local Best (LBEST)
 * Global Best (GBEST)
-* Dynamic MultiSpecies (![DMSPSO](https://github.com/SioKCronin/swarm-baselines/tree/master/DMSPSO))
+* Dynamic MultiSpecies ([DMSPSO](https://github.com/SioKCronin/swarm-baselines/tree/master/DMSPSO))
 * MultiLayer (MLPSO) 
 
 ### PSO + Q-learning
