@@ -1,7 +1,7 @@
 # Swarm Baselines
 
 Swarm optimization refers to one of several variations of nature-inspired optimization algorithms/hueristics/meta-heuristics.
-These range from particle swarm optimization (PSO) variations to the Krill herd algorithm (prepare yourself for an onlsaught of acroynyms), and while the implementations here represent a vast terrain of research, I have included a variety to encourage the overall observance of how stochastic process is leveraged. In the docs I have also information on what sets each algorithm apart, and when each might be used. 
+These range from particle swarm optimization (PSO) variations to the Krill herd algorithm (prepare yourself for an onlsaught of acroynyms), and while the implementations here represent a vast terrain of research, I have included this variety to encourage the overall observance of how stochastic process is leveraged in optimization. In the docs I have also information on what sets each algorithm apart, and when each might be used. 
 
 ## Algorithms
 ### Single Objective 
