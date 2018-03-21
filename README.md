@@ -5,19 +5,17 @@ These range from particle swarm optimization (PSO) variations to the Krill herd 
 
 ## Algorithms
 ### Single Objective 
-| Name  | layers | params  | 
-|---|---|---|
-| GBEST |  2 | n, i, c1, c2, w  | 
-| LBEST |  2 | n, i, c1, c2, w, k, p |
-| DMS-PSO | 2 | n, R   |
-| MLPSO | n |   |
+
+* Local Best (LBEST)
+* Global Best (GBEST)
+* Dynamic MultiSpecies (DMSPSO)
+* MultiLayer (MLPSO) 
 
 ### PSO + Q-learning
-| Name  | layers | params  |
-|---|---|---|
-| SRL-PSO |  | c1, c2, w |
-| QSO|   |   |
-| Intelligent PSO |   |   |
+
+* Swarm RL (SRL-PSO)
+* Q Swarm Optimizer (QSO) 
+* Intelligent PSO
 
 ## Comparison Benchmark Functions
 
