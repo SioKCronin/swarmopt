@@ -1,24 +1,21 @@
-# PSO Baselines
+# Swarm Baselines
 
-Particle swarm optimization (PSO) refers to one of several varations of the classic stochastic optimization heuristic developed by Kennedy and Eberhart. There are many particle swarm optimization (PSO) variations out there (prepare yourself for an onlsaught of acroynyms), and the goal of this repo is to provide easy to read and manipulate implementations. 
-
-I have also included information in the docs about what differentiates these variations, and when each might be used (particularly in reinforcement learning). 
+Swarm optimization refers to one of several variations of nature-inspired optimization algorithms/hueristics/meta-heuristics.
+These range from particle swarm optimization (PSO) variations to the Krill herd algorithm (prepare yourself for an onlsaught of acroynyms), and while the implementations here represent a vast terrain of research, I have included this variety to encourage the overall observance of how stochastic process is leveraged in optimization. In the docs I have also information on what sets each algorithm apart, and when each might be used. 
 
 ## Algorithms
 ### Single Objective 
-| Name  | layers | params  | 
-|---|---|---|
-| GBEST |  2 | n, i, c1, c2, w  | 
-| LBEST |  2 | n, i, c1, c2, w, k, p |
-| DMS-PSO | 2 | n, R   |
-| MLPSO | n |   |
+
+* Local Best (LBEST)
+* Global Best (GBEST)
+* Dynamic MultiSpecies ([DMSPSO](https://github.com/SioKCronin/swarm-baselines/tree/master/DMSPSO))
+* MultiLayer (MLPSO) 
 
 ### PSO + Q-learning
-| Name  | layers | params  |
-|---|---|---|
-| SRL-PSO |  | c1, c2, w |
-| QSO|   |   |
-| Intelligent PSO |   |   |
+
+* Swarm RL (SRL-PSO)
+* Q Swarm Optimizer (QSO) 
+* Intelligent PSO
 
 ## Comparison Benchmark Functions
 
