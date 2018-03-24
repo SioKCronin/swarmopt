@@ -2,6 +2,8 @@
 
 import numpy as np
 from random import shuffle
+from pyswarms.utils.functions.single_obj import sphere_func, ackley_func, \ 
+                                                rosenbrock_func, beale_func
 
 n = 10 # Number of species in swarm
 m = 3 # Each swarm's particles

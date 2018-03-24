@@ -7,7 +7,8 @@ n = 10 # Number of groups in swarm (10, 20, 50 tested)
 m = 3 # Each swarm's particles (2, 3, 5 tested)
 c1 = 0.5 # Cognitive weight (how much each particle references their memory)
 c2 = 0.3 # Social weight (how much each particle references swarm/group memory)
-w = 0.9 # Velocity weight
+w = 0.2 # Velocity weight
+k = 4
 R = 1000 # Swarm reshuffling interval
 iters = 2000
 dimensions = 2
@@ -17,7 +18,7 @@ vmax = 0.2 * search_range # Use if lower than returned velocity
 
 swarm = []
 swarm_best_pos = np.array([0]*dimensions)
-swarm_best_cost = 5
+swarm_best_cost = 5 # How high should the init be set? (is this in the lit?)
 
 group_data = []
 
@@ -28,6 +29,13 @@ P_BEST_COST_IDX = 3
 
 G_BEST_POS_IDX = 0
 G_BEST_COST_IDX = 1
+
+# Raise errors for values and datatypes
+
+
+
+
+
 
 for group in range(n):
     group = []
@@ -45,7 +53,7 @@ for group in range(n):
 
     swarm.append(group)
 
-# LSPO for the first 0.9 iterations
+# LSPO for the first 0.9 iterations (following the UPSO scheme)
 for x in range(int(0.9 * iters)):
 
     if (x % R)== 0 and x != 0:
