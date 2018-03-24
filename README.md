@@ -6,7 +6,8 @@ These range from particle swarm optimization (PSO) variations to the Krill herd 
 ## Algorithms
 ### Single Objective 
 
-* PSO (LBEST, GBEST)
+* Local Best (LBEST_PSO)
+* Global Best (GBEST_PSO)
 * Unified (UPSO)
 * Multispecies ([MSPSO](https://github.com/SioKCronin/swarm-baselines/tree/master/MSPSO))
 * Dynamic MultiSpecies ([DMSPSO](https://github.com/SioKCronin/swarm-baselines/tree/master/DMSPSO))
