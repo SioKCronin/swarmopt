@@ -1,7 +1,10 @@
 # Swarm Baselines
 
-Swarm optimization refers to one of several variations of nature-inspired optimization algorithms/hueristics/meta-heuristics.
-These range from particle swarm optimization (PSO) variations to the Krill herd algorithm (prepare yourself for an onlsaught of acroynyms).  While the implementations here represent a vast terrain of research, I have chosen to include this variety to underscore the potential of stochastic process in optimization. In the docs I have also included information on what sets each algorithm apart, and examples of when each have been applied. 
+Swarm optimization refers to one of several variations of nature-inspired optimization heuristics, including particle swarm optimization (PSO), presented by Eberhart and Kennedy in 1995. In addition to PSO variants, this branch of optimization has sprouted many blossoms, ranging from ant colony optimization (ACO) to the Krill herd algorithm (prepare yourself for an onlsaught of acroynyms).  
+
+I've started this repo to provide high quality implemnetations in Python, organized by their application. My hope is that by including a wide variety I can help underscore the potential of stochastic process in optimization, and perhaps prime the canvas for algorithm innovation.
+
+In the docs, I ahve included information on what sets each algorithm apart, and examples of when each might be best applied.  
 
 ## Algorithms
 ### Single Objective 
@@ -12,6 +15,10 @@ These range from particle swarm optimization (PSO) variations to the Krill herd 
 * Multispecies ([MSPSO](https://github.com/SioKCronin/swarm-baselines/tree/master/MSPSO))
 * Dynamic MultiSpecies ([DMSPSO](https://github.com/SioKCronin/swarm-baselines/tree/master/DMSPSO))
 * MultiLayer (MLPSO) 
+
+### Multi Objective
+
+* Dynamic Neighborhood (DNPSO)
 
 ### PSO + Q-learning
 
@@ -34,9 +41,9 @@ PSO + Q-learning:
 
 ## Questions to ask yourself
 
-* What about the nature of this search space would lead us to select one method over another?
-* Why might we be seeing the performance we're seeing?
-* Are our metrics effectively capturing the learning rate/timecourse of learning?
-* What other RL problems should we try these on?
-* Any other notable PSO variants we should consider?
-* How to best measure performance and compare across algorithms? 
+* What should guide our decision process in selecting one method over another?
+* If an algorithm is performing well in a particular context, why might that be? What is unique about that problem?
+* Do our metrics effectively capturing the learning rate/timecourse of learning?
+* What industry problems should we try these on?
+* Are there any other notable swarm intelligence variants we should consider here?
+* How can we best measure realtive performance across algorithms? 
