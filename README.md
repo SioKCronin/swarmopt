@@ -1,10 +1,12 @@
 # Swarm Baselines
 
-Swarm optimization refers to one of several variations of nature-inspired optimization heuristics, including particle swarm optimization (PSO), presented by Eberhart and Kennedy in 1995. In addition to PSO variants, this branch of optimization has sprouted many blossoms, ranging from ant colony optimization (ACO) to the Krill herd algorithm (prepare yourself for an onlsaught of acroynyms).  
+This repo is dedicated to providing high quality implemnetations of swarm intelligence algorithms in Python, organized by their application.
 
-I've started this repo to provide high quality implemnetations in Python, organized by their application. My hope is that by including a wide variety I can help underscore the potential of stochastic process in optimization, and perhaps prime the canvas for algorithm innovation.
+Swarm optimization refers to one of several variations of nature-inspired optimization heuristics, including particle swarm optimization (PSO), presented by Eberhart and Kennedy in 1995. This branch of optimization has sprouted many blossoms, ranging from ant colony optimization (ACO) to the Krill herd algorithm (prepare yourself for an onlsaught of acroynyms).  
 
-In the docs, I ahve included information on what sets each algorithm apart, and examples of when each might be best applied.  
+My hope is that by including a wide variety I can help underscore the potential of stochastic process in optimization in general, and perhaps prime the canvas for algorithm innovation.
+
+In the docs, I have included information on what sets each algorithm apart, and examples of when each might be best applied.  
 
 ## Algorithms
 ### Single Objective 
