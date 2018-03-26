@@ -23,6 +23,7 @@ Particle swarm optimization (PSO) refers to one of several variations of nature-
 * Swarm RL (SRL-PSO)
 * Q Swarm Optimizer (QSO) 
 * Intelligent PSO
+* Improved PSO (IPSO)
 
 ## Comparison Benchmark Functions
 
