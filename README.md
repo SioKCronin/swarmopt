@@ -1,3 +1,5 @@
+![particles](https://github.com/SioKCronin/PSO-baselines/blob/master/media/particles.png)
+
 # PSO Baselines
 
 This repo is dedicated to providing high quality implementations of particle swarm optimization algorithms in Python, organized by their application. My hope is that by including a wide variety of algorithms I can help underscore the potential of stochastic process in optimization in general, and perhaps prime the canvas for algorithm innovation.
