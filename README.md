@@ -43,12 +43,3 @@ Multi objective test functions:
 
 PSO + Q-learning:
 * CartPole
-
-## Questions to ask yourself
-
-* What should guide our decision process in selecting one method over another?
-* If an algorithm is performing well in a particular context, why might that be? What is unique about that problem?
-* Do our metrics effectively capturing the learning rate/timecourse of learning?
-* What industry problems should we try these on?
-* Are there any other notable swarm intelligence variants we should consider here?
-* How can we best measure realtive performance across algorithms? 
