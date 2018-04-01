@@ -9,16 +9,18 @@ Particle swarm optimization (PSO) refers to one of several variations of nature-
 ## Algorithms
 ### Single Objective 
 
-* Local Best (LBEST_PSO)
-* Global Best (GBEST_PSO)
-* Unified (UPSO)
-* Multispecies ([MSPSO](https://github.com/SioKCronin/swarm-baselines/tree/master/MSPSO))
-* Dynamic MultiSpecies ([DMSPSO](https://github.com/SioKCronin/swarm-baselines/tree/master/DMSPSO))
-* MultiLayer (MLPSO) 
+* Local Best PSO (LBEST_PSO)
+* Global Best PSO (GBEST_PSO)
+* Unified PSO (UPSO)
+* Dynamic Multi-Swarm PSO ([DMSPSO](https://github.com/SioKCronin/swarm-baselines/tree/master/DMSPSO))
+* MultiLayer PSO (MLPSO) 
+* Simulated Annealing PSO (SA-PSO)
 
 ### Multi Objective
 
 * Dynamic Neighborhood (DNPSO)
+* Dynamic Multiple Swarms in Mulitiobjective PSO (DMSMPSO)
+* Multispecies PSO ([MSPSO](https://github.com/SioKCronin/swarm-baselines/tree/master/MSPSO))
 
 ### PSO + Q-learning
 
@@ -43,12 +45,3 @@ Multi objective test functions:
 
 PSO + Q-learning:
 * CartPole
-
-## Questions to ask yourself
-
-* What should guide our decision process in selecting one method over another?
-* If an algorithm is performing well in a particular context, why might that be? What is unique about that problem?
-* Do our metrics effectively capturing the learning rate/timecourse of learning?
-* What industry problems should we try these on?
-* Are there any other notable swarm intelligence variants we should consider here?
-* How can we best measure realtive performance across algorithms? 
