@@ -14,7 +14,7 @@ This algorithm is defined by its shuffling of particles between parallel swarms 
 
 ### Results achieved under different R (6 test funcs)
 | Liang & Suganthan  |  2 | 3 |  5 | 10 | 20 | 50 | PSO Baselines   | 2  | 3  | 5 | 10 | 20 | 50|
-|---|---|---|---|---|---|---|---|---|---|---||---|---|---|
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 |  1 |   |   |   |  | | | 1 | | | | | | |
 |  2 |   |   |   |  | | | 2 | | | | | | |
 |  3 |   |   |   |  | | | 3 | | | | | | |
