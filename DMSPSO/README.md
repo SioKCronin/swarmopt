@@ -12,7 +12,7 @@ This algorithm is defined by its shuffling of particles between parallel swarms 
 |  5 |  4.9325e+000 | 3.6068e+000  |  5.3728e+000 |
 |  6 |  8.6547e-002 | 1.2269e-004  |  1.0408e-005 | 
 
-|Baselines   | 2  | 3  | 5 |
+|PSO Baselines   | 2  | 3  | 5 |
 | ---              |---|---| ---|
 | 1 | 0 (4.1279e-030) | 0 (3.9970e-024) | 0 (3.3317e-020)|
 | 2 | | | |
@@ -31,7 +31,7 @@ This algorithm is defined by its shuffling of particles between parallel swarms 
 |  5 |   |   |   |  | | | 
 |  6 |   |   |   |  | | | 
 
-| Baselines   | 2  | 3  | 5 | 10 | 20 | 50|
+|PSO Baselines   | 2  | 3  | 5 | 10 | 20 | 50|
 | ---|---|---|---|---|---|---|
 | 1 | | | | | | |
 | 2 | | | | | | |
