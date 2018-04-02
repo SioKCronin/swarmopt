@@ -14,7 +14,7 @@ This algorithm is defined by its shuffling of particles between parallel swarms 
 
 |Baselines   | 2  | 3  | 5 |
 | ---              |---|---| ---|
-| 1 | 4.1279e-030 | 3.9970e-024 | 3.3317e-020|
+| 1 | 0 (4.1279e-030) | 0 (3.9970e-024) | 0 (3.3317e-020)|
 | 2 | | | |
 | 3 | | | |
 | 4 | | | |
