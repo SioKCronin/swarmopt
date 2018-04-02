@@ -5,9 +5,9 @@ This algorithm is defined by its shuffling of particles between parallel swarms 
 ### Results achieved under different m (6 test funcs)
 | Liang & Suganthan  |  2 | 3 |  5 | PSO Baselines   | 2  | 3  | 5 |
 |---                 |---|---|---|---              |---|---| ---|
-|  1 |   |   |   |  1| | | |
-|  2 |   |   |   |  2  | | | |
-|  3 |   |   |   |  3 | | | |
+|  1 | 0  |   0|  0 |  1| | | |
+|  2 |  3.0127e+000 | 1.3612e+000  |  9.9970e-001 |  2  | | | |
+|  3 |  3.1974e+-015 |  2.1316e-015 |  1.4211e-015 |  3 | | | |
 |  4 |   |   |   |  4| | | |
 |  5 |   |   |   |  5  | | | |
 |  6 |   |   |   |  6 | | | |
