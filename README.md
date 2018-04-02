@@ -1,4 +1,4 @@
-![particles](https://github.com/SioKCronin/PSO-baselines/blob/master/media/particles.png)
+![particles](https://github.com/SioKCronin/PSO-baselines/blob/master/common/media/particles.png)
 
 # PSO Baselines
 
@@ -9,25 +9,15 @@ Particle swarm optimization (PSO) refers to one of several variations of nature-
 ## Algorithms
 ### Single Objective 
 
-* Local Best PSO (LBEST_PSO)
-* Global Best PSO (GBEST_PSO)
-* Unified PSO (UPSO)
+* Local Best PSO ([LBEST_PSO](https://github.com/SioKCronin/PSO-baselines/tree/master/PSO))
+* Global Best PSO ([GBEST_PSO](https://github.com/SioKCronin/PSO-baselines/tree/master/PSO))
+* Unified PSO ([UPSO](https://github.com/SioKCronin/PSO-baselines/tree/master/UPSO))
 * Dynamic Multi-Swarm PSO ([DMSPSO](https://github.com/SioKCronin/swarm-baselines/tree/master/DMSPSO))
-* MultiLayer PSO (MLPSO) 
-* Simulated Annealing PSO (SA-PSO)
 
 ### Multi Objective
 
-* Dynamic Neighborhood (DNPSO)
-* Dynamic Multiple Swarms in Mulitiobjective PSO (DMSMPSO)
+* Dynamic Neighborhood ([DNPSO](https://github.com/SioKCronin/PSO-baselines/tree/master/dnpso))
 * Multispecies PSO ([MSPSO](https://github.com/SioKCronin/swarm-baselines/tree/master/MSPSO))
-
-### PSO + Q-learning
-
-* Swarm RL (SRL-PSO)
-* Q Swarm Optimizer (QSO) 
-* Intelligent PSO
-* Improved PSO (IPSO)
 
 ## Comparison Benchmark Functions
 
@@ -42,6 +32,3 @@ Single objective test functions:
 Multi objective test functions:
 * Lis & Eiben
 * Zitzler
-
-PSO + Q-learning:
-* CartPole
