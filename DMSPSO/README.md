@@ -3,7 +3,7 @@
 This algorithm is defined by its shuffling of particles between parallel swarms for 90% of the iterations, followed by a combined global best search for the remaining 10% iterations. 
 
 ### Results achieved under different m (6 test funcs)
-| L&S 2005  |  2 | 3 |  5 | PSO Baselines   | 2  | 3  | 5 |
+| L&S 2005  |  2 | 3 |  5 | Baselines   | 2  | 3  | 5 |
 |---                 |---|---|---|---              |---|---| ---|
 |  1 | 0  |   0|  0 |  1| | | |
 |  2 |  3.0127e+000 | 1.3612e+000  |  9.9970e-001 |  2  | | | |
@@ -22,7 +22,7 @@ This algorithm is defined by its shuffling of particles between parallel swarms 
 |  5 |   |   |   |  | | | 
 |  6 |   |   |   |  | | | 
 
-| PSO Baselines   | 2  | 3  | 5 | 10 | 20 | 50|
+| Baselines   | 2  | 3  | 5 | 10 | 20 | 50|
 | ---|---|---|---|---|---|---|
 | 1 | | | | | | |
 | 2 | | | | | | |
