@@ -13,13 +13,10 @@ Particle swarm optimization (PSO) refers to one of several variations of nature-
 * Global Best PSO (GBEST_PSO)
 * Unified PSO (UPSO)
 * Dynamic Multi-Swarm PSO ([DMSPSO](https://github.com/SioKCronin/swarm-baselines/tree/master/DMSPSO))
-* MultiLayer PSO (MLPSO) 
-* Simulated Annealing PSO (SA-PSO)
 
 ### Multi Objective
 
 * Dynamic Neighborhood (DNPSO)
-* Dynamic Multiple Swarms in Mulitiobjective PSO (DMSMPSO)
 * Multispecies PSO ([MSPSO](https://github.com/SioKCronin/swarm-baselines/tree/master/MSPSO))
 
 ## Comparison Benchmark Functions
