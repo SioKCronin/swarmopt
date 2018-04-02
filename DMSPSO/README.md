@@ -5,7 +5,7 @@ This algorithm is defined by its shuffling of particles between parallel swarms 
 ### Results achieved under different m (6 test funcs)
 | L&S 2005  |  2 | 3 |  5 | Baselines   | 2  | 3  | 5 |
 |---                 |---|---|---|---              |---|---| ---|
-|  1 | 0  |   0|  0 |  1| | | |
+|  1 | 0  |   0|  0 |  1 | 4.1279e-030 | 3.9970e-024 | 3.3317e-020|
 |  2 |  3.0127e+000 | 1.3612e+000  |  9.9970e-001 |  2  | | | |
 |  3 |  3.1974e-015 | 2.1316e-015  |  1.4211e-015 |  3 | | | |
 |  4 |  3.2935e-002 | 3.2496e-002  |  3.7349e-002 |  4| | | |
