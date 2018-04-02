@@ -1,4 +1,4 @@
-![particles](https://github.com/SioKCronin/PSO-baselines/blob/master/media/particles.png)
+![particles](https://github.com/SioKCronin/PSO-baselines/blob/master/common/media/particles.png)
 
 # PSO Baselines
 
