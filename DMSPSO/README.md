@@ -4,15 +4,8 @@ This algorithm is defined by its shuffling of particles between parallel swarms 
 
 | Liang & Suganthan  |   |   |   | PSO Baselines   |   |   | 
 |---                 |---|---|---|---              |---|---|
-|  1 |   |   |   |  1 | | |
+|  1 |   |   |   |  1| | |
 |  2 |   |   |   |  2  | | |
 |  3 |   |   |   |  3 | | |
 
-
-|  Liang & Suganthan |   |   |   | PSO Baselines    |
-|  fu|   |   |   | PSO Baselines    |
-|---|---|---|---|---|
-|   |   |   |   |   |
-|   |   |   |   |   |
-|   |   |   |   |   |
 
