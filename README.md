@@ -22,13 +22,6 @@ Particle swarm optimization (PSO) refers to one of several variations of nature-
 * Dynamic Multiple Swarms in Mulitiobjective PSO (DMSMPSO)
 * Multispecies PSO ([MSPSO](https://github.com/SioKCronin/swarm-baselines/tree/master/MSPSO))
 
-### PSO + Q-learning
-
-* Swarm RL (SRL-PSO)
-* Q Swarm Optimizer (QSO) 
-* Intelligent PSO
-* Improved PSO (IPSO)
-
 ## Comparison Benchmark Functions
 
 Single objective test functions:
@@ -42,6 +35,3 @@ Single objective test functions:
 Multi objective test functions:
 * Lis & Eiben
 * Zitzler
-
-PSO + Q-learning:
-* CartPole
