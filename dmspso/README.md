@@ -22,7 +22,7 @@ DMSPSO is run 20 times on each function, and I believe the authors reported the 
 | 3 | 5.1050e-005 | 5.6564e-009 | 1.2719e-009 |
 | 4 | 3.7622e-003 | 4.6382e-003 | 1.1631e-003 |
 | 5 | 6.9413e-004 | 1.2764e-003 | 9.6700e-009 |
-| 6 | | | |
+| 6 | 1.8929e-003 | 1.1974e-004 | 4.4622e-006 |
 
 ### Results achieved under different R (6 test funcs)
 | L&S 2005  |  2 | 3 |  5 | 10 | 20 | 50 
