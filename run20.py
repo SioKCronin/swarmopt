@@ -1,27 +1,5 @@
-import numpy as np
-import math
-from dmspso import dynamic_multiswarm_pso
-from common.functions.single_objective import sphere_func, griewank_func, ackley_func, rastrigin_func, weierstrass_func
-from random import shuffle
-
-# Run DMSPSO 20 times on each function and take an average
-
-def run_20(n, m, c1, c2, w, R, iters, dims, obj_func, val_min, val_max):
-    '''
-    n: Number of groups in swarm (10, 20, 50 tested)
-    m: Each swarm's particles (2, 3, 5 tested)
-    c1: Cognitive weight (how much each particle references their memory)
-    c2: Social weight (how much each particle references swarm/group memory)
-    w: Velocity weight
-    R: Swarm reshuffling interval
-    iters: 2000
-    dims: 2
-    '''
-    print("m=%i"%m)
-    vals = []
-    for i in range(20):
-        vals.append(dynamic_multiswarm_pso(n, m, c1, c2, w, R, iters, dims, obj_func, val_min, val_max))
-    print(min(vals))
+from dmspso.lang_and_suganthan2005 import (dynamic_multiswarm_pso,run_20,
+griewank_func, rastrigin_func,sphere_func, ackley_func,weierstrass_func)
 
 c1 = 0.5
 c2 = 0.3
@@ -74,7 +52,7 @@ run_20(n, 5, c1, c2, w, R, iters, dims, obj_func, val_min, val_max)
 
 print("--------------------------------")
 print("FUNC 5: Rastrigin Function")
-obj_func = griewank_func
+obj_func = rastrigin_func
 val_min = -5.12
 val_max = 5.12
 n = 30

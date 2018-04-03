@@ -2,7 +2,6 @@
 
 import numpy as np
 from random import shuffle
-from pyswarms.utils.functions.single_obj import sphere_func
 
 def dynamic_multiswarm_pso(n, m, c1, c2, w, R, iters, dims, obj_func, val_min, val_max):
 
@@ -10,7 +9,10 @@ def dynamic_multiswarm_pso(n, m, c1, c2, w, R, iters, dims, obj_func, val_min, v
 
     swarm = []
     swarm_best_pos = np.random.uniform(val_min, val_max, dims)
-    swarm_best_cost = obj_func(swarm_best_pos)
+    if obj_func.__name__ == 'rosenbrock_func':
+        swarm_best_cost = obj_func(swarm_best_pos, swarm_best_pos)
+    else:
+        swarm_best_cost = obj_func(swarm_best_pos)
 
     group_data = []
 
@@ -28,14 +30,20 @@ def dynamic_multiswarm_pso(n, m, c1, c2, w, R, iters, dims, obj_func, val_min, v
         w = w - decrement
         group = []
         group_best_pos = np.random.uniform(val_min, val_max, dims)
-        group_best_cost = obj_func(group_best_pos)
+        if obj_func.__name__ == 'rosenbrock_func':
+            group_best_cost = obj_func(group_best_pos, group_best_pos)
+        else:
+            group_best_cost = obj_func(group_best_pos)
         group_data.append([group_best_pos, group_best_cost])
 
         for particle in range(m):
             pos = np.random.uniform(val_min, val_max, dims)
             velocity = np.random.uniform(-search_range, search_range, dims)
             p_best_pos = np.random.uniform(val_min, val_max, dims)
-            p_best_cost = obj_func(p_best_pos)
+            if obj_func.__name__ == 'rosenbrock_func':
+                p_best_cost = obj_func(p_best_pos, p_best_pos)
+            else:
+                p_best_cost = obj_func(p_best_pos)
 
             group.append([pos, velocity, p_best_pos, p_best_cost])
 
@@ -52,8 +60,14 @@ def dynamic_multiswarm_pso(n, m, c1, c2, w, R, iters, dims, obj_func, val_min, v
         for group_idx, group in enumerate(swarm):
             group_bests = group_data[group_idx]
 
-            for particle in group:
-                current_cost = obj_func(particle[P_POS_IDX])
+            for idx, particle in enumerate(group):
+                if obj_func.__name__ == 'rosenbrock_func':
+                    if idx == len(group) - 1:
+                        pass
+                    else:
+                        current_cost = obj_func(particle[P_POS_IDX], group[idx + 1][P_POS_IDX])
+                else:
+                    current_cost = obj_func(particle[P_POS_IDX])
                 personal_best_cost = particle[P_BEST_COST_IDX]
                 if current_cost < personal_best_cost:
                     particle[P_BEST_POS_IDX] = particle[P_POS_IDX]
@@ -85,8 +99,14 @@ def dynamic_multiswarm_pso(n, m, c1, c2, w, R, iters, dims, obj_func, val_min, v
     for x in range(int(0.1 * iters)):
         for group in swarm:
 
-            for particle in group:
-                current_cost = obj_func(particle[P_POS_IDX])
+            for idx, particle in enumerate(group):
+                if obj_func.__name__ == 'rosenbrock_func':
+                    if idx == len(group) - 1:
+                        pass
+                    else:
+                        current_cost = obj_func(particle[P_POS_IDX], group[idx + 1][P_POS_IDX])
+                else:
+                    current_cost = obj_func(particle[P_POS_IDX])
                 personal_best_cost = particle[P_BEST_COST_IDX]
                 if current_cost < personal_best_cost:
                     particle[P_BEST_POS_IDX] = particle[P_POS_IDX]
