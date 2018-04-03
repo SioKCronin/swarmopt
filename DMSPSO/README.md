@@ -2,6 +2,9 @@
 
 This algorithm is defined by its shuffling of particles between parallel swarms for 90% of the iterations, followed by a combined global best search for the remaining 10% iterations. 
 
+## Results 
+DMSPSO is run 20 times on each function, and I believe the authors reported the minimum costs obtained for each run of 20. 
+
 ### Results achieved under different m (6 test funcs)
 | L&S 2005  |  2 | 3 |  5 | 
 |---                 |---|---|---|
@@ -14,7 +17,7 @@ This algorithm is defined by its shuffling of particles between parallel swarms 
 
 |PSO Baselines   | 2  | 3  | 5 |
 | ---              |---|---| ---|
-| 1 | 0 (4.1279e-030) | 0 (3.9970e-024) | 0 (3.3317e-020)|
+| 1 |  |  | |
 | 2 | | | |
 | 3 | | | |
 | 4 | | | |
