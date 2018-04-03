@@ -110,5 +110,4 @@ def dynamic_multiswarm_pso(n, m, c1, c2, w, R, iters, dims, obj_func, val_min, v
                 # Update poss
                 particle[P_POS_IDX] += particle[P_VELOCITY_IDX]
 
-    print("Best cost:", swarm_best_cost)
-    print("Best position:", swarm_best_pos)
+    return swarm_best_cost
