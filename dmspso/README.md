@@ -17,7 +17,7 @@ DMSPSO is run 20 times on each function, and I believe the authors reported the 
 
 |PSO Baselines   | 2  | 3  | 5 |
 | ---              |---|---| ---|
-| 1 |  |  | |
+| 1 | 1.0556e-011 | 4.8169e-013 | 2.9899e-019|
 | 2 | 2.5009e-001 | 1.7143e-001 | 4.7632e-002 |
 | 3 | 5.1050e-005 | 5.6564e-009 | 1.2719e-009 |
 | 4 | 3.7622e-003 | 4.6382e-003 | 1.1631e-003 |
