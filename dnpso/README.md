@@ -1,7 +1,7 @@
 # Dynamic Neighborhood PSO (coming soon!)
 
-Original Paper: Multiobjective Optimization Using Dynamic Neighborhood Particle Swarm Optimization (2002)
-Authors: Xiaohui Hu & Russell Eberhart
+* Original Paper: Multiobjective Optimization Using Dynamic Neighborhood Particle Swarm Optimization (2002)
+* Authors: Xiaohui Hu & Russell Eberhart
 
 # Contribution
 
