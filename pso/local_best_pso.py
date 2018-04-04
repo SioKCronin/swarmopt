@@ -2,24 +2,7 @@
 
 import numpy as np
 import math
-
-def euclideanDistance(point1, point2):
-    distance = 0
-    for x in range(len(point1)-1):
-        distance += pow((point1[x] - point2[x]), 2)
-    return math.sqrt(distance)
-
-def getNeighbors(target, swarm, k):
-    distances = []
-    def takeSecond(elem):
-        return elem[1]
-    for x in range(len(swarm)-1):
-        distances.append((swarm[x][0], euclideanDistance(swarm[x][0], target)))
-    sorted_distances = sorted(distances,key=takeSecond)
-    neighbors = []
-    for x in range(k):
-        neighbors.append(sorted_distances[x][0])
-    return neighbors
+from common.utils.distance import euclideanDistance, getNeighbors
 
 def local_best_pso(n,dims,c1, c2, w, k, iters, obj_func):
     swarm = []
@@ -50,7 +33,7 @@ def local_best_pso(n,dims,c1, c2, w, k, iters, obj_func):
                 if idx == len(swarm) - 1:
                     pass
                 else:
-                    current_cost = obj_func(particle[P_POS_IDX], group[idx + 1][P_POS_IDX])
+                    current_cost = obj_func(particle[P_POS_IDX], swarm[idx + 1][P_POS_IDX])
             else:
                 current_cost = obj_func(particle[P_POS_IDX])
             personal_best_cost = particle[P_BEST_COST_IDX]
