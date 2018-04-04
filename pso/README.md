@@ -6,12 +6,12 @@
 
 |Function|  Mean cost |
 |--- |---|
-|  Sphere | |
-|  Rosenbrock |   |  
-|  Ackley |  | 
-|  Griewank |  | 
-|  Rastrigin |   | 
-|  Weierstrass |  | 
+|  Sphere | 4.6114e-003|
+|  Rosenbrock | 1.0707e+000 |  
+|  Ackley | 1.3570e-001 | 
+|  Griewank | 2.0263e-003 | 
+|  Rastrigin | 9.4401e-001 | 
+|  Weierstrass | 4.5357e-001 | 
 
 ## Local Best PSO
 
