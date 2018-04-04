@@ -2,6 +2,8 @@
 
 ## Global Best PSO
 
+### Mean cost of 20 runs
+
 |Function|  Mean cost |
 |--- |---|
 |  Sphere | |
