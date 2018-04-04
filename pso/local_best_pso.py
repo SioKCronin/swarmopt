@@ -2,82 +2,82 @@
 
 import numpy as np
 import math
-from operator import itemgetter
-from random import shuffle
-
-m = 10 # Swarm population size
-dimensions = 2
-c1 = 0.5 # Cognitive weight (how much each particle references their memory)
-c2 = 0.3 # Social weight (how much each particle references swarm/metaswarm memory)
-w = 0.9 # Velocity weight
-p = 4
-k = 2
-iters = 2000 
-
-swarm = []
-swarm_best_pos = np.array([0, 0])
-swarm_best_cost = 5
-
-P_POS_IDX = 0
-P_VELOCITY_IDX = 1
-P_BEST_POS_IDX = 2
-P_BEST_COST_IDX = 3
 
 def euclideanDistance(point1, point2):
     distance = 0
-    for x in range(dimensions):
+    for x in range(len(point1)-1):
         distance += pow((point1[x] - point2[x]), 2)
     return math.sqrt(distance)
 
-def getNeighbors(target, k):
+def getNeighbors(target, swarm, k):
     distances = []
-    for x in range(m):
-        distances.append((swarm[x][P_POS_IDX], euclideanDistance(swarm[x][P_POS_IDX], target)))
-    sorted(distances,key=itemgetter(1))
+    def takeSecond(elem):
+        return elem[1]
+    for x in range(len(swarm)-1):
+        distances.append((swarm[x][0], euclideanDistance(swarm[x][0], target)))
+    sorted_distances = sorted(distances,key=takeSecond)
     neighbors = []
     for x in range(k):
-        neighbors.append(distances[x][0])
+        neighbors.append(sorted_distances[x][0])
     return neighbors
 
-for particle in range(m):
-    pos = np.random.uniform(-1, 1, dimensions)
-    velocity = np.random.uniform(-1, 1, dimensions)
-    p_best_pos = np.random.uniform(-1, 1, dimensions)
-    p_best_cost = 1
+def local_best_pso(n,dims,c1, c2, w, k, iters, obj_func):
+    swarm = []
+    swarm_best_pos = np.array([0, 0])
+    swarm_best_cost = 5
 
-    swarm.append([pos, velocity, p_best_pos, p_best_cost])
+    P_POS_IDX = 0
+    P_VELOCITY_IDX = 1
+    P_BEST_POS_IDX = 2
+    P_BEST_COST_IDX = 3
 
-x = 0
+    for particle in range(n):
+        pos = np.random.uniform(-1, 1, dims)
+        velocity = np.random.uniform(-1, 1, dims)
+        p_best_pos = np.random.uniform(-1, 1, dims)
+        if obj_func.__name__ == 'rosenbrock_func':
+            p_best_cost = obj_func(p_best_pos, p_best_pos)
+        else:
+            p_best_cost = obj_func(p_best_pos)
 
-while x < iters:
+        swarm.append([pos, velocity, p_best_pos, p_best_cost])
 
-    for particle in range(m):
-        current_cost = sum([i**2 for i in (swarm[particle][P_POS_IDX])])
-        personal_best_cost = swarm[particle][P_BEST_COST_IDX]
-        if current_cost < personal_best_cost:
-            swarm[particle][P_BEST_POS_IDX] = swarm[particle][P_POS_IDX]
-            swarm[particle][P_BEST_COST_IDX] = current_cost
+    x = 0
 
-        # Update swarm local best
-        best_neighbors = getNeighbors(swarm[particle][P_BEST_POS_IDX], k+1)
-        best_cost = swarm[particle][P_BEST_COST_IDX]
-        best_pos = swarm[particle][P_BEST_POS_IDX]
-        for y in range(len(best_neighbors)):
-            if swarm[y][P_BEST_COST_IDX] < best_cost:
-                best_pos = swarm[y][P_BEST_POS_IDX]
+    while x < iters:
+        for idx, particle in enumerate(swarm):
+            if obj_func.__name__ == 'rosenbrock_func':
+                if idx == len(swarm) - 1:
+                    pass
+                else:
+                    current_cost = obj_func(particle[P_POS_IDX], group[idx + 1][P_POS_IDX])
+            else:
+                current_cost = obj_func(particle[P_POS_IDX])
+            personal_best_cost = particle[P_BEST_COST_IDX]
+            if current_cost < personal_best_cost:
+                swarm[idx][P_BEST_POS_IDX] = particle[P_POS_IDX]
+                swarm[idx][P_BEST_COST_IDX] = current_cost
 
-        if personal_best_cost < swarm_best_cost:
-            swarm_best_cost = personal_best_cost
-            swarm_best_pos = swarm[particle][P_BEST_POS_IDX]
+            # Update swarm local best
+            best_neighbors = getNeighbors(particle[P_BEST_POS_IDX], swarm, k)
+            best_cost = particle[P_BEST_COST_IDX]
+            best_pos = particle[P_BEST_POS_IDX]
+            for y in range(len(best_neighbors)):
+                if swarm[y][P_BEST_COST_IDX] < best_cost:
+                    best_pos = swarm[y][P_BEST_POS_IDX]
 
-        # Compute velocity
-        cognitive = (c1 * np.random.uniform(0, 1, 2)) * (swarm[particle][P_BEST_POS_IDX] - swarm[particle][P_POS_IDX])
-        social = (c2 * np.random.uniform(0, 1, 2)) * (best_pos - swarm[particle][P_POS_IDX])
-        swarm[particle][P_VELOCITY_IDX] = (w * swarm[particle][P_VELOCITY_IDX]) + cognitive + social
+            if personal_best_cost < swarm_best_cost:
+                swarm_best_cost = personal_best_cost
+                swarm_best_pos = particle[P_BEST_POS_IDX]
 
-        # Update poss
-        swarm[particle][P_POS_IDX] += swarm[particle][P_VELOCITY_IDX]
+            # Compute velocity
+            cognitive = (c1 * np.random.uniform(0, 1, 2)) * (swarm[idx][P_BEST_POS_IDX] - swarm[idx][P_POS_IDX])
+            social = (c2 * np.random.uniform(0, 1, 2)) * (best_pos - swarm[idx][P_POS_IDX])
+            swarm[idx][P_VELOCITY_IDX] = (w * swarm[idx][P_VELOCITY_IDX]) + cognitive + social
 
-    x += 1
+            # Update poss
+            swarm[idx][P_POS_IDX] += swarm[idx][P_VELOCITY_IDX]
 
-print(swarm_best_cost)
+        x += 1
+
+    return swarm_best_cost
