@@ -30,6 +30,11 @@ Multi objective test functions:
 * Lis & Eiben
 * Zitzler
 
+## Tools
+
+* Test Runner: select algorithms to compare mean performance and convergence time
+* Animations: watch animations of search behavior for each algorithm, and compare movement patterns across algorithms
+
 ## Collaborators welcome
 
 Do you have a favorite PSO variation not implemented here that you'd like to see? Are there analytics or specific visualizations that would help you understand nuances of these algorithms? Drop me a line and let's collaborate!
