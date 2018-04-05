@@ -37,4 +37,4 @@ Multi objective test functions:
 
 ## Collaborators welcome
 
-Do you have a favorite PSO variation not implemented here that you'd like to see? Are there analytics or specific visualizations that would help you understand nuances of these algorithms? Drop me a line and let's collaborate!
+Do you have a favorite PSO variation not implemented here that you'd like to see? Are there visualizations that would help you understand nuances of these algorithms? Feel free to add feature requests to issues, and drop me a line if you'd like to collaborate!
