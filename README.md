@@ -33,7 +33,6 @@ Multi objective test functions:
 ## Tools
 
 * **Test Runner** - compare mean performance and convergence time for selected algorithms
-* **Animations** - compare animated 2D search behavior across algorithms
 
 ## Collaborators welcome
 
