@@ -2,7 +2,7 @@
 
 # PSO Baselines
 
-Hhigh quality implementations of PSO variations in Python, organized by application, with tools to compare performance on benchmark functions. 
+Hhigh quality implementations of PSO variations in Python, organized by application, with tools to compare performance on benchmark functions and build intuition. 
 
 ## Algorithms
 ### Single Objective 
