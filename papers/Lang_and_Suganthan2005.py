@@ -1,6 +1,8 @@
 import numpy as np
 import math
 from random import shuffle
+import sys
+sys.path.append('../')
 from dmspso.dmspso import dynamic_multiswarm_pso
 from common.functions.single_objective import sphere_func, rosenbrock_func,\
                                               griewank_func, ackley_func,\

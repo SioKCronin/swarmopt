@@ -1,5 +1,9 @@
 import numpy as np
 import math
+#import sys
+#sys.path.append('/Core/PSO-baselines/')
+import sys
+sys.path.append('../')
 from pso.global_best_pso import global_best_pso
 from common.functions.single_objective import sphere_func, rosenbrock_func,\
                                               griewank_func, ackley_func, \

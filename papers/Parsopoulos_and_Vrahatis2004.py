@@ -1,5 +1,7 @@
 import numpy as np
 import math
+import sys
+sys.path.append('../')
 from upso.upso import unified_pso
 from common.functions.single_objective import sphere_func, rosenbrock_func,\
                                               griewank_func, ackley_func,\

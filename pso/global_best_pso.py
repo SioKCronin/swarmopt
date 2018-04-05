@@ -13,11 +13,16 @@ iters = 2000
 
 def global_best_pso(n, dims, c1, c2, w, iters, obj_func, val_min, val_max):
 
-    search_range = 0.8 *(val_max - val_min)
+    search_range = val_max - val_min
+    v_clamp_min = - (0.2 * search_range)
+    v_clamp_max = 0.2 * search_range
 
     swarm = []
     swarm_best_pos = np.array([0]*dims)
-    swarm_best_cost = 5
+    if obj_func.__name__ == 'rosenbrock_func':
+        swarm_best_cost = obj_func(swarm_best_pos, swarm_best_pos)
+    else:
+        swarm_best_cost = obj_func(swarm_best_pos)
 
     P_POS_IDX = 0
     P_VELOCITY_IDX = 1
@@ -26,7 +31,7 @@ def global_best_pso(n, dims, c1, c2, w, iters, obj_func, val_min, val_max):
 
     for particle in range(n):
         pos = np.random.uniform(val_min, val_max, dims)
-        velocity = np.random.uniform(-search_range, search_range, dims)
+        velocity = np.random.uniform(val_min, val_max, dims)
         p_best_pos = np.random.uniform(val_min, val_max, dims)
         if obj_func.__name__ == 'rosenbrock_func':
             p_best_cost = obj_func(p_best_pos, p_best_pos)
@@ -59,7 +64,17 @@ def global_best_pso(n, dims, c1, c2, w, iters, obj_func, val_min, val_max):
             # Compute velocity
             cognitive = (c1 * np.random.uniform(0, 1, 2)) * (swarm[idx][P_BEST_POS_IDX] - swarm[idx][P_POS_IDX])
             social = (c2 * np.random.uniform(0, 1, 2)) * (swarm_best_pos - swarm[idx][P_POS_IDX])
-            swarm[idx][P_VELOCITY_IDX] = (w * swarm[idx][P_VELOCITY_IDX]) + cognitive + social
+            velocity = (w * swarm[idx][P_VELOCITY_IDX]) + cognitive + social
+            if velocity[0] < v_clamp_min:
+                swarm[idx][P_VELOCITY_IDX][0] = v_clamp_min
+            if velocity[1] < v_clamp_min:
+                swarm[idx][P_VELOCITY_IDX][1] = v_clamp_min
+            if velocity[0] > v_clamp_max:
+                swarm[idx][P_VELOCITY_IDX][0] = v_clamp_max
+            if velocity[1] > v_clamp_max:
+                swarm[idx][P_VELOCITY_IDX][1] = v_clamp_max
+            else:
+                swarm[idx][P_VELOCITY_IDX] = velocity
 
             # Update poss
             swarm[idx][P_POS_IDX] += swarm[idx][P_VELOCITY_IDX]
