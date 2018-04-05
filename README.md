@@ -32,8 +32,8 @@ Multi objective test functions:
 
 ## Tools
 
-* Test Runner: select algorithms to compare mean performance and convergence time
-* Animations: watch animations of search behavior for each algorithm, and compare movement patterns across algorithms
+* **Test Runner** - select algorithms to compare mean performance and convergence time
+* **Animations** - watch animations of search behavior for each algorithm, and compare movement patterns across algorithms
 
 ## Collaborators welcome
 
