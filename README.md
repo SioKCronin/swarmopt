@@ -2,7 +2,7 @@
 
 # PSO Baselines
 
-This repo is dedicated to providing high quality implementations of PSO variations in Python, organized by their application. My hope is that by including a wide variety of algorithms I can help underscore the potential of stochastic process in optimization in general, and perhaps prime the canvas for algorithm innovation.
+This repo is dedicated to providing high quality implementations of PSO variations in Python, organized by their application. I have included a wide variety of algorithms in order to highlight how stochastic process is levarated in optimization, and to enable researchers to compare variations directly on benchmark functions. 
 
 ## Algorithms
 ### Single Objective 
@@ -29,3 +29,7 @@ Single objective test functions:
 Multi objective test functions:
 * Lis & Eiben
 * Zitzler
+
+## Help wanted
+
+Do you have a favorite PSO variation not implemented here that you'd like to see? Is there analytics or specifics visualizations that would help you understand nuances of these algorithms? Drop me a line and let's collaborate!
