@@ -4,9 +4,13 @@ import numpy as np
 import math
 from common.utils.distance import euclideanDistance, getNeighbors
 
-def local_best_pso(n,dims,c1, c2, w, k, iters, obj_func):
+def local_best_pso(n, dims, c1, c2, w, k, iters, obj_func, val_min, val_max):
+
+    search_range = val_max - val_min
+    v_clamp = 0.2 * search_range
+
     swarm = []
-    swarm_best_pos = np.array([0, 0])
+    swarm_best_pos = np.array([0]*dims)
     swarm_best_cost = 5
 
     P_POS_IDX = 0
@@ -15,9 +19,9 @@ def local_best_pso(n,dims,c1, c2, w, k, iters, obj_func):
     P_BEST_COST_IDX = 3
 
     for particle in range(n):
-        pos = np.random.uniform(-1, 1, dims)
-        velocity = np.random.uniform(-1, 1, dims)
-        p_best_pos = np.random.uniform(-1, 1, dims)
+        pos = np.random.uniform(val_min, val_max, dims)
+        velocity = np.random.uniform(-v_clamp, v_clamp, dims)
+        p_best_pos = np.random.uniform(val_min, val_max, dims)
         if obj_func.__name__ == 'rosenbrock_func':
             p_best_cost = obj_func(p_best_pos, p_best_pos)
         else:

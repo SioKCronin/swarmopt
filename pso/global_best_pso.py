@@ -11,10 +11,12 @@ c2 = 0.3 # Social weight (how much each particle references swarm/metaswarm memo
 w = 0.9 # Velocity weight
 iters = 2000
 
-def global_best_pso(n, dims, c1, c2, w, iters, obj_func):
+def global_best_pso(n, dims, c1, c2, w, iters, obj_func, val_min, val_max):
+
+    search_range = 0.8 *(val_max - val_min)
 
     swarm = []
-    swarm_best_pos = np.array([0, 0])
+    swarm_best_pos = np.array([0]*dims)
     swarm_best_cost = 5
 
     P_POS_IDX = 0
@@ -23,9 +25,9 @@ def global_best_pso(n, dims, c1, c2, w, iters, obj_func):
     P_BEST_COST_IDX = 3
 
     for particle in range(n):
-        pos = np.random.uniform(-1, 1, dims)
-        velocity = np.random.uniform(-1, 1, dims)
-        p_best_pos = np.random.uniform(-1, 1, dims)
+        pos = np.random.uniform(val_min, val_max, dims)
+        velocity = np.random.uniform(-search_range, search_range, dims)
+        p_best_pos = np.random.uniform(val_min, val_max, dims)
         if obj_func.__name__ == 'rosenbrock_func':
             p_best_cost = obj_func(p_best_pos, p_best_pos)
         else:
