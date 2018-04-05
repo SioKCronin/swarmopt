@@ -2,7 +2,7 @@
 
 # PSO Baselines
 
-This repo is dedicated to providing high quality implementations of PSO variations in Python, organized by their application. I have included a wide variety of algorithms in order to highlight how stochastic process is levarated in optimization, and to enable researchers to compare variations directly on benchmark functions. 
+Hhigh quality implementations of PSO variations in Python, organized by application, with tools to compare performance on benchmark functions. 
 
 ## Algorithms
 ### Single Objective 
