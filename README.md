@@ -2,7 +2,9 @@
 
 # PSO papers
 
-High quality implementations of Particle Swarm Optimization (PSO) papers in Python, organized by application. This project is motivated by a desire to advance PSO algorithm design by exploring the relative success of common varitions, and to encourage the sharing of code alongside publications. 
+High quality implementations of Particle Swarm Optimization (PSO) papers in Python, organized by application. 
+
+This project is motivated by a desire to advance PSO algorithm design by exploring the relative success of common varitions, and to encourage the sharing of code alongside publications. 
 
 ## Algorithms
 ### Single Objective 
