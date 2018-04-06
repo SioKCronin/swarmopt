@@ -2,7 +2,7 @@
 
 # PSO Baselines
 
-High quality implementations of PSO variations in Python, organized by application, with tools to compare performance on benchmark functions and build intuition. 
+High quality implementations of PSO variations in Python, organized by application, with tools to compare performance on benchmark functions and build intuition. This project is motivated by a desire to advance algorithm design by exploring the relative success of common varitions in PSOs, and to press for more robust measures of performance relative to specific objective functions.  
 
 ## Algorithms
 ### Single Objective 
