@@ -1,15 +1,9 @@
 # Unified PSO
 
-# Contribution
-Combining global and local best into a single algorithm.
+# Unique Contribution
+* Combining global and local best into a single algorithm.
+* Mutation constant added to either Global or Local velocity update. 
 
-### Mean cost of 20 runs
+### Performance
 
-|Function|  Mean cost |
-|--- |---|
-|  Sphere |  |
-|  Rosenbrock |  |  
-|  Ackley |  | 
-|  Griewank |  | 
-|  Rastrigin |  | 
-|  Weierstrass |  | 
+ 
