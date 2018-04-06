@@ -6,7 +6,7 @@ High quality implementations of Particle Swarm Optimization (PSO) papers in Pyth
 
 This project is motivated by a desire to advance PSO algorithm design by exploring the relative success of common varitions, and to encourage the sharing of code alongside publications. 
 
-## Algorithms
+## Papers
 ### Single Objective 
 
 * Unified PSO ([UPSO](https://github.com/SioKCronin/PSO-baselines/tree/master/upso)) - Parsopoulos &  Vrahatis 2004
