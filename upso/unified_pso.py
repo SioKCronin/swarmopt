@@ -7,7 +7,6 @@ from common.utils.distance import euclideanDistance, getNeighbors
 def unified_pso(n, dims, c1, c2, w, u, k, mu, std, weight,
                            iters, obj_func, val_min, val_max):
 
-    r3 = np.random.normal(mu, std, dims)
 
     search_range = val_max - val_min
     v_clamp_min = - (0.2 * search_range)
@@ -70,9 +69,11 @@ def unified_pso(n, dims, c1, c2, w, u, k, mu, std, weight,
             social_global = (c2 * np.random.uniform(0, 1, 2)) * (swarm_best_pos - swarm[idx][P_POS_IDX])
             social_local = (c2 * np.random.uniform(0, 1, 2)) * (best_pos - swarm[idx][P_POS_IDX])
             if weight == g:
-                unified = r3 * u * social_global + (1-u) * social_local
+                unified = np.random.normal(mu, std, dims) * u * social_global \
+                          + (1-u) * social_local
             else:
-                unified = u * social_global + r3 * (1-u) * social_local
+                unified = u * social_global + \
+                        np.random.normal(mu, std, dims) * (1-u) * social_local
             velocity = (w * swarm[idx][P_VELOCITY_IDX]) + unified
             if velocity[0] < v_clamp_min:
                 swarm[idx][P_VELOCITY_IDX][0] = v_clamp_min
