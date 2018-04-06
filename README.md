@@ -2,9 +2,7 @@
 
 # PSO Baselines
 
-This repo is dedicated to providing high quality implementations of particle swarm optimization algorithms in Python, organized by their application. My hope is that by including a wide variety of algorithms I can help underscore the potential of stochastic process in optimization in general, and perhaps prime the canvas for algorithm innovation.
-
-Particle swarm optimization (PSO) refers to one of several variations of nature-inspired optimization heuristics, originally presented by Eberhart and Kennedy in 1995. In the docs, I have included information on what sets each algorithm apart, and examples of when each might be best applied.  
+High quality implementations of PSO variations in Python, organized by application, with tools to compare performance on benchmark functions and build intuition. 
 
 ## Algorithms
 ### Single Objective 
@@ -31,3 +29,11 @@ Single objective test functions:
 Multi objective test functions:
 * Lis & Eiben
 * Zitzler
+
+## Tools
+
+* **Test Runner** - compare mean performance and convergence time for selected algorithms
+
+## Collaborators welcome
+
+Do you have a favorite PSO variation not implemented here that you'd like to see? Are there visualizations that would help you understand nuances of these algorithms? Feel free to add feature requests to issues, and drop me a line if you'd like to collaborate!
