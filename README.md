@@ -2,7 +2,7 @@
 
 # PSO Baselines
 
-High quality implementations of PSO variations in Python, organized by application, with tools to compare performance on benchmark functions and build intuition. This project is motivated by a desire to advance algorithm design by exploring the relative success of common varitions in PSOs, and to press for more robust measures of performance relative to specific objective functions.  
+High quality implementations of PSO variations in Python, organized by application. This project is motivated by a desire to advance PSOP algorithm design by exploring the relative success of common varitions, and to hopefully encourage more open science sharing of code alongside publications. 
 
 ## Algorithms
 ### Single Objective 
@@ -28,10 +28,3 @@ Multi objective test functions:
 * Lis & Eiben
 * Zitzler
 
-## Tools
-
-* **Test Runner** - compare mean performance and convergence time for selected algorithms
-
-## Collaborators welcome
-
-Do you have a favorite PSO variation not implemented here that you'd like to see? Are there visualizations that would help you understand nuances of these algorithms? Feel free to add feature requests to issues, and drop me a line if you'd like to collaborate!
