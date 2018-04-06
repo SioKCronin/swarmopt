@@ -4,13 +4,6 @@ import numpy as np
 from random import shuffle
 from common.utils.distance import euclideanDistance, getNeighbors
 
-n = 10 # Swarm population size
-dims = 2
-c1 = 0.5 # Cognitive weight (how much each particle references their memory)
-c2 = 0.3 # Social weight (how much each particle references swarm/metaswarm memory)
-w = 0.9 # Velocity weight
-iters = 2000
-
 def global_best_pso(n, dims, c1, c2, w, iters, obj_func, val_min, val_max):
 
     search_range = val_max - val_min
