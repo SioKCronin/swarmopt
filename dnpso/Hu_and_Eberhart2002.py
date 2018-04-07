@@ -30,6 +30,5 @@ def run_all_tests(algo, n, dims, c1, c2, w, k, iters, obj_func1, obj_func2):
         print("Run 20:", run_20(algo, n, dims, c1, c2, w, iters, func[0],\
                                                        func[1], func[2]))
 
-test_runner.run_all_tests(dynamic_neighborhood_pso,n=30,dim=2,
-                          c1=0.5,c2=0.3,w=0.9,k=2,iters=2000,
-                          obj_func1=lis_and_eiben1,obj_func2=lis_and_eiben2)
+run_all_tests(dynamic_neighborhood_pso,n=30,dim=2,c1=0.5,c2=0.3,w=0.9,k=2,
+             iters=200,obj_func1=lis_and_eiben1,obj_func2=lis_and_eiben2)
