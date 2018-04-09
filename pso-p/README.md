@@ -5,3 +5,7 @@
 ## Mountain Car
 
 https://github.com/vikasjiitk/Deep-RL-Mountain-Car/blob/master/MCqlearn.py
+
+## Cart Pole
+
+https://github.com/GaetanJUVIN/Deep_QLearning_CartPole/blob/master/cartpole.py
