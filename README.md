@@ -16,6 +16,10 @@ This project is motivated by a desire to advance PSO algorithm design by explori
 
 * Dynamic Neighborhood ([DNPSO](https://github.com/SioKCronin/PSO-baselines/tree/master/dnpso)) - Hu & Eberhart 2002
 
+### Rinforcement Learning as Optimization Task
+
+* PSO Policy ([PSOP](https://github.com/SioKCronin/PSO-papers/tree/master/psop))
+
 ## Benchmark Functions
 
 Single objective test functions:
@@ -29,4 +33,9 @@ Single objective test functions:
 Multi objective test functions:
 * Lis & Eiben
 * Zitzler
+
+RL benchmark environments:
+* Mountain Car
+* Cart Pole
+
 
