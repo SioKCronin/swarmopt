@@ -4,7 +4,7 @@
 
 High quality implementations of Particle Swarm Optimization (PSO) papers in Python, organized by application. 
 
-This project is motivated by a desire to advance PSO algorithm design by exploring the relative success of common varitions, and to encourage the sharing of code alongside publications. 
+This project is motivated by a desire to advance PSO algorithm research, and to encourage open science best practices by collaborating on and sharing code alongside publications. 
 
 ## Papers
 ### Single Objective 
@@ -15,6 +15,10 @@ This project is motivated by a desire to advance PSO algorithm design by explori
 ### Multi Objective
 
 * Dynamic Neighborhood ([DNPSO](https://github.com/SioKCronin/PSO-baselines/tree/master/dnpso)) - Hu & Eberhart 2002
+
+### Rinforcement Learning as Optimization Task
+
+* PSO Policy ([PSOP](https://github.com/SioKCronin/PSO-papers/tree/master/psop))
 
 ## Benchmark Functions
 
@@ -29,4 +33,9 @@ Single objective test functions:
 Multi objective test functions:
 * Lis & Eiben
 * Zitzler
+
+RL benchmark environments:
+* Mountain Car
+* Cart Pole
+
 
