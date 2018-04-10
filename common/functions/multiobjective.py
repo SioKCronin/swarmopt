@@ -27,5 +27,22 @@ def lis_and_eiben4(x):
 
 # Zitzler (1999/2000)
 
+def zitzler1(x):
+    def f1(x):
+       return x[0]
+    def f2(x):
+       return g(x) * h(f1(x), g(x))
+    def g(x):
+        return 1 + 9/29 * sum[x[i] for i in range(1,30)]
+    def h(y, z): #f1(x), g(x)
+        return 1 - (y/z)**0.5
 
-
+def zitzler2(x):
+    def f1(x):
+       return x[0]
+    def f2(x):
+       return g(x) * h(f1(x), g(x))
+    def g(x):
+        return 1 + 9/29 * sum[x[i] for i in range(1,30)]
+    def h(y, z): #f1(x), g(x)
+        return 1 - (y/z)**2
