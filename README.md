@@ -1,6 +1,6 @@
 ![particles](https://github.com/SioKCronin/PSO-baselines/blob/master/common/media/particles.png)
 
-# PSO papers
+# PSO baselines
 
 High quality implementations of Particle Swarm Optimization (PSO) papers in Python, organized by application. 
 
