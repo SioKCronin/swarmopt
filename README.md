@@ -1,6 +1,6 @@
 ![particles](https://github.com/SioKCronin/PSO-baselines/blob/master/common/media/particles.png)
 
-# PSO papers
+# PSO baselines
 
 High quality implementations of Particle Swarm Optimization (PSO) papers in Python, organized by application. 
 
@@ -18,7 +18,7 @@ This project is motivated by a desire to advance PSO algorithm research, and to 
 
 ### Rinforcement Learning as Optimization Task
 
-* PSO Policy ([PSOP](https://github.com/SioKCronin/PSO-papers/tree/master/psop))
+* PSO Policy ([PSOP](https://github.com/SioKCronin/PSO-papers/tree/master/psop)) - Hein et al. 2016
 
 ## Benchmark Functions
 
