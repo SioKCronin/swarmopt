@@ -20,6 +20,8 @@ This project is motivated by a desire to advance PSO algorithm research, and to 
 
 * PSO Policy ([PSOP](https://github.com/SioKCronin/PSO-papers/tree/master/psop)) - Hein et al. 2016
 
+![][http://latex.codecogs.com/gif.latex?a^2+b^2=c^2]
+
 ## Benchmark Functions
 
 Single objective test functions:
