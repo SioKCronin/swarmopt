@@ -6,7 +6,7 @@ High quality implementations of Particle Swarm Optimization (PSO) papers in Pyth
 
 This project is motivated by a desire to advance PSO algorithm research, and to encourage open science best practices by collaborating on and sharing code alongside publications. 
 
-## Papers
+## Algorithms
 ### Single Objective 
 
 * Unified PSO ([UPSO](https://github.com/SioKCronin/PSO-baselines/tree/master/upso)) - Parsopoulos &  Vrahatis 2004
@@ -39,4 +39,6 @@ RL benchmark environments:
 * Mountain Car
 * Cart Pole
 
+## Citation
 
+Siobhán K Cronin, PSO Baselines, (2018), GitHub repository, https://github.com/SioKCronin/PSO-baselines
