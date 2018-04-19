@@ -4,7 +4,7 @@
 
 High quality implementations of Particle Swarm Optimization (PSO) algorithms in Python, organized by application. 
 
-Particle Swarm Optimization algorithms allow us to search a solutions landscape in any context where we want to balance exploration with exploitation with respect to a cost functions (or functions, in the multi-objective cases). This family of problem solving was launched by Eberhart and Kennedy in their original paper on PSOs in 1995, and in the intervening years there have been many variations springing forth from the centra idea of distributing the search of optima across multiple agents. 
+Particle Swarm Optimization algorithms allow us to search a solutions landscape in any context where we want to balance exploration with exploitation with respect to a cost functions (or functions, in the multi-objective cases). This family of problem solving was launched by Eberhart and Kennedy in their original paper on PSOs in 1995, and the intervening years have seen many variations springing forth from the central idea of distributing search of optima across multiple agents. 
 
 This project is motivated by a desire to support the advance of PSO algorithm design, while at the same time encouraging open science best practices of sharing code alongside publications. 
 
