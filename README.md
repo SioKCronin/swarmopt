@@ -37,6 +37,15 @@ RL benchmark environments:
 * Mountain Car
 * Cart Pole
 
+## On Deck
+
+* Improved Particle Swarm Optimization (IPSO)
+* Proactive Particles in Swarm Optimization (PPSO)
+* Swarm Reinforcement Learning based on PSO (SRL-PSO)
+* RL with PSO Policy (PSO-P)
+* Dynamic Multiple Swarms in Multiobjective PSO (DMSMPSO)
+* Cooperative Approach to PSO (CPSO) 
+
 ## Citation
 
-Siobhán K Cronin, PSO Baselines, (2018), GitHub repository, https://github.com/SioKCronin/PSO-baselines
+Siobhán K Cronin, Swarm Intelligence Baselines, (2018), GitHub repository, https://github.com/SioKCronin/swarm-intelligence-baselines
