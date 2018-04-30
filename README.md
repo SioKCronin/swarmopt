@@ -19,10 +19,6 @@ This project is motivated by a desire to support the advance of SI algorithm des
 
 * Dynamic Neighborhood ([DNPSO](https://github.com/SioKCronin/PSO-baselines/tree/master/dnpso)) - Hu & Eberhart 2002
 
-### Rinforcement Learning as Optimization Task
-
-* PSO Policy ([PSOP](https://github.com/SioKCronin/PSO-papers/tree/master/psop)) - Hein et al. 2016
-
 ## Benchmark Functions
 
 Single objective test functions:
