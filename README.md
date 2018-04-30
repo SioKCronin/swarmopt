@@ -6,7 +6,7 @@ High quality implementations of Swarm Intelligence (SI) algorithms in Python, st
 
 SI algorithms allow us to search a solutions landscape in any context where we want to balance exploration with exploitation with respect to a cost functions (or functions, in the multi-objective cases). The PSO metahueristic family was launched by Eberhart and Kennedy in their original paper on PSOs in 1995, and the intervening years have seen many variations springing forth from the central idea of distributing search of optima across multiple agents. 
 
-This project is motivated by a desire to support the advance of SI algorithm design, and to make it easier for developers to apply SI algorithms in novel industry applications. 
+This project is motivated by a desire to facilitate the design of SI algorithm variations, and to make it easier for developers to apply SI algorithms in novel industry applications. 
 
 ## Algorithms
 ### Single Objective 
