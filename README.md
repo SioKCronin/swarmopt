@@ -17,7 +17,7 @@ This project is motivated by a desire to support the advance of SI algorithm des
 
 ### Multi Objective
 
-* Dynamic Neighborhood ([DNPSO](https://github.com/SioKCronin/PSO-baselines/tree/master/dnpso)) - Hu & Eberhart 2002
+* Dynamic Neighborhood PSO ([DNPSO](https://github.com/SioKCronin/PSO-baselines/tree/master/dnpso)) - Hu & Eberhart 2002
 
 ## Benchmark Functions
 
