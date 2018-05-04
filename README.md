@@ -2,11 +2,11 @@
 
 # Swarm Intelligence Baselines
 
-High quality implementations of Swarm Intelligence (SI) algorithms in Python, starting with some examples from the family of Particle Swarm Optimization (PSO) algorithms in Python. Algorithms are rganized by application, with results replicated from originating papers.  
+High quality implementations of swarm intelligence algorithms in Python, starting with some Particle Swarm Optimization (PSO) algorithms. Algorithms are organized by application, with results shared to compare to original papers.  
 
-SI algorithms allow us to search a solutions landscape in any context where we want to balance exploration with exploitation with respect to a cost functions (or functions, in the multi-objective cases). The PSO metahueristic family was launched by Eberhart and Kennedy in their original paper on PSOs in 1995, and the intervening years have seen many variations springing forth from the central idea of distributing search of optima across multiple agents. 
+These SI algorithms allow us to search solutions landscapes in contexts where we want to balance exploration with exploitation with respect to a cost functions (or functions, in the multi-objective cases). The PSO metahueristic family was launched by Eberhart and Kennedy in their original paper on PSOs in 1995, and the intervening years have seen many variations springing forth from the central idea of distributing search of optima across multiple agents. I think this is a nice place to start, as these approaches are easy to understand fiddle with.
 
-This project is motivated by a desire to facilitate the design of SI algorithm variations, and to make it easier for developers to apply SI algorithms in novel industry applications. 
+This project is motivated by a desire to facilitate the design of SI algorithms, and to make it easier for developers to apply SI algorithms in novel applications. 
 
 ## Algorithms
 ### Single Objective 
