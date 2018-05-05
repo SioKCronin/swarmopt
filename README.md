@@ -46,6 +46,11 @@ RL benchmark environments:
 * Dynamic Multiple Swarms in Multiobjective PSO (DMSMPSO)
 * Cooperative Approach to PSO (CPSO) 
 
+## Areas of Application
+
+* Scheduling for cloud computing
+* Neural network number of layers and structure optimization
+
 ## Citation
 
 Siobhán K Cronin, Swarm Intelligence Baselines, (2018), GitHub repository, https://github.com/SioKCronin/swarm-intelligence-baselines
