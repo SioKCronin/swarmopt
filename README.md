@@ -1,6 +1,6 @@
 ![particles](https://github.com/SioKCronin/PSO-baselines/blob/master/common/media/particles.png)
 
-# Swarm Intelligence Baselines
+# SwarmLab
 
 High quality implementations of swarm intelligence algorithms in Python, starting with some Particle Swarm Optimization (PSO) algorithms. Algorithms are organized by application, with results shared to compare to original papers.  
 
