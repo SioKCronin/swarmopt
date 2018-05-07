@@ -2,11 +2,9 @@
 
 # SwarmLab
 
-This repo is dedicated to high quality implementations of swarm intelligence algorithms in Python, starting with some Particle Swarm Optimization (PSO) algorithms. Algorithms are organized by application, with results shared to compare to original papers.  
+This project is motivated by a desire to facilitate the design of SI algorithms, and to make it easier for developers to apply SI algorithms in novel applications. The repo includes high quality implementations of swarm intelligence algorithms in Python, and tools for testing new algorithms. Algorithms are organized by application. 
 
-These SI algorithms allow us to search solutions landscapes in contexts where we want to balance exploration with exploitation with respect to a cost functions (or functions, in the multi-objective cases). The PSO metahueristic family was launched by Eberhart and Kennedy in their original paper on PSOs in 1995, and the intervening years have seen many variations springing forth from the central idea of distributing search of optima across multiple agents. I think this is a nice place to start, as these approaches are easy to understand fiddle with.
-
-This project is motivated by a desire to facilitate the design of SI algorithms, and to make it easier for developers to apply SI algorithms in novel applications. 
+SI algorithms provide global population-based search solutions in contexts where we want to balance exploration with exploitation with respect to a cost functions (or functions, in the multi-objective cases). The PSO metahueristic family was launched by Eberhart and Kennedy in their original paper on PSOs in 1995, and the intervening years have seen many variations springing forth from the central idea of distributing search of optima across multiple agents. I think this is a nice place to start, as these approaches are easy to understand and fiddle with.
 
 ## Algorithms
 ### Single Objective 
