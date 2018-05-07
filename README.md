@@ -54,7 +54,8 @@ Currently using [SwarmViz](https://github.com/epfl-disal/SwarmViz)
 
 * Scheduling for cloud computing
 * Neural network number of layers and structure optimization
-* Grid scheduling
+* Grid scheduling (load balancing)
+* Routing in communication networks
 
 ## Citation
 
