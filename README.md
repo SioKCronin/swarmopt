@@ -2,7 +2,7 @@
 
 # SwarmLab
 
-High quality implementations of swarm intelligence algorithms in Python, starting with some Particle Swarm Optimization (PSO) algorithms. Algorithms are organized by application, with results shared to compare to original papers.  
+This repo is dedicated to high quality implementations of swarm intelligence algorithms in Python, starting with some Particle Swarm Optimization (PSO) algorithms. Algorithms are organized by application, with results shared to compare to original papers.  
 
 These SI algorithms allow us to search solutions landscapes in contexts where we want to balance exploration with exploitation with respect to a cost functions (or functions, in the multi-objective cases). The PSO metahueristic family was launched by Eberhart and Kennedy in their original paper on PSOs in 1995, and the intervening years have seen many variations springing forth from the central idea of distributing search of optima across multiple agents. I think this is a nice place to start, as these approaches are easy to understand fiddle with.
 
@@ -50,11 +50,12 @@ Currently using [SwarmViz](https://github.com/epfl-disal/SwarmViz)
 * Dynamic Multiple Swarms in Multiobjective PSO (DMSMPSO)
 * Cooperative Approach to PSO (CPSO) 
 
-## Areas of Application
+## Application
 
 * Scheduling for cloud computing
 * Neural network number of layers and structure optimization
+* Grid scheduling
 
 ## Citation
 
-Siobhán K Cronin, Swarm Intelligence Baselines, (2018), GitHub repository, https://github.com/SioKCronin/swarm-intelligence-baselines
+Siobhán K Cronin, SwarmLab (2018), GitHub repository, https://github.com/SioKCronin/SwarmLab
