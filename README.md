@@ -47,6 +47,7 @@ Currently using [SwarmViz](https://github.com/epfl-disal/SwarmViz)
 * RL with PSO Policy (PSO-P)
 * Dynamic Multiple Swarms in Multiobjective PSO (DMSMPSO)
 * Cooperative Approach to PSO (CPSO) 
+* Artificial Bee Colony (ABC)
 
 ## Application
 
