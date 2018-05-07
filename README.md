@@ -37,6 +37,10 @@ RL benchmark environments:
 * Mountain Car
 * Cart Pole
 
+## Visualization and Testing
+
+Currently using [SwarmViz](https://github.com/epfl-disal/SwarmViz)
+
 ## On Deck
 
 * Improved Particle Swarm Optimization (IPSO)
