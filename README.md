@@ -1,6 +1,6 @@
 ![particles](https://github.com/SioKCronin/PSO-baselines/blob/master/common/media/particles.png)
 
-# swarm-intelligence-baselines
+# Swarm Intelligence Baselines
 
 This project is motivated by a desire to facilitate the design of SI algorithms, and to make it easier for developers to apply SI algorithms in novel applications. The repo includes high quality implementations of swarm intelligence algorithms in Python, and tools for testing new algorithms. Algorithms are organized by application. 
 
