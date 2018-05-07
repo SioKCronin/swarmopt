@@ -58,4 +58,4 @@ Currently using [SwarmViz](https://github.com/epfl-disal/SwarmViz)
 
 ## Citation
 
-Siobhán K Cronin, Swarm Intelligence Baselines (2018), GitHub repository, https://github.com/SioKCronin/swarm-intelligence_baselines
+Siobhán K Cronin, Swarm Intelligence Baselines (2018), GitHub repository, https://github.com/SioKCronin/swarm-intelligence-baselines
