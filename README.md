@@ -2,7 +2,7 @@
 
 # Swarm Intelligence Baselines
 
-This project is motivated by a desire to facilitate the design of SI algorithms, and to make it easier for developers to apply SI algorithms in novel applications. The repo includes high quality implementations of swarm intelligence algorithms in Python, and tools for testing new algorithms. Algorithms are organized by application. 
+High quality implementations of swarm intelligence algorithms in Python, organized by application. 
 
 SI algorithms provide global population-based search solutions in contexts where we want to balance exploration with exploitation with respect to a cost functions (or functions, in the multi-objective cases). The PSO metahueristic family was launched by Eberhart and Kennedy in their original paper on PSOs in 1995, and the intervening years have seen many variations springing forth from the central idea of distributing search of optima across multiple agents. I think this is a nice place to start, as these approaches are easy to understand and fiddle with.
 
@@ -57,4 +57,4 @@ Currently using [SwarmViz](https://github.com/epfl-disal/SwarmViz)
 
 ## Citation
 
-Siobhán K Cronin, SwarmLab (2018), GitHub repository, https://github.com/SioKCronin/SwarmLab
+Siobhán K Cronin, Swarm Intelligence Baselines (2018), GitHub repository, https://github.com/SioKCronin/swarm-intelligence_baselines
