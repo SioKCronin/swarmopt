@@ -1,10 +1,10 @@
 ![particles](https://github.com/SioKCronin/PSO-baselines/blob/master/common/media/particles.png)
 
-# Swarm Intelligence Baselines
+# Swarm Lab
 
-High quality implementations of swarm intelligence algorithms in Python, organized by application. 
+This project is motivated by a desire to connect academic swarm intelligence research with the developer community. The backbone of Swarm Lab is a collection of high quality implementations of swarm intelligence algorithms in Python, organized by application. We also plan to add visualization tools and a broader suite of real-world inspired testing functions to support ideation and development of new algorithms.
 
-SI algorithms provide global population-based search solutions in contexts where we want to balance exploration with exploitation with respect to a cost functions (or functions, in the multi-objective cases). The PSO metahueristic family was launched by Eberhart and Kennedy in their original paper on PSOs in 1995, and the intervening years have seen many variations springing forth from the central idea of distributing search of optima across multiple agents. I think this is a nice place to start, as these approaches are easy to understand and fiddle with.
+Swarm intelligences algorithms leverage global population-based search solutions to balance exploration with exploitation with respect to specified cost functions (or functions, in the multi-objective cases). The particle swarm optimization (PSO) lineage was sparked by Eberhart and Kennedy in their original paper on PSOs in 1995, and the intervening years have seen many variations spring forth from the central idea of distributing search across multiple agents. I think this is a nice place to start, as these approaches are easy to understand and fiddle with.
 
 ## Algorithms
 ### Single Objective 
@@ -58,4 +58,4 @@ Currently using [SwarmViz](https://github.com/epfl-disal/SwarmViz)
 
 ## Citation
 
-Siobhán K Cronin, Swarm Intelligence Baselines (2018), GitHub repository, https://github.com/SioKCronin/swarm-intelligence-baselines
+Siobhán K Cronin, Swarm Lab (2018), GitHub repository, https://github.com/SioKCronin/SwarmLab
