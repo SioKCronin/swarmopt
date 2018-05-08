@@ -50,8 +50,9 @@ Currently using [SwarmViz](https://github.com/epfl-disal/SwarmViz)
 * Cooperative Approach to PSO (CPSO) 
 * Artificial Bee Colony (ABC)
 
-## Application
+## Applications
 
+* Transportation networks
 * Scheduling for cloud computing
 * Neural network number of layers and structure optimization
 * Grid scheduling (load balancing)
