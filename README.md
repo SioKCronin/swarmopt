@@ -2,7 +2,7 @@
 
 # Swarm Lab
 
-Swarm Lab is dedicated to connecting academic swarm intelligence research with the developer community. The backbone of the lab is a collection of high quality implementations of swarm intelligence algorithms in Python, organized by application. We will also be adding visualization tools and a suite of real-world inspired testing functions to support ideation and development of new algorithms.
+Swarm Lab is dedicated to connecting academic swarm intelligence research with the developer community. The backbone of the lab is a collection of high quality implementations of swarm intelligence algorithms in Python, organized by application. We will also be adding visualization tools, parrallel computing variations, and a suite of real-world inspired testing functions to support ideation and development of new algorithms.
 
 Swarm intelligence employs global population-based solutions that balance exploration and exploitation with respect to specified cost functions (or functions, in the multi-objective cases). The Particle Swarm Optimization (PSO) lineage was sparked by Eberhart and Kennedy in their original paper on PSOs in 1995, and the intervening years have seen many variations spring forth from their central idea. We think PSOs are a nice place to start when studying SI, as they are easy to understand and fiddle with, so we've begun there. 
 
