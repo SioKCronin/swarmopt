@@ -9,6 +9,7 @@ Swarm intelligences algorithms leverage global population-based search solutions
 ## Algorithms
 ### Single Objective 
 
+* PSO (global and local best)([PSO](https://github.com/SioKCronin/SwarmLab/tree/master/pso)) - Kennedy & Eberhart 1995
 * Unified PSO ([UPSO](https://github.com/SioKCronin/PSO-baselines/tree/master/upso)) - Parsopoulos &  Vrahatis 2004
 * Dynamic Multi-Swarm PSO ([DMSPSO](https://github.com/SioKCronin/PSO-baselines/tree/master/dmspso)) - Liang & Suganthan 2005
 * Simulated Annealing PSO ([SAPSO](https://github.com/SioKCronin/PSO-baselines/tree/master/sapso)) - Mu, Cao, & Wang 2009
