@@ -2,11 +2,11 @@
 
 # Swarm Lab
 
-Swarm Lab is a swarm intelligence algorithm library and test-kitchen dedicated to connecting academic swarm intelligence research with the developer community. 
+Swarm Lab is a collection of high quality swarm intelligence algorithms implemented in Python and organized by application. 
 
-The backbone of this project is a growing collection of high quality swarm intelligence algorithm baselines implemented in Python, organized by application. I also aim to add **some visualization tools**, **parrallel computing guidelines and variations**, **a comparative analysis scoreboard**, and a suite of **real-world inspired testing functions** to support ideation and development of new algorithms, so definitely reach out if you're up for collaborating!
+Swarm intelligence leverages global population-based search solutions to balance exploration and exploitation with respect to specified cost functions (or functions, in the multi-objective cases). There are many exciting nooks and crannies to explore in the SI toplogy, yet I've chosen to kick things of with some Particle Swarm Optimization (PSO) algorithms, as they are easy to understand and fiddle with. The PSO lineage was sparked by Eberhart and Kennedy in their original paper on PSOs in 1995, and the intervening years have seen many variations spring from their central idea. 
 
-Swarm intelligence leverages global population-based search solutions that balance exploration and exploitation with respect to specified cost functions (or functions, in the multi-objective cases). The Particle Swarm Optimization (PSO) lineage was sparked by Eberhart and Kennedy in their original paper on PSOs in 1995, and the intervening years have seen many variations spring forth from their central idea. I believe PSOs are a nice place to start when studying SI, as they are easy to understand and fiddle with, so I've kicked things off with a few PSO variations.
+In addition to implementing algorithms, I aim to add some **visualization tools**, **parrallel computing guidelines and variations**, **a comparative analysis scoreboard**, and a suite of **real-world inspired testing functions** to support ideation and development of new algorithms, so ... stay tuned and definitely reach out if you're up for collaborating!
 
 ## Algorithms
 ### Single Objective 
