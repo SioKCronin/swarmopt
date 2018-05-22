@@ -6,7 +6,7 @@ Swarm Lab is a collection of high quality swarm intelligence algorithms implemen
 
 Swarm intelligence leverages global population-based search solutions to balance exploration and exploitation with respect to specified cost functions (or functions, in the multi-objective cases). There are many exciting nooks and crannies to explore in the SI toplogy, yet I've chosen to kick things of with some Particle Swarm Optimization (PSO) algorithms, as they are easy to understand and fiddle with. The PSO lineage was sparked by Eberhart and Kennedy in their original paper on PSOs in 1995, and the intervening years have seen many variations spring from their central idea. 
 
-In addition to implementing algorithms, I aim to add some **visualization tools**, **parrallel computing guidelines and variations**, **a comparative analysis scoreboard**, and a suite of **real-world inspired testing functions** to support ideation and development of new algorithms, so ... stay tuned and definitely reach out if you're up for collaborating!
+In addition to implementing algorithms, I aim to add some **visualization tools**, **parrallel computing guidelines**, **a comparative analysis scoreboard**, and a suite of **real-world inspired testing functions** to support ideation and development of new algorithms, so ... stay tuned and definitely reach out if you're up for collaborating!
 
 ## Algorithms
 ### Single Objective 
