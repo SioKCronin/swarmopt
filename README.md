@@ -1,15 +1,14 @@
 ![particles](https://github.com/SioKCronin/PSO-baselines/blob/master/common/media/particles.png)
 
-# Swarm Lab
+# Swarm Opt
 
-Swarm Lab is a collection of high quality swarm intelligence algorithm variations implemented in Python. 
+Swarm Opt is a collection of high quality swarm intelligence algorithm variations implemented in Python. 
 
 Swarm intelligence leverages global population-based search solutions to balance exploration and exploitation with respect to specified cost functions. There are many exciting nooks and crannies to explore in the SI toplogy, yet I've chosen to kick things of with some Particle Swarm Optimization (PSO) algorithms, as they are easy to understand and fiddle with. The PSO lineage was sparked by Eberhart and Kennedy in their original paper on PSOs in 1995, and the intervening years have seen many variations spring from their central idea. 
 
 In addition to implementing algorithms, I aim to add some **visualization tools** and **a comparative analysis scoreboard**. Stay tuned and definitely reach out if you're up for collaborating!
 
 ## Algorithms
-### Single Objective 
 
 * PSO (global and local best)([PSO](https://github.com/SioKCronin/SwarmLab/tree/master/pso)) - Kennedy & Eberhart 1995
 * Unified PSO ([UPSO](https://github.com/SioKCronin/PSO-baselines/tree/master/upso)) - Parsopoulos &  Vrahatis 2004
