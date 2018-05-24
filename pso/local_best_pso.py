@@ -14,7 +14,7 @@ VEL = 1
 B_POS = 2
 B_COST = 3
 
-def initialize_swarm(n, val_min, val_mx, dims, v_clamp):
+def initialize_swarm(n, val_min, val_max, dims, v_clamp, obj_func):
     swarm = []
     for particle in range(n):
         pos = np.random.uniform(val_min, val_max, dims)
@@ -30,17 +30,17 @@ def initialize_swarm(n, val_min, val_mx, dims, v_clamp):
 
 # Update your personal best based on the current
 # positions of the particles
-def update_pbest(swarm, idx):
+def update_pbest(swarm, idx, obj_func):
     if obj_func.__name__ == 'rosenbrock_func':
         if idx == len(swarm) - 1:
-            pass
+            current_cost = obj_func(swarm[idx][0], swarm[idx][0])
         else:
-            current_cost = obj_func(particle[0], swarm[idx + 1][0])
+            current_cost = obj_func(swarm[idx][0], swarm[idx + 1][0])
     else:
-        current_cost = obj_func(particle[0])
+        current_cost = obj_func(swarm[idx][0])
 
-    if current_cost < particle[3]:
-        swarm[idx][2] = particle[0]
+    if current_cost < swarm[idx][3]:
+        swarm[idx][2] = swarm[idx][0]
         swarm[idx][3] = current_cost
     return swarm
 
@@ -51,10 +51,10 @@ def generate_weights(swarm, idx, best_pos, c1, c2):
              * ( best_pos - swarm[idx][0])
     return cognitive, social
 
-def calculate_best_pos(swarm, k):
-    best_neighbors = getNeighbors(particle[2], swarm, k)
-    best_cost = particle[3]
-    best_pos = particle[2]
+def calculate_best_pos(swarm, idx, k):
+    best_neighbors = getNeighbors(swarm[idx][2], swarm, k)
+    best_cost = swarm[idx][3]
+    best_pos = swarm[idx][2]
 
     for y in range(len(best_neighbors)):
         if swarm[y][3] < best_cost:
@@ -62,12 +62,12 @@ def calculate_best_pos(swarm, k):
 
     return best_pos
 
-def update_position(swarm, idx, k, c1, c2, swarm_best_pos, swarm_best_cost):
-    best_pos = calculate_best_pos(swarm, k)
+def update_position(swarm, idx, w, k, c1, c2, swarm_best_pos, swarm_best_cost):
+    best_pos = calculate_best_pos(swarm,idx, k)
 
-    if particle[3] < swarm_best_cost:
-        swarm_best_cost = particle[3]
-        swarm_best_pos = particle[2]
+    if swarm[idx][3] < swarm_best_cost:
+        swarm_best_cost = swarm[idx][3]
+        swarm_best_pos = swarm[idx][2]
 
     cognitive, social = generate_weights(swarm, idx, best_pos, c1, c2)
 
@@ -75,7 +75,7 @@ def update_position(swarm, idx, k, c1, c2, swarm_best_pos, swarm_best_cost):
 
     return swarm, swarm_best_pos, swarm_best_cost
 
-def calculate_swarm_best(dims):
+def calculate_swarm_best(dims, obj_func):
     swarm_best_pos = np.array([0]*dims)
 
     if obj_func.__name__ == 'rosenbrock_func':
@@ -109,16 +109,15 @@ def local_best_pso(n, dims, c1, c2, w, k, iters, obj_func, val_min, val_max):
       maximum evaluatable value for obj_func
     '''
     v_clamp = 0.2 * (val_max - val_min)
-    swarm = initialize_swarm(n, val_min, val_max, dims, v_clamp)
-    swarm_best_pos, swarm_best_cost = calculate_swarm_best(dims)
+    swarm = initialize_swarm(n, val_min, val_max, dims, v_clamp, obj_func)
+    swarm_best_pos, swarm_best_cost = calculate_swarm_best(dims, obj_func)
     epoch = 1
 
     while epoch <= iters:
         for idx, particle in enumerate(swarm):
-            # Compound function?
-            swarm = update_pbest(swarm, idx)
+            swarm = update_pbest(swarm, idx, obj_func)
             swarm, swarm_best_pos, swarm_best_cos = \
-                    update_position(swarm, idx, k, c1, c2, swarm_best_pos, swarm_best_cost)
+                    update_position(swarm, idx, w, k, c1, c2, swarm_best_pos, swarm_best_cost)
 
         epoch += 1
 
