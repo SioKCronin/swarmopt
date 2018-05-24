@@ -2,11 +2,11 @@
 
 # Swarm Opt
 
-Swarm Opt is a collection of high quality swarm intelligence algorithm variations implemented in Python. 
+SwarmOpt is a swarm intelligence optimizer for hyperparameter tuning. The project is currently in R&D, where I'm implementing various swarm intelligence algorithms to find the best variation for tuning. 
 
 Swarm intelligence leverages global population-based search solutions to balance exploration and exploitation with respect to specified cost functions. There are many exciting nooks and crannies to explore in the SI toplogy, yet I've chosen to kick things of with some Particle Swarm Optimization (PSO) algorithms, as they are easy to understand and fiddle with. The PSO lineage was sparked by Eberhart and Kennedy in their original paper on PSOs in 1995, and the intervening years have seen many variations spring from their central idea. 
 
-In addition to implementing algorithms, I aim to add some **visualization tools** and **a comparative analysis scoreboard**. Stay tuned and definitely reach out if you're up for collaborating!
+The implementations reveal a lot of the shared architecture across these algorithms, and as I shift towards a tidy optimizer module, these implementations will shift to being housed at [SwarmLab](https://github.com/SioKCronin/SwarmLab), where I also aim to add some **visualization tools** and **a comparative analysis scoreboard**. Stay tuned and definitely reach out if you're up for collaborating!
 
 ## Algorithms
 
