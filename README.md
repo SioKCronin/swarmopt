@@ -41,4 +41,4 @@ Single objective test functions:
 
 ## Citation
 
-Siobhán K Cronin, Swarm Lab (2018), GitHub repository, https://github.com/SioKCronin/SwarmLab
+Siobhán K Cronin, SwarmOpt (2018), GitHub repository, https://github.com/SioKCronin/SwarmOpt
