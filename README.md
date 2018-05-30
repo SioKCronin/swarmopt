@@ -1,4 +1,4 @@
-![particles](https://github.com/SioKCronin/PSO-baselines/blob/master/common/media/swarmopt.png)
+![particles](https://github.com/SioKCronin/PSO-baselines/blob/master/common/media/swarmopt_lateral.png)
 
 # Swarm Opt
 
