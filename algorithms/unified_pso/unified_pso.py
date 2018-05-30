@@ -1,27 +1,53 @@
-# Unified PSO
+"""Unified PSO"""
 
 import numpy as np
 from random import shuffle
-from common.utils.distance import euclideanDistance, getNeighbors
+from utils.distance import euclideanDistance, getNeighbors
+from utils.swarm import initialize_swarm, update_pbest, generate_weights,
+                        update_position, calculate_swarm_best
+
+POS = 0
+VEL = 1
+B_POS = 2
+B_COST = 3
 
 def unified_pso(n, dims, c1, c2, w, u, k, mu, std, weight,
                            iters, obj_func, val_min, val_max):
+    '''
+    n : int
+      number of particles in the swarm
+    dims : int
+      number of dimensions in the space
+    c1 : float
+      cognitive parameter
+    c2: float
+      social parameter
+    w : float
+      inertia parameter
+    k : int
+      number of neighbors to be considered
+    iters: int
+      number of iterations
+    obj_func: function
+      objective function
+    val_min : float
+      minimum evaluatable value for obj_func
+    val_max : float
+      maximum evaluatable value for obj_func
+    '''
+    v_clamp = 0.2 * (val_max - val_min)
+    swarm = initialize_swarm(n, val_min, val_max, dims, v_clamp, obj_func)
+    swarm_best_pos, swarm_best_cost = calculate_swarm_best(dims, obj_func)
+    epoch = 1
 
-    search_range = val_max - val_min
-    v_clamp_min = - (0.2 * search_range)
-    v_clamp_max = 0.2 * search_range
-
-    swarm = []
-    swarm_best_pos = np.array([0]*dims)
-    if obj_func.__name__ == 'rosenbrock_func':
-        swarm_best_cost = obj_func(swarm_best_pos, swarm_best_pos)
-    else:
-        swarm_best_cost = obj_func(swarm_best_pos)
-
-    P_POS_IDX = 0
-    P_VELOCITY_IDX = 1
-    P_BEST_POS_IDX = 2
-    P_BEST_COST_IDX = 3
+    while epoch <= iters:
+        for idx, particle in enumerate(swarm):
+            swarm = update_pbest(swarm, idx, obj_func)
+            swarm, swarm_best_pos, swarm_best_cos = \
+                    update_position(swarm, idx, w, k, c1, c2, 
+                            swarm_best_pos, swarm_best_cost)
+        epoch += 1
+        return swarm_best_cost
 
     for particle in range(n):
         pos = np.random.uniform(val_min, val_max, dims)
@@ -45,48 +71,54 @@ def unified_pso(n, dims, c1, c2, w, u, k, mu, std, weight,
                     current_cost = obj_func(particle[P_POS_IDX], swarm[idx + 1][P_POS_IDX])
             else:
                 current_cost = obj_func(particle[P_POS_IDX])
-            personal_best_cost = swarm[idx][P_BEST_COST_IDX]
+            personal_best_cost = swarm[idx][B_COST]
             if current_cost < personal_best_cost:
-                swarm[idx][P_BEST_POS_IDX] = swarm[idx][P_POS_IDX]
-                swarm[idx][P_BEST_COST_IDX] = current_cost
+                swarm[idx][B_POS] = swarm[idx][P_POS_IDX]
+                swarm[idx][B_COST] = current_cost
 
-            # Update global best
-            if personal_best_cost < swarm_best_cost:
-                swarm_best_cost = personal_best_cost
-                swarm_best_pos = swarm[idx][P_BEST_POS_IDX]
+            def global_best(idx, personal_best_cost, global_best_cost, swarm):
+                if personal_best_cost < global_best_cost:
+                    global_best_pos = swarm[idx][B_POS]
+                    global_best_cost = personal_best_cost
+                return global_best_pos, global_best_cost
 
-            # Update local best
-            best_neighbors = getNeighbors(particle[P_BEST_POS_IDX], swarm, k)
-            best_cost = particle[P_BEST_COST_IDX]
-            best_pos = particle[P_BEST_POS_IDX]
-            for y in range(len(best_neighbors)):
-                if swarm[y][P_BEST_COST_IDX] < best_cost:
-                    best_pos = swarm[y][P_BEST_POS_IDX]
+            def local_best(particle, swarm, k):
+                best_neighbors = getNeighbors(particle[B_POS], swarm, k)
+                best_cost = particle[B_COST]
+                best_pos = particle[B_POS]
+                for y in range(len(best_neighbors)):
+                    if swarm[y][B_COST] < best_cost:
+                        best_pos = swarm[y][B_POS]
+                        best_cost = swarm[y][B_COST]
+                return best_pos, best_cost
 
-            # Compute velocity
-            cognitive = (c1 * np.random.uniform(0, 1, 2)) * (swarm[idx][P_BEST_POS_IDX] - swarm[idx][P_POS_IDX])
-            social_global = (c2 * np.random.uniform(0, 1, 2)) * (swarm_best_pos - swarm[idx][P_POS_IDX])
-            social_local = (c2 * np.random.uniform(0, 1, 2)) * (best_pos - swarm[idx][P_POS_IDX])
-            if weight == g:
-                unified = np.random.normal(mu, std, dims) * u * social_global \
-                          + (1-u) * social_local
-            else:
-                unified = u * social_global + \
-                        np.random.normal(mu, std, dims) * (1-u) * social_local
-            velocity = (w * swarm[idx][P_VELOCITY_IDX]) + unified
+            def compute_unified_velocity(c1, c2, idx, swarm):
+                cognitive = (c1 * np.random.uniform(0, 1, 2)) * (swarm[idx][B_POS] - swarm[idx][P_POS_IDX])
+                social_global = (c2 * np.random.uniform(0, 1, 2)) * (swarm_best_pos - swarm[idx][P_POS_IDX])
+                social_local = (c2 * np.random.uniform(0, 1, 2)) * (best_pos - swarm[idx][P_POS_IDX])
+                if weight == g:
+                    unified = np.random.normal(mu, std, dims) * u * social_global \
+                              + (1-u) * social_local
+                else:
+                    unified = u * social_global + \
+                            np.random.normal(mu, std, dims) * (1-u) * social_local
+                velocity = (w * swarm[idx][VEL]) + unified
+
+            velocity = compute_unified_velocity(c1, c2, idx, swarm)
+
             if velocity[0] < v_clamp_min:
-                swarm[idx][P_VELOCITY_IDX][0] = v_clamp_min
+                swarm[idx][VEL][0] = v_clamp_min
             if velocity[1] < v_clamp_min:
-                swarm[idx][P_VELOCITY_IDX][1] = v_clamp_min
+                swarm[idx][VEL][1] = v_clamp_min
             if velocity[0] > v_clamp_max:
-                swarm[idx][P_VELOCITY_IDX][0] = v_clamp_max
+                swarm[idx][VEL][0] = v_clamp_max
             if velocity[1] > v_clamp_max:
-                swarm[idx][P_VELOCITY_IDX][1] = v_clamp_max
+                swarm[idx][VEL][1] = v_clamp_max
             else:
-                swarm[idx][P_VELOCITY_IDX] = velocity
+                swarm[idx][VEL] = velocity
 
             # Update poss
-            swarm[idx][P_POS_IDX] += swarm[idx][P_VELOCITY_IDX]
+            swarm[idx][POS] += swarm[idx][VEL]
 
         x += 1
 

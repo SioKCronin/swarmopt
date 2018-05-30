@@ -1,4 +1,4 @@
-# dmspso
+"""Dynamic Multiswarm PSO"""
 
 import numpy as np
 from random import shuffle
@@ -119,15 +119,16 @@ def dynamic_multiswarm_pso(n, m, c1, c2, w, R, iters, dims, obj_func, val_min, v
                     swarm_best_cost = personal_best_cost
                     swarm_best_pos = particle[P_BEST_POS_IDX]
 
-                # Compute velocity
-                cognitive = (c1 * np.random.uniform(0, 1, 2)) * \
-                            (particle[P_BEST_POS_IDX] - particle[P_POS_IDX])
-                social = (c2 * np.random.uniform(0, 1, 2)) * \
-                         (swarm_best_pos - particle[P_POS_IDX])
-                particle[P_VELOCITY_IDX] = (w * particle[P_VELOCITY_IDX]) + \
-                                            cognitive + social
+                def compute_standard_velocity(c1, c2, particle):
+                    cognitive = (c1 * np.random.uniform(0, 1, 2)) * \
+                                (particle[P_BEST_POS_IDX] - particle[P_POS_IDX])
+                    social = (c2 * np.random.uniform(0, 1, 2)) * \
+                             (swarm_best_pos - particle[P_POS_IDX])
+                    particle[P_VELOCITY_IDX] = (w * particle[P_VELOCITY_IDX]) + \
+                                                cognitive + social
+                    return velocity
 
-                # Update poss
+                particle[P_VELOCITY_IDX] = compute_standard_velocity(c1, c2, particle)
                 particle[P_POS_IDX] += particle[P_VELOCITY_IDX]
 
     return swarm_best_cost

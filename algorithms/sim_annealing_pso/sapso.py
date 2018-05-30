@@ -1,4 +1,4 @@
-# Simulated Annealing PSO
+"""Simulated Annealing PSO"""
 
 import numpy as np
 from random import shuffle
@@ -39,7 +39,7 @@ def global_best_pso(n, dims, c1, c2, w, iters, obj_func, val_min, val_max):
 
         swarm.append([pos, velocity, p_best_pos, p_best_cost])
 
-    def calculate_velocity(idx):
+    def calculate_standard_velocity(idx):
         cognitive = (c1 * np.random.uniform(0, 1, 2)) * (swarm[idx][P_BEST_POS_IDX] - swarm[idx][P_POS_IDX])
         social = (c2 * np.random.uniform(0, 1, 2)) * (swarm_best_pos - swarm[idx][P_POS_IDX])
         velocity = (w * swarm[idx][P_VELOCITY_IDX]) + cognitive + social
@@ -87,7 +87,7 @@ def global_best_pso(n, dims, c1, c2, w, iters, obj_func, val_min, val_max):
                 new_pos = swarm[idx][P_POS_IDX] + calculate_velocity(idx)
                 old_swarm_worst_cost = obj_func(old_pos)
                 new_swarm_worst_cost = obj_funct(new_pos)
-                if new_warm_worst_cost - old_swarm_worst_cost < alpha:
+                if new_swarm_worst_cost - old_swarm_worst_cost < alpha:
                     swarm[idx][P_POS_IDX] = new_pos
                 else:
                     best_neighbors = getNeighbors(particle[P_BEST_POS_IDX], swarm, k)
