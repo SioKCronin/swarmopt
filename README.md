@@ -7,10 +7,11 @@ SwarmOpt is a swarm intelligence optimizer for hyperparameter tuning. The projec
 Swarm intelligence leverages global population-based search solutions to balance exploration and exploitation with respect to specified cost functions. There are many exciting nooks and crannies to explore in the SI toplogy, yet I've chosen to kick things of with some Particle Swarm Optimization (PSO) algorithms, as they are easy to understand and fiddle with. The PSO lineage was sparked by Eberhart and Kennedy in their original paper on PSOs in 1995, and the intervening years have seen many variations spring from their central idea. 
 
 ## Algorithms
-* PSO (global and local best)([PSO](https://github.com/SioKCronin/SwarmOpt/tree/master/algorithms/pso)) - Kennedy & Eberhart 1995
-* Unified PSO ([UPSO](https://github.com/SioKCronin/SwarmOpt/tree/master/algorithms/upso)) - Parsopoulos &  Vrahatis 2004
-* Dynamic Multi-Swarm PSO ([DMSPSO](https://github.com/SioKCronin/SwarmOpt/tree/master/algorithms/dmspso)) - Liang & Suganthan 2005
-* Simulated Annealing PSO ([SAPSO](https://github.com/SioKCronin/SwarmOpt/tree/master/algorithms/sapso)) - Mu, Cao, & Wang 2009
+* [Global Best PSO](https://github.com/SioKCronin/SwarmOpt/tree/master/algorithms/gbest_pso) - Kennedy & Eberhart 1995
+* [Local Best PSO](https://github.com/SioKCronin/SwarmOpt/tree/master/algorithms/lbest_pso) - Kennedy & Eberhart 1995
+* [Unified PSO](https://github.com/SioKCronin/SwarmOpt/tree/master/algorithms/upso)) - Parsopoulos &  Vrahatis 2004
+* [Dynamic Multi-Swarm PSO](https://github.com/SioKCronin/SwarmOpt/tree/master/algorithms/dmspso) - Liang & Suganthan 2005
+* [Simulated Annealing PSO](https://github.com/SioKCronin/SwarmOpt/tree/master/algorithms/sapso) - Mu, Cao, & Wang 2009
 
 ## Benchmark Functions
 
