@@ -1,4 +1,4 @@
-# Dynamic Neighborhood PSO
+"""Dynamic Neighborhood PSO"""
 
 import numpy as np
 import math

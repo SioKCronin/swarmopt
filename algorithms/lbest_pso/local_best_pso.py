@@ -73,6 +73,8 @@ def update_position(swarm, idx, w, k, c1, c2, swarm_best_pos, swarm_best_cost):
 
     swarm[idx][0] += (w * swarm[idx][1]) + cognitive + social
 
+    # Add clamp!
+
     return swarm, swarm_best_pos, swarm_best_cost
 
 def calculate_swarm_best(dims, obj_func):
