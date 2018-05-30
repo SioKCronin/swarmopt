@@ -9,11 +9,10 @@ Swarm intelligence leverages global population-based search solutions to balance
 The implementations reveal a lot of the shared architecture across these algorithms, and as I shift towards a tidy optimizer module, these implementations will shift to being housed at [SwarmLab](https://github.com/SioKCronin/SwarmLab), where I also aim to add some **visualization tools** and **a comparative analysis scoreboard**. Stay tuned and definitely reach out if you're up for collaborating!
 
 ## Algorithms
-
-* PSO (global and local best)([PSO](https://github.com/SioKCronin/SwarmOpt/tree/0edf74134263b4ffdbb9240b80196efe983a9a19/pso)) - Kennedy & Eberhart 1995
-* Unified PSO ([UPSO](https://github.com/SioKCronin/PSO-baselines/tree/master/upso)) - Parsopoulos &  Vrahatis 2004
-* Dynamic Multi-Swarm PSO ([DMSPSO](https://github.com/SioKCronin/PSO-baselines/tree/master/dmspso)) - Liang & Suganthan 2005
-* Simulated Annealing PSO ([SAPSO](https://github.com/SioKCronin/PSO-baselines/tree/master/sapso)) - Mu, Cao, & Wang 2009
+* PSO (global and local best)([PSO](https://github.com/SioKCronin/SwarmOpt/tree/master/pso)) - Kennedy & Eberhart 1995
+* Unified PSO ([UPSO](https://github.com/SioKCronin/SwarmOpt/tree/master/upso)) - Parsopoulos &  Vrahatis 2004
+* Dynamic Multi-Swarm PSO ([DMSPSO](https://github.com/SioKCronin/SwarmOpt/tree/master/dmspso)) - Liang & Suganthan 2005
+* Simulated Annealing PSO ([SAPSO](https://github.com/SioKCronin/SwarmOpt/tree/master/sapso)) - Mu, Cao, & Wang 2009
 
 ## Benchmark Functions
 
