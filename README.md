@@ -25,13 +25,12 @@ Single objective test functions:
 
 ## On Deck
 
-* Improved Particle Swarm Optimization (IPSO)
-* Proactive Particles in Swarm Optimization (PPSO)
-* Cooperative Approach to PSO (CPSO) 
+* Cooperative Approach to PSO (CPSO)(multiple collaborating swarms)
+* Proactive Particles in Swarm Optimization (PPSO) (self-tuning swarms)
 * Inertia weight variations
 * Mutation operator variations
 * Velocity clamping variations
-* Multiobjective
+* Multiobjective variations
 * Dynamic environment
 
 ## Applications
