@@ -7,8 +7,8 @@ best.
 
 import numpy as np
 from random import shuffle
-from utils.distance import euclideanDistance, getNeighbors
-from utils.swarm import initialize_swarm, update_pbest, generate_weights,
+from .utils.distance import euclideanDistance, getNeighbors
+from .utils.swarm import initialize_swarm, update_pbest, generate_weights, \
                         update_position, calculate_swarm_best
 
 def global_best_pso(n, dims, c1, c2, w, iters, obj_func, val_min, val_max):

@@ -38,15 +38,4 @@ def local_best_pso(n, dims, c1, c2, w, k, iters, obj_func, val_min, val_max):
     v_clamp = 0.2 * (val_max - val_min)
     swarm = initialize_swarm(n, val_min, val_max, dims, v_clamp, obj_func)
     swarm_best_pos, swarm_best_cost = calculate_swarm_best(dims, obj_func)
-    epoch = 1
-
-    while epoch <= iters:
-        for idx, particle in enumerate(swarm):
-            swarm = update_pbest(swarm, idx, obj_func)
-            swarm, swarm_best_pos, swarm_best_cos = \
-                    update_position(swarm, idx, w, k, c1, c2, 
-                            swarm_best_pos, swarm_best_cost)
-
-        epoch += 1
-
-    return swarm_best_cost
+    print(optimize_swarm(iters, swarm, obj_func, w, k, c1, c2, swarm_best_pos, swarm_best_cost))
