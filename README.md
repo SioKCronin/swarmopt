@@ -9,9 +9,9 @@ Swarm intelligence leverages global population-based search solutions to balance
 ## Algorithms
 * [Global Best PSO](https://github.com/SioKCronin/SwarmOpt/tree/master/algorithms/gbest_pso) - Kennedy & Eberhart 1995
 * [Local Best PSO](https://github.com/SioKCronin/SwarmOpt/tree/master/algorithms/lbest_pso) - Kennedy & Eberhart 1995
-* [Unified PSO](https://github.com/SioKCronin/SwarmOpt/tree/master/algorithms/upso) - Parsopoulos &  Vrahatis 2004
-* [Dynamic Multi-Swarm PSO](https://github.com/SioKCronin/SwarmOpt/tree/master/algorithms/dmspso) - Liang & Suganthan 2005
-* [Simulated Annealing PSO](https://github.com/SioKCronin/SwarmOpt/tree/master/algorithms/sapso) - Mu, Cao, & Wang 2009
+* [Unified PSO](https://github.com/SioKCronin/SwarmOpt/tree/master/algorithms/unified_pso) - Parsopoulos &  Vrahatis 2004
+* [Dynamic Multi-Swarm PSO](https://github.com/SioKCronin/SwarmOpt/tree/master/algorithms/dynamic_multiswarm_pso) - Liang & Suganthan 2005
+* [Simulated Annealing PSO](https://github.com/SioKCronin/SwarmOpt/tree/master/algorithms/sim_annealing_pso) - Mu, Cao, & Wang 2009
 
 ## Benchmark Functions
 
@@ -25,11 +25,13 @@ Single objective test functions:
 
 ## On Deck
 
-* Improved Particle Swarm Optimization (IPSO)
-* Proactive Particles in Swarm Optimization (PPSO)
-* Cooperative Approach to PSO (CPSO) 
-* Artificial Bee Colony (ABC)
-* Ant Colony Optimization (ACO)
+* Cooperative Approach to PSO (CPSO)(multiple collaborating swarms)
+* Proactive Particles in Swarm Optimization (PPSO) (self-tuning swarms)
+* Inertia weight variations
+* Mutation operator variations
+* Velocity clamping variations
+* Multiobjective variations
+* Dynamic environment
 
 ## Applications
 
