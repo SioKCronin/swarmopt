@@ -28,8 +28,11 @@ Single objective test functions:
 * Improved Particle Swarm Optimization (IPSO)
 * Proactive Particles in Swarm Optimization (PPSO)
 * Cooperative Approach to PSO (CPSO) 
-* Artificial Bee Colony (ABC)
-* Ant Colony Optimization (ACO)
+* Inertia weight variations
+* Mutation operator variations
+* Velocity clamping variations
+* Multiobjective
+* Dynamic environment
 
 ## Applications
 
