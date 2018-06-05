@@ -3,16 +3,7 @@ Global Best Particle Swarm Optimization (Global PSO)
 
 Particle positions are updated based on their relative performance to global
 best.
-"""
 
-import numpy as np
-from random import shuffle
-from .utils.distance import euclideanDistance, getNeighbors
-from .utils.swarm import initialize_swarm, update_pbest, generate_weights, \
-                        update_position, calculate_swarm_best
-
-def global_best_pso(n, dims, c1, c2, w, iters, obj_func, val_min, val_max):
-    '''
     n : int
       number of particles in the swarm
     dims : int
@@ -33,7 +24,15 @@ def global_best_pso(n, dims, c1, c2, w, iters, obj_func, val_min, val_max):
       minimum evaluatable value for obj_func
     val_max : float
       maximum evaluatable value for obj_func
-    '''
+"""
+
+import numpy as np
+from random import shuffle
+from .utils.distance import euclideanDistance, getNeighbors
+from .utils.swarm import initialize_swarm, update_pbest, generate_weights, \
+                        update_position, calculate_swarm_best
+
+def global_best_pso(n, dims, c1, c2, w, iters, obj_func, val_min, val_max):
     v_clamp = 0.2 * (val_max - val_min)
     swarm = initialize_swarm(n, val_min, val_max, dims, v_clamp, obj_func)
     swarm_best_pos, swarm_best_cost = calculate_swarm_best(dims, obj_func)

@@ -9,52 +9,17 @@ def initialize_swarm(n, val_min, val_max, dims, v_clamp, obj_func):
     for particle in range(n):
         pos = np.random.uniform(val_min, val_max, dims)
         velocity = np.random.uniform(-v_clamp, v_clamp, dims)
-        p_best_pos = np.random.uniform(val_min, val_max, dims)
+        p_best_pos = pos
         if obj_func.__name__ == 'rosenbrock_func':
             p_best_cost = obj_func(p_best_pos, p_best_pos)
         else:
             p_best_cost = obj_func(p_best_pos)
 
         swarm.append([pos, velocity, p_best_pos, p_best_cost])
+
+    #global_best_pos, global_best_cost = best_of_the_personal
+
     return swarm
-
-class Swarm(object):
-    def __init__(self, n, val_min, val_max, dims, v_clamp, obj_func):
-        self.swarm = []
-        self.obj_func = obj_func
-        for particle in range(n):
-            pos = np.random.uniform(val_min, val_max, dims)
-            velocity = np.random.uniform(-v_clamp, v_clamp, dims)
-            if obj_func.__name__ == 'rosenbrock_func':
-                p_best_cost = self.obj_func(pos, pos)
-            else:
-                p_best_cost = self.obj_func(pos)
-
-            self.swarm.append([pos, velocity, p_best_pos, p_best_cost])
-
-    def update_pbest(idx):
-        """Update personal best based on current positions of particles"""
-        current_cost = self.obj_func(self.swarm[idx][0])
-
-        if current_cost < self.swarm[idx][3]:
-            self.swarm[idx][2] = self.swarm[idx][0]
-            self.swarm[idx][3] = current_cost
-        return current_cost
-
-class UnifiedSwarm(Swarm):
-    pass
-
-class RosenBrockSwarm(Swarm):
-    def update_pbest(self, idx):
-        if idx == len(self.swarm) - 1:
-            current_cost = self.obj_func(self.swarm[idx][0], self.swarm[idx][0])
-        else:
-            current_cost = self.obj_func(self.swarm[idx][0], self.swarm[idx + 1][0])
-
-        if current_cost < self.swarm[idx][3]:
-            self.swarm[idx][2] = self.swarm[idx][0]
-            self.swarm[idx][3] = current_cost
-        return current_cost
 
 def update_pbest(swarm, idx, obj_func):
     """Update personal best based on current positions of particles"""
@@ -74,6 +39,8 @@ def update_pbest(swarm, idx, obj_func):
 
 def generate_weights(swarm, idx, best_pos, c1, c2):
     """Generate weights with cognitive (c1) and social (c2) weights"""
+    # Intertia weighting
+    # Maybe mutation here?
     cognitive = (c1 * np.random.uniform(0, 1, 2)) \
                 * (swarm[idx][2] - swarm[idx][0])
     social = (c2 * np.random.uniform(0, 1, 2)) \
@@ -102,13 +69,15 @@ def update_position(swarm, idx, w, k, c1, c2, swarm_best_pos, swarm_best_cost):
         swarm_best_pos = swarm[idx][2]
 
     cognitive, social = generate_weights(swarm, idx, best_pos, c1, c2)
-    swarm[idx][0] += (w * swarm[idx][1]) + cognitive + social
+    # Velocity clamping will come in here
+    swarm[idx][1] = (w * swarm[idx][1]) + cognitive + social
+    swarm[idx][0] += swarm[idx][1] 
 
     return swarm, swarm_best_pos, swarm_best_cost
 
 
 def calculate_swarm_best(dims, obj_func):
-    swarm_best_pos = np.array([0]*dims)
+    global_best = np.random.uniform(val_min, val_max, dims)
 
     if obj_func.__name__ == 'rosenbrock_func':
         swarm_best_cost = obj_func(swarm_best_pos, swarm_best_pos)
@@ -171,24 +140,3 @@ def optimize_swarm(iters, swarm, obj_func, w, k, c1, c2, swarm_best_pos, swarm_b
                             swarm_best_pos, swarm_best_cost)
         epoch += 1
     return swarm_best_cost
-
-# Distance utilities
-
-def euclideanDistance(point1, point2):
-    distance = 0
-    for x in range(len(point1)-1):
-        distance += pow((point1[x] - point2[x]), 2)
-    return math.sqrt(distance)
-
-def getNeighbors(target, swarm, k):
-    distances = []
-    def takeSecond(elem):
-        return elem[1]
-    for x in range(len(swarm)-1):
-        distances.append((swarm[x][0], euclideanDistance(swarm[x][0], target)))
-    sorted_distances = sorted(distances,key=takeSecond)
-    neighbors = []
-    for x in range(k):
-        neighbors.append(sorted_distances[x][0])
-    return neighbors
-

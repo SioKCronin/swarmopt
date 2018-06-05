@@ -1,4 +1,5 @@
 """Distance functions"""
+import math
 
 def euclideanDistance(point1, point2):
     distance = 0

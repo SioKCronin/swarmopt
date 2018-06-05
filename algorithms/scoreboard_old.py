@@ -3,11 +3,7 @@
 import numpy as np
 import math
 import sys
-sys.path.append('../')
-from pso.global_best_pso import global_best_pso
-from common.functions.single_objective import sphere_func, rosenbrock_func,\
-                                              griewank_func, ackley_func, \
-                                              rastrigin_func, weierstrass_func
+from context import *
 
 def run_all_tests(algo, n, dims, c1, c2, w, iters):
 
