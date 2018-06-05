@@ -3,6 +3,7 @@ Core components for building a swarm
 """
 
 import math
+import distance
 
 def initialize_swarm(n, val_min, val_max, dims, v_clamp, obj_func):
     swarm = []
@@ -129,6 +130,16 @@ def clamp_velocity(velocity):
         velocity[0] = v_clamp_max
     return velocity
 
+def getNeighbors(target_pos, swarm, k):
+    distances = []
+
+    def take_second(elem):
+        return elem[1]
+
+    for x in range(len(swarm)):
+        distances.append((swarm[x][0], distance.euclideanDistance(swarm[x][0], target_pos)))
+    sorted_distances = sorted(distances, key=take_second)
+    return sorted_distances[:k+1]
 
 def optimize_swarm(iters, swarm, obj_func, w, k, c1, c2, swarm_best_pos, swarm_best_cost):
     epoch = 1
