@@ -11,7 +11,7 @@ def constant_inertia_weight(c):
 def random_inertia_weight(s=None):
     if s != None:
         random.seed(s)
-    return (0.5 + random.random()/2) 
+    return (0.5 + random.random()/2)
 
 def chaotic_inertia_weight(c1, c2, z, max_iter, current_iter):
     """Introduced by Feng et al. 2008"""
