@@ -1,8 +1,7 @@
 # Contributions are warmly welcome!
 
-You can contribute in many ways:
+## You can contribute in many ways:
 
-## Types of Contributions
 ### Report Bugs
 Report bugs at https://github.com/SioKCronin/SwarmOpt/issues
 
