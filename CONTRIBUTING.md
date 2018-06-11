@@ -4,7 +4,7 @@ You can contribute in many ways:
 
 ## Types of Contributions
 ### Report Bugs
-Report bugs at https://github.com/ljvmiranda921/pyswarms/issues.
+Report bugs at https://github.com/SioKCronin/SwarmOpt/issues
 
 If you are reporting a bug, please include:
 
