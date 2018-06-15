@@ -2,7 +2,7 @@
 
 # SwarmOpt
 
-SwarmOpt is a swarm intelligence optimizer for hyperparameter tuning. The project is currently in R&D, where I'm implementing swarm intelligence algorithms to find the best variation for hyperparemeter tuning. I'm particularly interested in comparing velocity clamp variations, and implementing test functions that most closely resemble the kinds of complex search environments encountered in hyperparameter tuning.  
+SwarmOpt is a swarm intelligence optimizer for hyperparameter tuning. The project is currently in R&D, where I'm benchmarking variations, with a particular focus on hybrid topologies and velocity clamp variations. The current frontrunner is a simple global best, but I expect it won't stay out in front for long.  
 
 Swarm intelligence leverages global population-based search solutions to balance exploration and exploitation with respect to specified cost functions. There are many exciting nooks and crannies to explore in the SI toplogy, yet I've chosen to kick things of with some Particle Swarm Optimization (PSO) algorithms, as they are easy to understand and fiddle with. The PSO lineage was sparked by Eberhart and Kennedy in their original paper on PSOs in 1995, and the intervening years have seen many variations spring from their central idea. 
 
