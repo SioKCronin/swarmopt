@@ -10,7 +10,7 @@ Swarm intelligence leverages global population-based search solutions to balance
 
 To install SwarmpOpt, run this command in your terminal:
 
-```python
+```shell
 $ pip install swarmopt
 ```
 
