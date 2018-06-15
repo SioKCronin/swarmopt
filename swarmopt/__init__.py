@@ -1,4 +1,4 @@
-from swarm import Swarm
+from .swarm import Swarm
 
 __all__ = ['Swarm']
 

@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 from context import Particle, Swarm
-from functions import sphere_func
+from functions import sphere
 
 class TestParticle(unittest.TestCase):
     def setUp(self):
@@ -14,7 +14,7 @@ class TestParticle(unittest.TestCase):
         self.val_min = 1
         self.val_max = 10
         self.max_start_velocity = 2
-        self.obj_func = sphere_func
+        self.obj_func = sphere
         self.swarm = Swarm(
             1, # n_particles
             self.dims,
@@ -54,6 +54,9 @@ class TestParticle(unittest.TestCase):
         self.assertNotEqual(self.particle.velocity[1], velocity[1])
         self.assertNotEqual(self.particle.pos[0], pos[0])
         self.assertNotEqual(self.particle.pos[1], pos[1])
+
+    def tearDown(self):
+        np.random.seed()
 
 if __name__ == "__main__":
     unittest.main()

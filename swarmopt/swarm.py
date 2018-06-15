@@ -1,10 +1,12 @@
 import numpy as np
+import timeit
 
 
 class Swarm:
     def __init__(self, n_particles, dims, c1, c2, w, epochs, obj_func, v_clamp):
         self.epochs = epochs
         self.n_particles = n_particles
+        self.runtime = 0
 
         self.dims = dims
         self.c1 = c1
@@ -29,10 +31,13 @@ class Swarm:
         return swarm
 
     def optimize(self):
+        start = timeit.default_timer()
         for _ in range(self.epochs):
             for particle in self.swarm:
                 particle.update()
             self.update_best_pos()
+        stop = timeit.default_timer()
+        self.runtime = stop - start
 
     def update_best_pos(self):
         for particle in self.swarm:
