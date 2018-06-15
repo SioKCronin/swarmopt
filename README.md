@@ -6,6 +6,14 @@ SwarmOpt is a swarm intelligence optimizer for hyperparameter tuning. The projec
 
 Swarm intelligence leverages global population-based search solutions to balance exploration and exploitation with respect to specified cost functions. There are many exciting nooks and crannies to explore in the SI toplogy, yet I've chosen to kick things of with some Particle Swarm Optimization (PSO) algorithms, as they are easy to understand and fiddle with. The PSO lineage was sparked by Eberhart and Kennedy in their original paper on PSOs in 1995, and the intervening years have seen many variations spring from their central idea. 
 
+## Installation
+
+To install SwarmpOpt, run this command in your terminal:
+
+```python
+$ pip install swarmopt
+```
+
 ## Algorithms
 * [Global Best PSO](https://github.com/SioKCronin/SwarmOpt/tree/master/algorithms/gbest_pso) - Kennedy & Eberhart 1995
 * [Local Best PSO](https://github.com/SioKCronin/SwarmOpt/tree/master/algorithms/lbest_pso) - Kennedy & Eberhart 1995
