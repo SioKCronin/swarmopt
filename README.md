@@ -39,7 +39,7 @@ Single objective test functions:
 * Mutation operator variations
 * Velocity clamping variations
 * Multiobjective variations
-* Dynamic environment
+* Benchmark on something canonical like MNIST
 
 ## Applications
 
