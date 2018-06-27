@@ -43,9 +43,10 @@ Single objective test functions:
 
 ## Applications
 
-* Neural network number of layers and structure optimization
+* Neural network number of layers and weight optimization
 * Grid scheduling (load balancing)
 * Routing in communication networks
+* Anomaly detection
 
 ## Citation
 
