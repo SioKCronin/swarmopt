@@ -5,8 +5,6 @@ from swarmopt import Swarm, functions
 import csv
 from time import gmtime, strftime
 import os
-#script_dir = os.path.dirname(__file__)
-#file_path = os.path.join(script_dir, 'data/{}.csv'.format(strftime("%Y-%m-%d-%H-%M-%S")))
 file_path = 'csvfiles/{}.csv'.format(strftime("%Y-%m-%d-%H-%M-%S"))
 
 def run_all_tests(n, dims, c1, c2, w, iters):
