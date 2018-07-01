@@ -3,8 +3,45 @@ import timeit
 
 
 class Swarm:
-    def __init__(self, n_particles, dims, c1, c2, epochs, obj_func, v_clamp,
-                 algo='global', w=1, k = 5, u=0.5, m_swarms=3, hueristic_change=0.9, r=5):
+    def __init__(self, n_particles, dims, c1, c2, w, epochs, obj_func,
+                 algo='global', inertia_func='linear', velocity_clamp=None,
+                 k=5, u=0.5, m_swarms=3, hueristic_change=0.9, r=5):
+        """Intialize the swarm.
+
+        Attributes
+        ----------
+        n_particles: int
+            number of particles in the swarm
+        dims: int
+            dimensions of the space
+        c1: float
+            cognitive weight
+        c2: float
+            social weight
+        w: float
+            inertia weight
+        epochs: int
+            number of epochs
+        obj_func: string
+            name of objective function
+        algo: string
+            name of swarm algorithm
+        intertia_func: string
+            name of inertia function
+        velocity_clamp: 2-tuple
+            minimum velocity (first) and maximum velocity (second)
+        k: int
+            number of neighbors in a neighborhood
+        u: float
+            sets local/global ratio in unified (0 to 1)
+        m_swarms: int
+            number of swarms in 'multiswarm'
+        hueristic_change: float
+            sets ratio of first/second hueristic in 'multiswarm' (0 to 1)
+        r: int
+            reshuffle parameter in 'multiswarm'
+        """
+
         self.algo = algo
         self.epochs = epochs
         self.n_particles = n_particles
@@ -150,21 +187,19 @@ class Particle:
                             (self.cognitive_weight() + self.global_weight())
 
         if self.swarm.algo == 'multiswarm':
-            # Reshuffling
+            """Reshuffling"""
             if self.swarm.r:
                 particles = [particle for swarm in self.swarm.multiswarm]
                 shuffle(particles)
                 self.swarm.multiswarm = [particles[i:i+m] for i in range(0, len(particles), m)]
 
-            # Startng heuristic
+            """Startng heuristic"""
             if not self.swarm.end: 
-                # Local PSO
                 self.velocity = (self.swarm.w * self.velocity) +
                                 (self.cognitive_weight() + self.local_weight())
 
-            # Ending hueristic
+            """Ending hueristic"""
             if self.swarm.end:
-                # Global PSO
                 self.velocity = (self.swarm.w * self.velocity) +
                                 (self.cognitive_weight() + self.global_weight())
 
