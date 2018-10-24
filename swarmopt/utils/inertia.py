@@ -1,4 +1,4 @@
-"""Intertia Weight Functions"""
+"""Inertia Weight Functions"""
 import random
 
 def chaotic_inertia_weight(c1, c2, z, max_iter, current_iter):
