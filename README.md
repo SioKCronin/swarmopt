@@ -2,7 +2,7 @@
 
 # SwarmOpt
 
-SwarmOpt is a library of swarm intelligence optimization algorithms. I'm currently benchmarking variations,
+SwarmOpt is a library of swarm intelligence optimization algorithms. I'm currently benchmarking PSO variations,
 with a particular focus on hybrid topologies and velocity clamp variations. The baseline frontrunner is a simple Global Best,
 but I expect it won't stay out in front for long.  
 
