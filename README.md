@@ -2,9 +2,9 @@
 
 # SwarmOpt
 
-SwarmOpt is an repository of swarm optimization algorithm variations. 
-
-Our hope is that these implementation "seeds" can be used by others in the development of new strains of PSO/MOPSO. 
+SwarmOpt is undergoing an overhaul, whereby this library of swarm optimization algorithm implementations will be transformed
+into a prodution-ready, Dockerized MOPSO algorithm (with multiple variations made available) designed to tune CNNs. 
+Stay tuned! 
 
 Swarm intelligence leverages global population-based search solutions to balance exploration and exploitation with respect 
 to specified cost functions. The PSO lineage was sparked by Eberhart and Kennedy in their original paper on PSOs in 1995, 
