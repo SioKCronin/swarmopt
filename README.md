@@ -2,13 +2,13 @@
 
 # SwarmOpt
 
-SwarmOpt is a library of swarm intelligence optimizer built from several PSO variations. 
+SwarmOpt is an repository of swarm optimization algorithm variations. 
+
+Our hope is that these implementation "seeds" can be used by others in the development of new strains of PSO/MOPSO. 
 
 Swarm intelligence leverages global population-based search solutions to balance exploration and exploitation with respect 
-to specified cost functions. There are many exciting nooks and crannies to explore in the SI ecosystem, yet I've chosen 
-to kick things of with some Particle Swarm Optimization (PSO) algorithms, as they are easy to understand and fiddle with. 
-The PSO lineage was sparked by Eberhart and Kennedy in their original paper on PSOs in 1995, and the intervening 
-years have seen many variations spring from their central idea. 
+to specified cost functions. The PSO lineage was sparked by Eberhart and Kennedy in their original paper on PSOs in 1995, 
+and the intervening years have seen many variations spring from their central idea. 
 
 ## Installation
 
@@ -19,6 +19,8 @@ $ pip install swarmopt
 ```
 
 ## Algorithms
+
+### Single-Objective
 * Global Best PSO - Kennedy & Eberhart 1995
 * Local Best PSO - Kennedy & Eberhart 1995
 * Unified PSO - Parsopoulos &  Vrahatis 2004
