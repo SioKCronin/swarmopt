@@ -6,6 +6,11 @@ def chaotic_inertia_weight(c1, c2, z, max_iter, current_iter):
     z = 4 * z * (1-z)
     return (c1-c2)*((max_iter-current_iter)/max_iter)+(c2*z)
 
+def chaotic_random_inertia_weight(s):
+   if s != None:
+       random.seed(s)
+   z = 4 x z x (1 - z)
+   return (0.5 x random.random() + 0.5 x z)
 
 def constant_inertia_weight(c):
     try:
@@ -19,6 +24,8 @@ def random_inertia_weight(s=None):
     if s != None:
         random.seed(s)
     return (0.5 + random.random()/2)
+
+
 
 
 
