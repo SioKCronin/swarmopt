@@ -4,9 +4,9 @@ import timeit
 
 class Swarm:
     def __init__(self, n_particles, dims, c1, c2, w, epochs, obj_func,
-                 algo='global', inertia_func='linear', velocity_clamp=None,
+                 algo='global', inertia_func='linear', velocity_clamp=(0,2),
                  k=5, u=0.5, m_swarms=3, hueristic_change=0.9, r=5):
-        """Intialize the swarm.
+        """Intialize the swarm
 
         Attributes
         ----------
@@ -60,7 +60,7 @@ class Swarm:
         self.u = u
         self.decrement = 0.7 / m_swarms
 
-        self.val_min, self.val_max = v_clamp
+        self.val_min, self.val_max = velocity_clamp
         self.velocity_bounds = 0.2 * (self.val_max - self.val_min)
 
         self.obj_func = obj_func
@@ -71,12 +71,12 @@ class Swarm:
         self.local_best_cost = float('inf')
         self.local_best_pos = None
 
-        if self.algo = 'multiswarm':
+        if self.algo == 'multiswarm':
             self.multiswarm = self.initialize_multiswarm()
         else:
             self.swarm = self.initialize_swarm()
 
-        self.update_best_pos()
+        self.update_global_best_pos()
 
     def shape(self):
         return [self.n_particles, self.dims]
@@ -123,7 +123,7 @@ class Swarm:
 
     def update_local_best_pos(self):
         for particle in self.swarm:
-            local_best = get_best_neighbor(particle)
+            local_best = get_best_neighbor(self, particle)
             particle.local_best_cost = local_best[1]
             particle.local_best_pos = local_best[0]
 
@@ -132,7 +132,7 @@ class Particle:
     def __init__(self, swarm):
         self.swarm = swarm
         self.dims = swarm.dims
-        self.pos = self.best_pos = np.random.uniform(
+        self.pos = self.best_pos = self.local_best_pos = np.random.uniform(
             swarm.val_min, swarm.val_max, swarm.dims
         )
         self.velocity = np.random.uniform(
@@ -155,14 +155,17 @@ class Particle:
             self.local_best_pos - self.pos
         )
 
+    def social_weight(self):
+        return (self.swarm.c2 * np.random.uniform(0, 1, self.dims)) * (
+            self.local_best_pos - self.pos
+        )
+
     def update(self):
         if self.swarm.algo == 'global':
-            self.velocity = (self.swarm.w * self.velocity) +
-                            (self.cognitive_weight() + self.global_weight())
+            self.velocity = (self.swarm.w * self.velocity) + (self.cognitive_weight() + self.global_weight())
 
         if self.swarm.algo == 'local':
-            self.velocity = (self.swarm.w * self.velocity) +
-                            (self.cognitive_weight() + self.local_weight())
+            self.velocity = (self.swarm.w * self.velocity) + (self.cognitive_weight() + self.local_weight())
 
         if self.swarm.algo == 'unified':
             g_velocity = self.u * ((self.swarm.w * self.velocity) +
@@ -183,8 +186,7 @@ class Particle:
                     self.pos = best_neighbor[0]
                     self.cost = best_neighbor[1]
 
-            self.velocity = (self.swarm.w * self.velocity) +
-                            (self.cognitive_weight() + self.global_weight())
+            self.velocity = (self.swarm.w * self.velocity) + (self.cognitive_weight() + self.global_weight())
 
         if self.swarm.algo == 'multiswarm':
             """Reshuffling"""
@@ -195,13 +197,11 @@ class Particle:
 
             """Startng heuristic"""
             if not self.swarm.end: 
-                self.velocity = (self.swarm.w * self.velocity) +
-                                (self.cognitive_weight() + self.local_weight())
+                self.velocity = (self.swarm.w * self.velocity) + (self.cognitive_weight() + self.local_weight())
 
             """Ending hueristic"""
             if self.swarm.end:
-                self.velocity = (self.swarm.w * self.velocity) +
-                                (self.cognitive_weight() + self.global_weight())
+                self.velocity = (self.swarm.w * self.velocity) + (self.cognitive_weight() + self.global_weight())
 
 
         self.pos += self.velocity + self.pos
