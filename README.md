@@ -1,5 +1,7 @@
 ![particles](https://github.com/SioKCronin/PSO-baselines/blob/master/media/swarmopt_lateral.png)
 
+2025 Update: I'm looking to revitalize this project and getting it working again. Let me know if you'd like to collaborate!
+
 # SwarmOpt
 
 SwarmOpt is a library of swarm optimization algorithms implemented in Python. 
