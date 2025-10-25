@@ -15,6 +15,8 @@ try:
         soft_clamping, hybrid_clamping, convergence_based_clamping
     )
     from .utils.cpso import CPSO
+    from .utils.mutation import apply_mutation, MUTATION_STRATEGIES
+    from .utils.diversity import DiversityMonitor, calculate_swarm_diversity
 except ImportError:
     from utils.distance import euclideanDistance
     from utils.inertia import (
@@ -28,6 +30,8 @@ except ImportError:
         soft_clamping, hybrid_clamping, convergence_based_clamping
     )
     from utils.cpso import CPSO
+    from utils.mutation import apply_mutation, MUTATION_STRATEGIES
+    from utils.diversity import DiversityMonitor, calculate_swarm_diversity
 
 
 class Swarm:
@@ -35,7 +39,9 @@ class Swarm:
                  algo='global', inertia_func='linear', velocity_clamp=(0,2),
                  k=5, u=0.5, m_swarms=3, hueristic_change=0.9, r=5,
                  w_start=0.9, w_end=0.4, z=0.5, velocity_clamp_func='basic',
-                 n_swarms=None, communication_strategy='best'):
+                 n_swarms=None, communication_strategy='best',
+                 mutation_strategy=None, mutation_rate=0.1, mutation_strength=0.1,
+                 diversity_monitoring=False, diversity_threshold=0.1):
         """Intialize the swarm
 
         Attributes
@@ -107,6 +113,17 @@ class Swarm:
         self.n_swarms = n_swarms
         self.communication_strategy = communication_strategy
         self.cpso = None
+        
+        # Mutation parameters
+        self.mutation_strategy = mutation_strategy
+        self.mutation_rate = mutation_rate
+        self.mutation_strength = mutation_strength
+        
+        # Diversity monitoring parameters
+        self.diversity_monitoring = diversity_monitoring
+        self.diversity_threshold = diversity_threshold
+        self.diversity_monitor = None
+        self.diversity_history = []
 
         self.obj_func = obj_func
         self.best_cost = float('inf')
@@ -163,6 +180,12 @@ class Swarm:
             self.runtime = results['runtime']
             return
         
+        # Initialize diversity monitoring if enabled
+        if self.diversity_monitoring:
+            self.diversity_monitor = DiversityMonitor(
+                diversity_threshold=self.diversity_threshold
+            )
+        
         # Standard PSO algorithms
         for i in range(self.epochs):
             if i >= int(self.hueristic_change * self.epochs):
@@ -174,6 +197,15 @@ class Swarm:
             self.update_local_best_pos()
             self.update_global_best_pos()
             self.update_global_worst_pos()
+            
+            # Monitor diversity and apply interventions if needed
+            if self.diversity_monitoring:
+                diversity_result = self.diversity_monitor.update(self.swarm)
+                self.diversity_history.append(diversity_result)
+                
+                # Apply diversity-based interventions
+                if diversity_result['needs_intervention']:
+                    self._apply_diversity_intervention(diversity_result, i)
         stop = timeit.default_timer()
         self.runtime = stop - start
 
@@ -342,8 +374,159 @@ class Particle:
         
         self.pos += self.velocity
         
+        # Apply mutation if enabled
+        if self.swarm.mutation_strategy is not None:
+            self.pos = self.apply_mutation(current_iter)
+        
         # Update best position if current position is better
         current_cost = self.swarm.obj_func(self.pos)
         if current_cost < self.best_cost:
             self.best_cost = current_cost
             self.best_pos = self.pos.copy()
+            # Reset stagnation counter on improvement
+            if hasattr(self, 'stagnation_count'):
+                self.stagnation_count = 0
+        else:
+            # Increment stagnation counter
+            if hasattr(self, 'stagnation_count'):
+                self.stagnation_count += 1
+            else:
+                self.stagnation_count = 1
+    
+    def apply_mutation(self, current_iter: int):
+        """Apply mutation to particle position"""
+        from .utils.mutation import apply_mutation, detect_stalled_particles, detect_converged_particles
+        
+        # Get all particles for population-based mutations
+        all_particles = [p.pos for p in self.swarm.swarm]
+        
+        # Check if this particle is stalled or converged
+        is_stalled = hasattr(self, 'stagnation_count') and self.stagnation_count >= 10
+        is_converged = np.linalg.norm(self.velocity) < 1e-6
+        
+        # Choose mutation strategy based on particle state
+        if is_stalled or is_converged:
+            # Strong mutation for stuck particles
+            if self.swarm.mutation_strategy == 'hybrid':
+                return apply_mutation(
+                    self.pos, 'escape_local_optima',
+                    bounds=(self.swarm.val_min, self.swarm.val_max),
+                    escape_strength=2.0
+                )
+            elif self.swarm.mutation_strategy == 'adaptive_strength':
+                return apply_mutation(
+                    self.pos, 'adaptive_strength',
+                    current_iter=current_iter, max_iter=self.swarm.epochs,
+                    base_strength=self.swarm.mutation_strength,
+                    bounds=(self.swarm.val_min, self.swarm.val_max)
+                )
+            else:
+                # Default strong mutation
+                return apply_mutation(
+                    self.pos, self.swarm.mutation_strategy,
+                    mutation_rate=0.3, mutation_strength=self.swarm.mutation_strength * 2,
+                    bounds=(self.swarm.val_min, self.swarm.val_max),
+                    current_iter=current_iter, max_iter=self.swarm.epochs,
+                    population=all_particles
+                )
+        else:
+            # Normal mutation
+            return apply_mutation(
+                self.pos, self.swarm.mutation_strategy,
+                mutation_rate=self.swarm.mutation_rate,
+                mutation_strength=self.swarm.mutation_strength,
+                bounds=(self.swarm.val_min, self.swarm.val_max),
+                current_iter=current_iter, max_iter=self.swarm.epochs,
+                population=all_particles
+            )
+    
+    def _apply_diversity_intervention(self, diversity_result: dict, current_iter: int):
+        """Apply diversity-based intervention to improve swarm diversity"""
+        intervention = diversity_result['recommended_intervention']
+        stats = diversity_result['stats']
+        
+        if intervention == 'restart':
+            # Complete restart of worst particles
+            self._restart_worst_particles(0.3)  # Restart 30% of worst particles
+            
+        elif intervention == 'escape_local_optima':
+            # Apply strong escape mutations to converged particles
+            self._apply_escape_mutations(stats)
+            
+        elif intervention == 'diversity_preserving':
+            # Apply diversity-preserving mutations
+            self._apply_diversity_mutations()
+            
+        elif intervention == 'opposition_based':
+            # Apply opposition-based mutations
+            self._apply_opposition_mutations()
+            
+        elif intervention == 'adaptive_strength':
+            # Increase mutation strength for all particles
+            self._increase_mutation_strength()
+    
+    def _restart_worst_particles(self, restart_ratio: float):
+        """Restart worst performing particles"""
+        # Sort particles by fitness
+        particles_with_costs = [(p, p.best_cost) for p in self.swarm]
+        particles_with_costs.sort(key=lambda x: x[1], reverse=True)
+        
+        # Restart worst particles
+        n_to_restart = int(len(self.swarm) * restart_ratio)
+        for i in range(n_to_restart):
+            particle = particles_with_costs[i][0]
+            # Reinitialize position
+            particle.pos = np.random.uniform(self.val_min, self.val_max, self.dims)
+            particle.best_pos = particle.pos.copy()
+            particle.best_cost = self.obj_func(particle.pos)
+            particle.velocity = np.random.uniform(-self.velocity_bounds, self.velocity_bounds, self.dims)
+            particle.stagnation_count = 0
+    
+    def _apply_escape_mutations(self, stats: dict):
+        """Apply escape mutations to converged particles"""
+        from .utils.mutation import apply_mutation
+        
+        for particle in self.swarm:
+            if stats['convergence_metrics']['is_converged']:
+                # Apply strong escape mutation
+                particle.pos = apply_mutation(
+                    particle.pos, 'escape_local_optima',
+                    bounds=(self.val_min, self.val_max),
+                    escape_strength=2.0
+                )
+    
+    def _apply_diversity_mutations(self):
+        """Apply diversity-preserving mutations"""
+        from .utils.mutation import apply_mutation
+        
+        positions = [p.pos for p in self.swarm]
+        for particle in self.swarm:
+            particle.pos = apply_mutation(
+                particle.pos, 'diversity_preserving',
+                population=positions, mutation_rate=0.3
+            )
+    
+    def _apply_opposition_mutations(self):
+        """Apply opposition-based mutations"""
+        from .utils.mutation import apply_mutation
+        
+        for particle in self.swarm:
+            particle.pos = apply_mutation(
+                particle.pos, 'opposition_based',
+                bounds=(self.val_min, self.val_max),
+                mutation_rate=0.2
+            )
+    
+    def _increase_mutation_strength(self):
+        """Increase mutation strength for all particles"""
+        # This would be implemented by temporarily increasing mutation parameters
+        # For now, we'll apply adaptive strength mutations
+        from .utils.mutation import apply_mutation
+        
+        for particle in self.swarm:
+            particle.pos = apply_mutation(
+                particle.pos, 'adaptive_strength',
+                current_iter=0, max_iter=self.epochs,
+                base_strength=self.mutation_strength * 2,
+                bounds=(self.val_min, self.val_max)
+            )
