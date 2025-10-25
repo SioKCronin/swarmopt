@@ -42,7 +42,7 @@ print(f"Best cost: {swarm.best_cost}")
 
 See SwarmOpt in action with our animated demonstrations:
 
-**[🎬 View Particle Swarm Animations](https://github.com/SioKCronin/swarmopt/blob/update2/swarm_visualizations/view_animations.html)**
+**[🎬 View Particle Swarm Animations](https://htmlpreview.github.io/?https://github.com/SioKCronin/swarmopt/blob/update2/swarm_visualizations/view_animations.html)**
 
 The visualizations show:
 - 🔵 **Blue dots** = Particles moving through the search space
@@ -55,6 +55,8 @@ The visualizations show:
 - **Demo 2**: Advanced adaptive approach  
 - **Demo 3**: Challenging Rosenbrock function
 - **Demo 4**: Complex Ackley function with chaotic inertia
+
+> 💡 **Tip**: The animations are also available as GIF files in the [`swarm_visualizations/`](https://github.com/SioKCronin/swarmopt/tree/update2/swarm_visualizations) directory for download and offline viewing.
 
 ## Advanced Usage
 
