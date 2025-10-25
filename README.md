@@ -164,7 +164,6 @@ Single objective test functions:
 ## 🚧 On Deck
 
 * Proactive Particles in Swarm Optimization (PPSO) (self-tuning swarms)
-* Mutation operator variations
 * Multiobjective variations
 * Benchmark on something canonical like MNIST
 
