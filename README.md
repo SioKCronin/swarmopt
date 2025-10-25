@@ -10,10 +10,66 @@ and the intervening years have seen many variations spring from their central id
 
 ## Installation
 
-To install SwarmpOpt, run this command in your terminal:
+To install SwarmOpt, run this command in your terminal:
 
 ```shell
 $ pip install swarmopt
+```
+
+## Quick Start
+
+```python
+from swarmopt import Swarm
+from swarmopt.functions import sphere
+
+# Basic usage
+swarm = Swarm(
+    n_particles=30,
+    dims=2,
+    c1=2.0,
+    c2=2.0,
+    w=0.9,
+    epochs=100,
+    obj_func=sphere,
+    algo='global'
+)
+
+swarm.optimize()
+print(f"Best cost: {swarm.best_cost}")
+```
+
+## Advanced Usage
+
+### Inertia Weight Variations
+```python
+# Use adaptive inertia weight
+swarm = Swarm(
+    n_particles=30, dims=2, c1=2.0, c2=2.0, w=0.9, epochs=100,
+    obj_func=sphere, algo='global',
+    inertia_func='adaptive',  # Try: linear, exponential, chaotic, random, adaptive
+    w_start=0.9, w_end=0.4
+)
+```
+
+### Velocity Clamping Variations
+```python
+# Use hybrid velocity clamping
+swarm = Swarm(
+    n_particles=30, dims=2, c1=2.0, c2=2.0, w=0.9, epochs=100,
+    obj_func=sphere, algo='global',
+    velocity_clamp_func='hybrid'  # Try: basic, adaptive, exponential, chaotic, soft
+)
+```
+
+### Combined Advanced Features
+```python
+# Combine inertia and velocity clamping
+swarm = Swarm(
+    n_particles=50, dims=3, c1=2.0, c2=2.0, w=0.9, epochs=200,
+    obj_func=sphere, algo='global',
+    inertia_func='exponential', w_start=0.9, w_end=0.4,
+    velocity_clamp_func='adaptive'
+)
 ```
 
 ## Algorithms
@@ -35,15 +91,56 @@ Single objective test functions:
 * Rastrigin's Function
 * Weierstrass Function
 
-## On Deck
+## ✅ Implemented Features
+
+### Inertia Weight Variations
+* **Constant** - Traditional fixed inertia weight
+* **Linear Decreasing** - Classic linear decay (default)
+* **Chaotic** - Chaotic inertia using logistic map
+* **Random** - Random inertia between 0.5-1.0
+* **Adaptive** - Adapts based on convergence progress ⭐
+* **Chaotic-Random** - Combination of chaotic and random
+* **Exponential Decreasing** - Exponential decay ⭐
+* **Sigmoid Decreasing** - Sigmoid decay curve
+
+### Velocity Clamping Variations
+* **No Clamping** - Particles can move freely
+* **Basic Clamping** - Standard velocity bounds
+* **Adaptive Clamping** - Decreases over time
+* **Exponential Clamping** - Exponential decay
+* **Sigmoid Clamping** - Sigmoid decay
+* **Random Clamping** - Random bounds
+* **Chaotic Clamping** - Chaotic bounds using logistic map
+* **Soft Clamping** - Soft bounds using tanh
+* **Hybrid Clamping** - Adaptive + exponential
+* **Convergence-Based** - Based on optimization progress
+
+## 🚧 On Deck
 
 * Cooperative Approach to PSO (CPSO)(multiple collaborating swarms)
 * Proactive Particles in Swarm Optimization (PPSO) (self-tuning swarms)
-* Inertia weight variations
 * Mutation operator variations
-* Velocity clamping variations
 * Multiobjective variations
 * Benchmark on something canonical like MNIST
+
+## Performance
+
+### Inertia Weight Performance
+- **Adaptive Inertia**: Best performer on most functions
+- **Exponential Decreasing**: Excellent convergence
+- **Linear Decreasing**: Reliable baseline
+- **Chaotic Inertia**: Good for exploration
+
+### Velocity Clamping Performance
+- **Hybrid Clamping**: Best overall performance
+- **Exponential Clamping**: Excellent convergence
+- **Adaptive Clamping**: Good balance of exploration/exploitation
+- **Soft Clamping**: Smooth convergence
+
+### Combined Performance
+- **Exponential Inertia + Hybrid Clamping**: Optimal for most problems
+- **Adaptive Inertia + Adaptive Clamping**: Best for complex landscapes
+- **Linear Inertia + Basic Clamping**: Reliable baseline
 
 ## Applications
 

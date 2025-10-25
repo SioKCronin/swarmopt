@@ -9,6 +9,11 @@ try:
         random_inertia_weight, adaptive_inertia_weight, chaotic_random_inertia_weight,
         exponential_inertia_weight, sigmoid_inertia_weight
     )
+    from .utils.velocity_clamping import (
+        no_clamping, basic_clamping, adaptive_clamping, exponential_clamping,
+        sigmoid_clamping, random_clamping, chaotic_clamping, dimension_wise_clamping,
+        soft_clamping, hybrid_clamping, convergence_based_clamping
+    )
 except ImportError:
     from utils.distance import euclideanDistance
     from utils.inertia import (
@@ -16,13 +21,18 @@ except ImportError:
         random_inertia_weight, adaptive_inertia_weight, chaotic_random_inertia_weight,
         exponential_inertia_weight, sigmoid_inertia_weight
     )
+    from utils.velocity_clamping import (
+        no_clamping, basic_clamping, adaptive_clamping, exponential_clamping,
+        sigmoid_clamping, random_clamping, chaotic_clamping, dimension_wise_clamping,
+        soft_clamping, hybrid_clamping, convergence_based_clamping
+    )
 
 
 class Swarm:
     def __init__(self, n_particles, dims, c1, c2, w, epochs, obj_func,
                  algo='global', inertia_func='linear', velocity_clamp=(0,2),
                  k=5, u=0.5, m_swarms=3, hueristic_change=0.9, r=5,
-                 w_start=0.9, w_end=0.4, z=0.5):
+                 w_start=0.9, w_end=0.4, z=0.5, velocity_clamp_func='basic'):
         """Intialize the swarm
 
         Attributes
@@ -83,9 +93,12 @@ class Swarm:
         self.w_end = w_end
         self.z = z
         self.initial_cost = None
-
+        
+        # Velocity clamping parameters
+        self.velocity_clamp_func = velocity_clamp_func
         self.val_min, self.val_max = velocity_clamp
         self.velocity_bounds = 0.2 * (self.val_max - self.val_min)
+        self.velocity_z = 0.5  # For chaotic clamping
 
         self.obj_func = obj_func
         self.best_cost = float('inf')
@@ -183,6 +196,34 @@ class Swarm:
             # Default to linear
             return linear_inertia_weight(self.w_start, self.w_end, self.epochs, current_iter)
 
+    def apply_velocity_clamping(self, velocity, current_iter=0):
+        """Apply velocity clamping based on the selected function"""
+        if self.velocity_clamp_func == 'none':
+            return no_clamping(velocity, self.velocity_bounds)
+        elif self.velocity_clamp_func == 'basic':
+            return basic_clamping(velocity, self.velocity_bounds)
+        elif self.velocity_clamp_func == 'adaptive':
+            return adaptive_clamping(velocity, self.velocity_bounds, current_iter, self.epochs)
+        elif self.velocity_clamp_func == 'exponential':
+            return exponential_clamping(velocity, self.velocity_bounds, current_iter, self.epochs)
+        elif self.velocity_clamp_func == 'sigmoid':
+            return sigmoid_clamping(velocity, self.velocity_bounds, current_iter, self.epochs)
+        elif self.velocity_clamp_func == 'random':
+            return random_clamping(velocity, self.velocity_bounds)
+        elif self.velocity_clamp_func == 'chaotic':
+            return chaotic_clamping(velocity, self.velocity_bounds, self.velocity_z)
+        elif self.velocity_clamp_func == 'dimension_wise':
+            return dimension_wise_clamping(velocity, self.velocity_bounds)
+        elif self.velocity_clamp_func == 'soft':
+            return soft_clamping(velocity, self.velocity_bounds)
+        elif self.velocity_clamp_func == 'hybrid':
+            return hybrid_clamping(velocity, self.velocity_bounds, current_iter, self.epochs)
+        elif self.velocity_clamp_func == 'convergence_based':
+            return convergence_based_clamping(velocity, self.velocity_bounds, self.best_cost, self.initial_cost)
+        else:
+            # Default to basic clamping
+            return basic_clamping(velocity, self.velocity_bounds)
+
 
 class Particle:
     def __init__(self, swarm):
@@ -264,6 +305,9 @@ class Particle:
                 self.velocity = (current_w * self.velocity) + (self.cognitive_weight() + self.global_weight())
 
 
+        # Apply velocity clamping
+        self.velocity = self.swarm.apply_velocity_clamping(self.velocity, current_iter)
+        
         self.pos += self.velocity
         
         # Update best position if current position is better
