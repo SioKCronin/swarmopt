@@ -33,9 +33,14 @@ source swarmopt/bin/activate
 pip install numpy pytest
 ```
 
-### 3. Install SwarmOpt
+### 3. Install SwarmOpt in Development Mode
 ```bash
 pip install -e .
+```
+
+### 4. Test Installation
+```bash
+python test_installation.py
 ```
 
 ## Usage

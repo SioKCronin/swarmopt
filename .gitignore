@@ -4,3 +4,6 @@ __pycache__/
 *.swp
 /bin/*
 /lib/*
+*.egg-info/
+swarmopt.egg-info/
+swarmopt/lib/
