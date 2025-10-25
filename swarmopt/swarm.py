@@ -1,5 +1,11 @@
 import numpy as np
 import timeit
+from random import shuffle
+
+try:
+    from .utils.distance import euclideanDistance
+except ImportError:
+    from utils.distance import euclideanDistance
 
 
 class Swarm:
@@ -89,8 +95,8 @@ class Swarm:
 
     def initialize_multiswarm(self):
         multiswarm = []
-        for _ in self.m:
-            m.append(intialize_swarm())
+        for _ in range(self.m_swarms):
+            multiswarm.append(self.initialize_swarm())
         return multiswarm
 
     def optimize(self):
@@ -102,16 +108,16 @@ class Swarm:
                 self.regroup = True
             for particle in self.swarm:
                 particle.update()
-                self.update_local_best_pos()
-                self.update_global_best_pos()
-                self.update_global_worst_pos()
+            self.update_local_best_pos()
+            self.update_global_best_pos()
+            self.update_global_worst_pos()
         stop = timeit.default_timer()
         self.runtime = stop - start
 
     def get_best_neighbor(self, particle):
         distances = []
         for other in self.swarm:
-            distances.append((other.pos, other.best_cost, calc_distance(other.pos, particle.pos)))
+            distances.append((other.pos, other.best_cost, euclideanDistance(other.pos, particle.pos)))
         sorted_distances = sorted(distances, key=lambda x: x[2])
         return sorted(sorted_distances[:self.k+1], key=lambda x: x[1])
 
@@ -123,9 +129,15 @@ class Swarm:
 
     def update_local_best_pos(self):
         for particle in self.swarm:
-            local_best = get_best_neighbor(self, particle)
-            particle.local_best_cost = local_best[1]
-            particle.local_best_pos = local_best[0]
+            local_best = self.get_best_neighbor(particle)
+            particle.local_best_cost = local_best[0][1]
+            particle.local_best_pos = local_best[0][0]
+
+    def update_global_worst_pos(self):
+        for particle in self.swarm:
+            if particle.best_cost > self.worst_cost:
+                self.worst_cost = particle.best_cost
+                self.worst_pos = particle.best_pos
 
 
 class Particle:
@@ -168,40 +180,47 @@ class Particle:
             self.velocity = (self.swarm.w * self.velocity) + (self.cognitive_weight() + self.local_weight())
 
         if self.swarm.algo == 'unified':
-            g_velocity = self.u * ((self.swarm.w * self.velocity) +
+            g_velocity = self.swarm.u * ((self.swarm.w * self.velocity) +
                          (self.cognitive_weight() + self.global_weight()))
-            l_velocity = (1-self.u) * ((self.swarm.w * self.velocity) +
+            l_velocity = (1-self.swarm.u) * ((self.swarm.w * self.velocity) +
                          (self.cognitive_weight() + self.local_weight()))
             self.velocity = g_velocity + l_velocity
 
         if self.swarm.algo == 'sa':
-            if self.pos == self.swarm.worst_pos:
+            if np.array_equal(self.pos, self.swarm.worst_pos):
                 new_pos = np.random.uniform(self.swarm.val_min, self.swarm.val_max, self.swarm.dims)
                 new_cost = self.swarm.obj_func(new_pos)
-                if new_cost < self.cost:
-                    self.cost = new_cost
+                if new_cost < self.best_cost:
+                    self.best_cost = new_cost
                     self.pos = new_pos
-                if self.cost >= self.swarm.alpha:
-                    best_neighbor = getNeighbor(self.pos)
-                    self.pos = best_neighbor[0]
-                    self.cost = best_neighbor[1]
+                if self.best_cost >= getattr(self.swarm, 'alpha', 0.5):
+                    best_neighbor = self.swarm.get_best_neighbor(self)
+                    self.pos = best_neighbor[0][0]
+                    self.best_cost = best_neighbor[0][1]
 
             self.velocity = (self.swarm.w * self.velocity) + (self.cognitive_weight() + self.global_weight())
 
         if self.swarm.algo == 'multiswarm':
             """Reshuffling"""
-            if self.swarm.r:
-                particles = [particle for swarm in self.swarm.multiswarm]
+            if hasattr(self.swarm, 'regroup') and self.swarm.regroup:
+                particles = [particle for swarm in self.swarm.multiswarm for particle in swarm]
                 shuffle(particles)
+                m = len(particles) // self.swarm.m_swarms
                 self.swarm.multiswarm = [particles[i:i+m] for i in range(0, len(particles), m)]
 
-            """Startng heuristic"""
+            """Starting heuristic"""
             if not self.swarm.end: 
                 self.velocity = (self.swarm.w * self.velocity) + (self.cognitive_weight() + self.local_weight())
 
-            """Ending hueristic"""
+            """Ending heuristic"""
             if self.swarm.end:
                 self.velocity = (self.swarm.w * self.velocity) + (self.cognitive_weight() + self.global_weight())
 
 
-        self.pos += self.velocity + self.pos
+        self.pos += self.velocity
+        
+        # Update best position if current position is better
+        current_cost = self.swarm.obj_func(self.pos)
+        if current_cost < self.best_cost:
+            self.best_cost = current_cost
+            self.best_pos = self.pos.copy()

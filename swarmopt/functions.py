@@ -6,8 +6,8 @@ import math
 def sphere(x):
     return sum([y**2 for y in x])
 
-def rosenbrock(x1, x2):
-    return sum([100*((x**2 - y)**2) + (x - 1)**2 for (x, y) in zip(x1,x2)])
+def rosenbrock(x):
+    return sum([100*((x[i]**2 - x[i+1])**2) + (x[i] - 1)**2 for i in range(len(x)-1)])
 
 def ackley(x):
     return -20 * np.exp(-0.2 * (sum([y**2 for y in x])/len(x) ** 0.5)) - \
