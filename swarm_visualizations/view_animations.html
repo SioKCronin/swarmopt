@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwarmOpt Animations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .gif-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .gif-item {
+            text-align: center;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: #fafafa;
+        }
+        .gif-item h3 {
+            color: #34495e;
+            margin-bottom: 10px;
+        }
+        .gif-item p {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        .gif-item img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .description {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .description h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        .description ul {
+            color: #34495e;
+            line-height: 1.6;
+        }
+        .description li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 SwarmOpt Particle Swarm Optimization Animations</h1>
+        
+        <div class="gif-container">
+            <div class="gif-item">
+                <h3>Demo 1: Classic PSO</h3>
+                <p>Sphere Function - Global PSO - Linear Inertia - Basic Clamping</p>
+                <img src="demo_1_sphere_global_linear.gif" alt="Classic PSO Animation">
+            </div>
+            
+            <div class="gif-item">
+                <h3>Demo 2: Advanced PSO</h3>
+                <p>Sphere Function - Global PSO - Adaptive Inertia - Hybrid Clamping</p>
+                <img src="demo_2_sphere_global_adaptive.gif" alt="Advanced PSO Animation">
+            </div>
+            
+            <div class="gif-item">
+                <h3>Demo 3: Challenging Function</h3>
+                <p>Rosenbrock Function - Global PSO - Exponential Inertia - Adaptive Clamping</p>
+                <img src="demo_3_rosenbrock_global_exponential.gif" alt="Rosenbrock PSO Animation">
+            </div>
+            
+            <div class="gif-item">
+                <h3>Demo 4: Complex Strategy</h3>
+                <p>Ackley Function - Local PSO - Chaotic Inertia - Exponential Clamping</p>
+                <img src="demo_4_ackley_local_chaotic.gif" alt="Ackley PSO Animation">
+            </div>
+        </div>
+        
+        <div class="description">
+            <h3>🎯 What These Animations Show</h3>
+            <ul>
+                <li><strong>🔵 Blue dots</strong> = Particles moving through the search space</li>
+                <li><strong>🔴 Red star</strong> = Best position found so far</li>
+                <li><strong>🟡 Gold X</strong> = Optimal solution (if known)</li>
+                <li><strong>📈 Right plot</strong> = Cost function evolution over time</li>
+            </ul>
+            
+            <h3>💡 Educational Value</h3>
+            <ul>
+                <li>See how particles explore the search space</li>
+                <li>Compare different PSO algorithms in action</li>
+                <li>Understand how inertia weights affect movement</li>
+                <li>Observe how velocity clamping controls exploration</li>
+                <li>Watch real-time convergence to optimal solutions</li>
+            </ul>
+            
+            <h3>🚀 Perfect for</h3>
+            <ul>
+                <li>Educational demonstrations</li>
+                <li>Algorithm comparisons</li>
+                <li>Understanding PSO behavior</li>
+                <li>Sharing with colleagues and students</li>
+                <li>GitHub README demonstrations</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
