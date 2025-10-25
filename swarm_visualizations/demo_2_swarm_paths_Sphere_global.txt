@@ -1,0 +1,89 @@
+SwarmOpt Path Visualization
+Function: Sphere
+Algorithm: global
+Inertia: adaptive
+Clamping: hybrid
+Particles: 8
+Epochs: 25
+Final Cost: 0.000000
+Final Position: [0.000, -0.000]
+==================================================
+
+Epoch 0:
+  Best Cost: 1.825108
+  Best Position: [1.226, -0.568]
+  Particle Positions:
+    Particle  0: [ 0.390, -2.776]
+    Particle  1: [ 3.539, -3.984]
+    Particle  2: [ 0.310, -1.777]
+    Particle  3: [-2.261, -0.293]
+    Particle  4: [ 3.195, -3.758]
+    Particle  5: [-4.726,  2.621]
+    Particle  6: [-3.979,  3.435]
+    Particle  7: [ 1.226, -0.568]
+
+Epoch 5:
+  Best Cost: 0.025913
+  Best Position: [-0.126, -0.100]
+  Particle Positions:
+    Particle  0: [-0.167, -0.016]
+    Particle  1: [-0.156,  0.080]
+    Particle  2: [-0.272, -0.051]
+    Particle  3: [-0.167, -0.028]
+    Particle  4: [-0.197,  0.027]
+    Particle  5: [ 0.197,  0.010]
+    Particle  6: [-0.126, -0.100]
+    Particle  7: [-0.134, -0.189]
+
+Epoch 10:
+  Best Cost: 0.003430
+  Best Position: [-0.058, -0.008]
+  Particle Positions:
+    Particle  0: [-0.032, -0.070]
+    Particle  1: [-0.164, -0.293]
+    Particle  2: [-0.058, -0.008]
+    Particle  3: [-0.059,  0.006]
+    Particle  4: [-0.060, -0.008]
+    Particle  5: [-0.321, -0.430]
+    Particle  6: [-0.059, -0.011]
+    Particle  7: [-0.065, -0.012]
+
+Epoch 15:
+  Best Cost: 0.003051
+  Best Position: [-0.054, 0.010]
+  Particle Positions:
+    Particle  0: [-0.057, -0.001]
+    Particle  1: [-0.054,  0.010]
+    Particle  2: [-0.056, -0.005]
+    Particle  3: [-0.057, -0.005]
+    Particle  4: [-0.057,  0.002]
+    Particle  5: [-0.013,  0.379]
+    Particle  6: [-0.057, -0.002]
+    Particle  7: [-0.056,  0.010]
+
+Epoch 20:
+  Best Cost: 0.000004
+  Best Position: [0.002, 0.001]
+  Particle Positions:
+    Particle  0: [ 0.002,  0.001]
+    Particle  1: [-0.010,  0.006]
+    Particle  2: [-0.004,  0.006]
+    Particle  3: [-0.020,  0.007]
+    Particle  4: [-0.011,  0.007]
+    Particle  5: [-0.002,  0.006]
+    Particle  6: [-0.007,  0.006]
+    Particle  7: [-0.026,  0.006]
+
+Epoch 25:
+  Best Cost: 0.000000
+  Best Position: [0.000, -0.000]
+  Particle Positions:
+    Particle  0: [-0.001, -0.000]
+    Particle  1: [ 0.000, -0.000]
+    Particle  2: [-0.003,  0.000]
+    Particle  3: [ 0.001,  0.000]
+    Particle  4: [-0.001, -0.000]
+    Particle  5: [-0.003, -0.001]
+    Particle  6: [-0.001, -0.001]
+    Particle  7: [ 0.003,  0.000]
+
