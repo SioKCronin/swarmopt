@@ -38,6 +38,24 @@ swarm.optimize()
 print(f"Best cost: {swarm.best_cost}")
 ```
 
+## 🎬 Visualizations
+
+See SwarmOpt in action with our animated demonstrations:
+
+**[🎬 View Particle Swarm Animations](https://github.com/SioKCronin/swarmopt/blob/update2/swarm_visualizations/view_animations.html)**
+
+The visualizations show:
+- 🔵 **Blue dots** = Particles moving through the search space
+- 🔴 **Red star** = Best position found so far  
+- 🟡 **Gold X** = Optimal solution (if known)
+- 📈 **Right plot** = Cost function evolution over time
+
+### Demo Animations
+- **Demo 1**: Classic PSO approach
+- **Demo 2**: Advanced adaptive approach  
+- **Demo 3**: Challenging Rosenbrock function
+- **Demo 4**: Complex Ackley function with chaotic inertia
+
 ## Advanced Usage
 
 ### Inertia Weight Variations
@@ -72,6 +90,17 @@ swarm = Swarm(
 )
 ```
 
+### Cooperative PSO (CPSO)
+```python
+# Multiple collaborating swarms
+swarm = Swarm(
+    n_particles=20, dims=6, c1=2.0, c2=2.0, w=0.9, epochs=100,
+    obj_func=sphere, algo='cpso',
+    n_swarms=3,  # 3 collaborating swarms
+    communication_strategy='best'  # Try: best, random, tournament
+)
+```
+
 ## Algorithms
 
 ### Single-Objective
@@ -80,6 +109,7 @@ swarm = Swarm(
 * Unified PSO - Parsopoulos &  Vrahatis 2004
 * Dynamic Multi-Swarm PSO - Liang & Suganthan 2005
 * Simulated Annealing PSO - Mu, Cao, & Wang 2009
+* **Cooperative PSO (CPSO)** - Van den Bergh & Engelbrecht 2004 ⭐
 
 ## Benchmark Functions
 
