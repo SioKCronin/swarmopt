@@ -14,6 +14,7 @@ try:
         sigmoid_clamping, random_clamping, chaotic_clamping, dimension_wise_clamping,
         soft_clamping, hybrid_clamping, convergence_based_clamping
     )
+    from .utils.cpso import CPSO
 except ImportError:
     from utils.distance import euclideanDistance
     from utils.inertia import (
@@ -26,13 +27,15 @@ except ImportError:
         sigmoid_clamping, random_clamping, chaotic_clamping, dimension_wise_clamping,
         soft_clamping, hybrid_clamping, convergence_based_clamping
     )
+    from utils.cpso import CPSO
 
 
 class Swarm:
     def __init__(self, n_particles, dims, c1, c2, w, epochs, obj_func,
                  algo='global', inertia_func='linear', velocity_clamp=(0,2),
                  k=5, u=0.5, m_swarms=3, hueristic_change=0.9, r=5,
-                 w_start=0.9, w_end=0.4, z=0.5, velocity_clamp_func='basic'):
+                 w_start=0.9, w_end=0.4, z=0.5, velocity_clamp_func='basic',
+                 n_swarms=None, communication_strategy='best'):
         """Intialize the swarm
 
         Attributes
@@ -99,6 +102,11 @@ class Swarm:
         self.val_min, self.val_max = velocity_clamp
         self.velocity_bounds = 0.2 * (self.val_max - self.val_min)
         self.velocity_z = 0.5  # For chaotic clamping
+        
+        # CPSO parameters
+        self.n_swarms = n_swarms
+        self.communication_strategy = communication_strategy
+        self.cpso = None
 
         self.obj_func = obj_func
         self.best_cost = float('inf')
@@ -108,12 +116,26 @@ class Swarm:
         self.local_best_cost = float('inf')
         self.local_best_pos = None
 
-        if self.algo == 'multiswarm':
+        if self.algo == 'cpso':
+            # Initialize Cooperative PSO
+            if self.n_swarms is None:
+                self.n_swarms = max(2, self.dims // 2)  # Default to 2 or dims/2
+            self.cpso = CPSO(
+                n_swarms=self.n_swarms,
+                n_particles_per_swarm=self.n_particles,
+                total_dimensions=self.dims,
+                obj_func=self.obj_func,
+                c1=self.c1, c2=self.c2, w=self.w,
+                velocity_clamp=(self.val_min, self.val_max),
+                communication_strategy=self.communication_strategy
+            )
+        elif self.algo == 'multiswarm':
             self.multiswarm = self.initialize_multiswarm()
         else:
             self.swarm = self.initialize_swarm()
 
-        self.update_global_best_pos()
+        if self.algo != 'cpso':
+            self.update_global_best_pos()
 
     def shape(self):
         return [self.n_particles, self.dims]
@@ -132,6 +154,16 @@ class Swarm:
 
     def optimize(self):
         start = timeit.default_timer()
+        
+        # Handle Cooperative PSO
+        if self.algo == 'cpso':
+            results = self.cpso.optimize(self.epochs, verbose=False)
+            self.best_cost = results['best_cost']
+            self.best_pos = results['best_pos']
+            self.runtime = results['runtime']
+            return
+        
+        # Standard PSO algorithms
         for i in range(self.epochs):
             if i >= int(self.hueristic_change * self.epochs):
                 self.end = True
