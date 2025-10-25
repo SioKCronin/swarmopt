@@ -43,6 +43,11 @@ TEST_SCRIPTS = {
         'category': 'Diversity System',
         'time': '~2min'
     },
+    'test_ppso.py': {
+        'description': 'Test Proactive Particle Swarm Optimization with knowledge gain',
+        'category': 'Proactive PSO',
+        'time': '~3min'
+    },
     'example.py': {
         'description': 'Comprehensive example showcasing all SwarmOpt features',
         'category': 'Examples',

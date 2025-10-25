@@ -17,6 +17,7 @@ try:
     from .utils.cpso import CPSO
     from .utils.mutation import apply_mutation, MUTATION_STRATEGIES
     from .utils.diversity import DiversityMonitor, calculate_swarm_diversity
+    from .utils.ppso import PPSO
 except ImportError:
     from utils.distance import euclideanDistance
     from utils.inertia import (
@@ -32,6 +33,7 @@ except ImportError:
     from utils.cpso import CPSO
     from utils.mutation import apply_mutation, MUTATION_STRATEGIES
     from utils.diversity import DiversityMonitor, calculate_swarm_diversity
+    from utils.ppso import PPSO
 
 
 class Swarm:
@@ -41,7 +43,9 @@ class Swarm:
                  w_start=0.9, w_end=0.4, z=0.5, velocity_clamp_func='basic',
                  n_swarms=None, communication_strategy='best',
                  mutation_strategy=None, mutation_rate=0.1, mutation_strength=0.1,
-                 diversity_monitoring=False, diversity_threshold=0.1):
+                 diversity_monitoring=False, diversity_threshold=0.1,
+                 ppso_enabled=False, proactive_ratio=0.25, knowledge_method='gaussian',
+                 exploration_weight=0.5):
         """Intialize the swarm
 
         Attributes
@@ -124,6 +128,13 @@ class Swarm:
         self.diversity_threshold = diversity_threshold
         self.diversity_monitor = None
         self.diversity_history = []
+        
+        # PPSO parameters
+        self.ppso_enabled = ppso_enabled
+        self.proactive_ratio = proactive_ratio
+        self.knowledge_method = knowledge_method
+        self.exploration_weight = exploration_weight
+        self.ppso = None
 
         self.obj_func = obj_func
         self.best_cost = float('inf')
@@ -185,6 +196,27 @@ class Swarm:
             self.diversity_monitor = DiversityMonitor(
                 diversity_threshold=self.diversity_threshold
             )
+        
+        # Initialize PPSO if enabled
+        if self.ppso_enabled:
+            self.ppso = PPSO(
+                n_particles=self.n_particles,
+                dims=self.dims,
+                obj_func=self.obj_func,
+                bounds=(self.val_min, self.val_max),
+                proactive_ratio=self.proactive_ratio,
+                knowledge_method=self.knowledge_method,
+                exploration_weight=self.exploration_weight,
+                c1=self.c1, c2=self.c2, w=self.w,
+                epochs=self.epochs
+            )
+            
+            # Run PPSO optimization
+            results = self.ppso.optimize()
+            self.best_cost = results['best_cost']
+            self.best_pos = results['best_pos']
+            self.runtime = results['runtime']
+            return
         
         # Standard PSO algorithms
         for i in range(self.epochs):
