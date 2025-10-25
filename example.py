@@ -30,6 +30,14 @@ def run_optimization_example():
     epochs = 100
     velocity_clamp = (-5.12, 5.12)
     
+    # Inertia weight variations to test
+    inertia_variations = [
+        ('linear', 'Linear Decreasing'),
+        ('exponential', 'Exponential Decreasing'),
+        ('adaptive', 'Adaptive Inertia'),
+        ('chaotic', 'Chaotic Inertia')
+    ]
+    
     # Test functions and their optimal solutions
     test_functions = [
         ("Sphere Function", sphere, [0, 0], "Global minimum at origin"),
@@ -50,10 +58,11 @@ def run_optimization_example():
         
         results[func_name] = {}
         
-        for algo in algorithms:
-            print(f"\n  Algorithm: {algo.upper()}")
+        # Test with different inertia weight variations
+        for inertia_type, inertia_name in inertia_variations:
+            print(f"\n  Inertia: {inertia_name}")
             
-            # Create and run swarm
+            # Create and run swarm with specific inertia function
             swarm = Swarm(
                 n_particles=n_particles,
                 dims=dims,
@@ -62,15 +71,19 @@ def run_optimization_example():
                 w=w,
                 epochs=epochs,
                 obj_func=obj_func,
-                algo=algo,
-                velocity_clamp=velocity_clamp
+                algo='global',  # Use global for consistency
+                inertia_func=inertia_type,
+                velocity_clamp=velocity_clamp,
+                w_start=0.9,
+                w_end=0.4,
+                z=0.5
             )
             
             # Run optimization
             swarm.optimize()
             
             # Store results
-            results[func_name][algo] = {
+            results[func_name][inertia_name] = {
                 'best_cost': swarm.best_cost,
                 'best_pos': swarm.best_pos,
                 'runtime': swarm.runtime
@@ -87,10 +100,12 @@ def run_optimization_example():
     
     for func_name in results:
         print(f"\n{func_name}:")
-        for algo in algorithms:
-            result = results[func_name][algo]
-            print(f"  {algo.upper()}: Cost = {result['best_cost']:.6f}, "
-                  f"Position = [{result['best_pos'][0]:.3f}, {result['best_pos'][1]:.3f}]")
+        sorted_results = sorted(results[func_name].items(), key=lambda x: x[1]['best_cost'])
+        for i, (inertia_name, result) in enumerate(sorted_results):
+            rank = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else "  "
+            print(f"  {rank} {inertia_name:20} | Cost: {result['best_cost']:8.6f} | "
+                  f"Position: [{result['best_pos'][0]:6.3f}, {result['best_pos'][1]:6.3f}] | "
+                  f"Time: {result['runtime']:6.3f}s")
 
 def visualize_optimization():
     """Create a simple visualization of the optimization process"""
@@ -208,7 +223,8 @@ if __name__ == "__main__":
     print("SwarmOpt Example Complete!")
     print("="*60)
     print("\nThe SwarmOpt library is now functional with the following features:")
-    print("✓ Multiple PSO algorithms (Global, Local, Unified)")
+    print("✓ Multiple PSO algorithms (Global, Local, Unified, SA, Multi-swarm)")
+    print("✓ 8 Inertia weight variations (Linear, Exponential, Adaptive, Chaotic, etc.)")
     print("✓ Various benchmark functions")
     print("✓ Configurable parameters")
     print("✓ Performance tracking")

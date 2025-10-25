@@ -4,14 +4,25 @@ from random import shuffle
 
 try:
     from .utils.distance import euclideanDistance
+    from .utils.inertia import (
+        constant_inertia_weight, linear_inertia_weight, chaotic_inertia_weight,
+        random_inertia_weight, adaptive_inertia_weight, chaotic_random_inertia_weight,
+        exponential_inertia_weight, sigmoid_inertia_weight
+    )
 except ImportError:
     from utils.distance import euclideanDistance
+    from utils.inertia import (
+        constant_inertia_weight, linear_inertia_weight, chaotic_inertia_weight,
+        random_inertia_weight, adaptive_inertia_weight, chaotic_random_inertia_weight,
+        exponential_inertia_weight, sigmoid_inertia_weight
+    )
 
 
 class Swarm:
     def __init__(self, n_particles, dims, c1, c2, w, epochs, obj_func,
                  algo='global', inertia_func='linear', velocity_clamp=(0,2),
-                 k=5, u=0.5, m_swarms=3, hueristic_change=0.9, r=5):
+                 k=5, u=0.5, m_swarms=3, hueristic_change=0.9, r=5,
+                 w_start=0.9, w_end=0.4, z=0.5):
         """Intialize the swarm
 
         Attributes
@@ -65,6 +76,13 @@ class Swarm:
         self.k = k
         self.u = u
         self.decrement = 0.7 / m_swarms
+        
+        # Inertia weight parameters
+        self.inertia_func = inertia_func
+        self.w_start = w_start
+        self.w_end = w_end
+        self.z = z
+        self.initial_cost = None
 
         self.val_min, self.val_max = velocity_clamp
         self.velocity_bounds = 0.2 * (self.val_max - self.val_min)
@@ -107,7 +125,7 @@ class Swarm:
             if i % self.r == 0:
                 self.regroup = True
             for particle in self.swarm:
-                particle.update()
+                particle.update(i)  # Pass current iteration for inertia weight calculation
             self.update_local_best_pos()
             self.update_global_best_pos()
             self.update_global_worst_pos()
@@ -138,6 +156,32 @@ class Swarm:
             if particle.best_cost > self.worst_cost:
                 self.worst_cost = particle.best_cost
                 self.worst_pos = particle.best_pos
+
+    def get_inertia_weight(self, current_iter):
+        """Calculate current inertia weight based on the selected function"""
+        if self.initial_cost is None:
+            self.initial_cost = self.best_cost
+            
+        if self.inertia_func == 'constant':
+            return constant_inertia_weight(self.w)
+        elif self.inertia_func == 'linear':
+            return linear_inertia_weight(self.w_start, self.w_end, self.epochs, current_iter)
+        elif self.inertia_func == 'chaotic':
+            return chaotic_inertia_weight(self.z, self.epochs, current_iter)
+        elif self.inertia_func == 'random':
+            return random_inertia_weight()
+        elif self.inertia_func == 'adaptive':
+            return adaptive_inertia_weight(self.w_start, self.w_end, self.epochs, 
+                                        current_iter, self.best_cost, self.initial_cost, self.best_cost)
+        elif self.inertia_func == 'chaotic_random':
+            return chaotic_random_inertia_weight(self.z)
+        elif self.inertia_func == 'exponential':
+            return exponential_inertia_weight(self.w_start, self.w_end, self.epochs, current_iter)
+        elif self.inertia_func == 'sigmoid':
+            return sigmoid_inertia_weight(self.w_start, self.w_end, self.epochs, current_iter)
+        else:
+            # Default to linear
+            return linear_inertia_weight(self.w_start, self.w_end, self.epochs, current_iter)
 
 
 class Particle:
@@ -172,17 +216,20 @@ class Particle:
             self.local_best_pos - self.pos
         )
 
-    def update(self):
+    def update(self, current_iter=0):
+        # Get current inertia weight
+        current_w = self.swarm.get_inertia_weight(current_iter)
+        
         if self.swarm.algo == 'global':
-            self.velocity = (self.swarm.w * self.velocity) + (self.cognitive_weight() + self.global_weight())
+            self.velocity = (current_w * self.velocity) + (self.cognitive_weight() + self.global_weight())
 
         if self.swarm.algo == 'local':
-            self.velocity = (self.swarm.w * self.velocity) + (self.cognitive_weight() + self.local_weight())
+            self.velocity = (current_w * self.velocity) + (self.cognitive_weight() + self.local_weight())
 
         if self.swarm.algo == 'unified':
-            g_velocity = self.swarm.u * ((self.swarm.w * self.velocity) +
+            g_velocity = self.swarm.u * ((current_w * self.velocity) +
                          (self.cognitive_weight() + self.global_weight()))
-            l_velocity = (1-self.swarm.u) * ((self.swarm.w * self.velocity) +
+            l_velocity = (1-self.swarm.u) * ((current_w * self.velocity) +
                          (self.cognitive_weight() + self.local_weight()))
             self.velocity = g_velocity + l_velocity
 
@@ -198,7 +245,7 @@ class Particle:
                     self.pos = best_neighbor[0][0]
                     self.best_cost = best_neighbor[0][1]
 
-            self.velocity = (self.swarm.w * self.velocity) + (self.cognitive_weight() + self.global_weight())
+            self.velocity = (current_w * self.velocity) + (self.cognitive_weight() + self.global_weight())
 
         if self.swarm.algo == 'multiswarm':
             """Reshuffling"""
@@ -210,11 +257,11 @@ class Particle:
 
             """Starting heuristic"""
             if not self.swarm.end: 
-                self.velocity = (self.swarm.w * self.velocity) + (self.cognitive_weight() + self.local_weight())
+                self.velocity = (current_w * self.velocity) + (self.cognitive_weight() + self.local_weight())
 
             """Ending heuristic"""
             if self.swarm.end:
-                self.velocity = (self.swarm.w * self.velocity) + (self.cognitive_weight() + self.global_weight())
+                self.velocity = (current_w * self.velocity) + (self.cognitive_weight() + self.global_weight())
 
 
         self.pos += self.velocity
