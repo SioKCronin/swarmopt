@@ -48,6 +48,11 @@ TEST_SCRIPTS = {
         'category': 'Proactive PSO',
         'time': '~3min'
     },
+    'test_airfoil_optimization.py': {
+        'description': 'Test airfoil optimization with CST, Hicks-Henne, Bézier, NACA-k',
+        'category': 'Airfoil Optimization',
+        'time': '~4min'
+    },
     'example.py': {
         'description': 'Comprehensive example showcasing all SwarmOpt features',
         'category': 'Examples',
