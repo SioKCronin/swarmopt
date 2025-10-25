@@ -2,10 +2,9 @@
 
 # SwarmOpt
 
-SwarmOpt is a library of swarm optimization algorithms implemented in Python. 
+SwarmOpt is a swarm optimization algorithm implemented in Python. 
 
-Swarm intelligence leverages population-based search solutions to balance exploration and exploitation with respect 
-to specified cost functions. The PSO lineage was sparked by Eberhart and Kennedy in their original paper on PSOs in 1995, 
+The PSO lineage was sparked by Eberhart and Kennedy in their original paper on PSOs in 1995, 
 and the intervening years have seen many variations spring from their central idea. 
 
 ## Installation
