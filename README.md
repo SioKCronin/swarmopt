@@ -38,6 +38,20 @@ swarm.optimize()
 print(f"Best cost: {swarm.best_cost}")
 ```
 
+## 🧪 Testing
+
+Run the comprehensive test suite:
+
+```bash
+# Run all tests
+python run_tests.py
+
+# Or run specific tests
+python tests_scripts/index.py list          # Show all available tests
+python tests_scripts/index.py all           # Run all tests
+python tests_scripts/index.py test_name    # Run specific test
+```
+
 ## 🎬 Visualizations
 
 See SwarmOpt in action with our animated demonstrations:
