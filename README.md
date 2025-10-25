@@ -1,7 +1,5 @@
 ![particles](https://github.com/SioKCronin/PSO-baselines/blob/master/media/swarmopt_lateral.png)
 
-2025 Update: I'm looking to revitalize this project and getting it working again. Let me know if you'd like to collaborate!
-
 # SwarmOpt
 
 SwarmOpt is a library of swarm optimization algorithms implemented in Python. 
@@ -151,7 +149,6 @@ Single objective test functions:
 
 ## 🚧 On Deck
 
-* Cooperative Approach to PSO (CPSO)(multiple collaborating swarms)
 * Proactive Particles in Swarm Optimization (PPSO) (self-tuning swarms)
 * Mutation operator variations
 * Multiobjective variations
