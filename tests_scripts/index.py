@@ -53,6 +53,11 @@ TEST_SCRIPTS = {
         'category': 'Airfoil Optimization',
         'time': '~4min'
     },
+    'test_multiobjective.py': {
+        'description': 'Test multiobjective optimization with NSGA-II and SPEA2 algorithms',
+        'category': 'Multiobjective PSO',
+        'time': '~5min'
+    },
     'example.py': {
         'description': 'Comprehensive example showcasing all SwarmOpt features',
         'category': 'Examples',

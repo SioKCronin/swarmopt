@@ -18,6 +18,7 @@ try:
     from .utils.mutation import apply_mutation, MUTATION_STRATEGIES
     from .utils.diversity import DiversityMonitor, calculate_swarm_diversity
     from .utils.ppso import PPSO
+    from .utils.simple_multiobjective import SimpleMultiObjectivePSO
 except ImportError:
     from utils.distance import euclideanDistance
     from utils.inertia import (
@@ -34,6 +35,7 @@ except ImportError:
     from utils.mutation import apply_mutation, MUTATION_STRATEGIES
     from utils.diversity import DiversityMonitor, calculate_swarm_diversity
     from utils.ppso import PPSO
+    from utils.simple_multiobjective import SimpleMultiObjectivePSO
 
 
 class Swarm:
@@ -45,7 +47,8 @@ class Swarm:
                  mutation_strategy=None, mutation_rate=0.1, mutation_strength=0.1,
                  diversity_monitoring=False, diversity_threshold=0.1,
                  ppso_enabled=False, proactive_ratio=0.25, knowledge_method='gaussian',
-                 exploration_weight=0.5):
+                 exploration_weight=0.5,
+                 multiobjective=False, mo_algorithm='nsga2', archive_size=100):
         """Intialize the swarm
 
         Attributes
@@ -135,6 +138,12 @@ class Swarm:
         self.knowledge_method = knowledge_method
         self.exploration_weight = exploration_weight
         self.ppso = None
+        
+        # Multiobjective parameters
+        self.multiobjective = multiobjective
+        self.mo_algorithm = mo_algorithm
+        self.archive_size = archive_size
+        self.mo_optimizer = None
 
         self.obj_func = obj_func
         self.best_cost = float('inf')
@@ -162,7 +171,7 @@ class Swarm:
         else:
             self.swarm = self.initialize_swarm()
 
-        if self.algo != 'cpso':
+        if self.algo != 'cpso' and not self.multiobjective:
             self.update_global_best_pos()
 
     def shape(self):
@@ -218,6 +227,31 @@ class Swarm:
             self.runtime = results['runtime']
             return
         
+        # Initialize multiobjective optimization if enabled
+        if self.multiobjective:
+            # Check if obj_func returns multiple objectives
+            test_result = self.obj_func(np.random.uniform(self.val_min, self.val_max, self.dims))
+            if not isinstance(test_result, np.ndarray) or len(test_result) < 2:
+                raise ValueError("Multiobjective optimization requires obj_func to return multiple objectives")
+            
+            # Create multiobjective optimizer
+            self.mo_optimizer = SimpleMultiObjectivePSO(
+                n_particles=self.n_particles,
+                dims=self.dims,
+                obj_func=self.obj_func,
+                bounds=(self.val_min, self.val_max),
+                c1=self.c1, c2=self.c2, w=self.w,
+                epochs=self.epochs,
+                archive_size=self.archive_size
+            )
+            
+            # Run multiobjective optimization
+            results = self.mo_optimizer.optimize()
+            self.best_cost = results['pareto_front'][0]['objectives'] if results['pareto_front'] else np.array([float('inf')])
+            self.best_pos = results['pareto_front'][0]['pos'] if results['pareto_front'] else None
+            self.runtime = results['runtime']
+            return
+        
         # Standard PSO algorithms
         for i in range(self.epochs):
             if i >= int(self.hueristic_change * self.epochs):
@@ -250,6 +284,11 @@ class Swarm:
 
     def update_global_best_pos(self):
         for particle in self.swarm:
+            # Handle multiobjective case
+            if self.multiobjective:
+                # For multiobjective, we'll handle this in the multiobjective optimizer
+                continue
+            
             if particle.best_cost < self.best_cost:
                 self.best_cost = particle.best_cost
                 self.best_pos = particle.best_pos
