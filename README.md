@@ -199,7 +199,6 @@ print(f"Found {len(pareto_front)} Pareto-optimal solutions")
 ## 🚧 On Deck
 
 * Proactive Particles in Swarm Optimization (PPSO) (self-tuning swarms)
-* Mutation operator variations
 * Multiobjective variations
 * Benchmark on something canonical like MNIST
 
