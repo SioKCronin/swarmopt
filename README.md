@@ -116,6 +116,35 @@ swarm = Swarm(
 )
 ```
 
+### Multiobjective Optimization
+
+```python
+from swarmopt import Swarm
+from swarmopt.utils.simple_multiobjective import zdt1
+
+# Define multiobjective function (returns array of objectives)
+def multiobjective_function(x):
+    return zdt1(x)  # Returns [f1, f2]
+
+# Create multiobjective swarm
+swarm = Swarm(
+    n_particles=20,
+    dims=5,
+    c1=2.0, c2=2.0, w=0.9,
+    epochs=50,
+    obj_func=multiobjective_function,
+    multiobjective=True,  # Enable multiobjective optimization
+    archive_size=50       # Size of Pareto front archive
+)
+
+# Run optimization
+swarm.optimize()
+
+# Access results
+pareto_front = swarm.mo_optimizer.archive
+print(f"Found {len(pareto_front)} Pareto-optimal solutions")
+```
+
 ## Algorithms
 
 ### Single-Objective
@@ -126,15 +155,22 @@ swarm = Swarm(
 * Simulated Annealing PSO - Mu, Cao, & Wang 2009
 * **Cooperative PSO (CPSO)** - Van den Bergh & Engelbrecht 2004 ⭐
 
+### Multiobjective
+* **Multiobjective PSO** - Handles multiple conflicting objectives simultaneously ⭐
+
 ## Benchmark Functions
 
-Single objective test functions:
+### Single Objective
 * Sphere Function
 * Rosenbrock's Function
 * Ackley's Function
 * Griewank's Function
 * Rastrigin's Function
 * Weierstrass Function
+
+### Multiobjective
+* **ZDT1, ZDT2, ZDT3** - Zitzler-Deb-Thiele test functions
+* **DTLZ1, DTLZ2** - Deb-Thiele-Laumanns-Zitzler test functions
 
 ## ✅ Implemented Features
 
