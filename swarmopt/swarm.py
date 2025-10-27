@@ -48,7 +48,8 @@ class Swarm:
                  diversity_monitoring=False, diversity_threshold=0.1,
                  ppso_enabled=False, proactive_ratio=0.25, knowledge_method='gaussian',
                  exploration_weight=0.5,
-                 multiobjective=False, mo_algorithm='nsga2', archive_size=100):
+                 multiobjective=False, mo_algorithm='nsga2', archive_size=100,
+                 respect_boundary=None, target_position=None):
         """Intialize the swarm
 
         Attributes
@@ -144,6 +145,11 @@ class Swarm:
         self.mo_algorithm = mo_algorithm
         self.archive_size = archive_size
         self.mo_optimizer = None
+        
+        # Respect boundary parameters
+        self.respect_boundary = respect_boundary
+        self.target_position = np.array(target_position) if target_position is not None else None
+        self.use_respect_boundary = respect_boundary is not None and target_position is not None
 
         self.obj_func = obj_func
         self.best_cost = float('inf')
@@ -176,6 +182,46 @@ class Swarm:
 
     def shape(self):
         return [self.n_particles, self.dims]
+    
+    def objective_with_respect_boundary(self, position):
+        """
+        Evaluate objective function with respect boundary enforcement
+        
+        If respect_boundary is enabled, particles are penalized for getting
+        closer than the respect distance to the target position.
+        
+        Parameters:
+        -----------
+        position : np.ndarray
+            Particle position to evaluate
+        
+        Returns:
+        --------
+        float : Modified objective value
+        """
+        # Calculate base objective
+        base_cost = self.obj_func(position)
+        
+        # If no respect boundary, return base cost
+        if not self.use_respect_boundary:
+            return base_cost
+        
+        # Calculate distance to target
+        distance_to_target = np.linalg.norm(position - self.target_position)
+        
+        # If outside respect boundary, use base cost
+        if distance_to_target >= self.respect_boundary:
+            return base_cost
+        
+        # If inside respect boundary, add penalty
+        # Penalty increases as particle gets closer to target
+        violation = self.respect_boundary - distance_to_target
+        penalty_factor = (violation / self.respect_boundary) ** 2
+        
+        # Scale penalty by base cost magnitude to be relative
+        penalty = base_cost * (1.0 + 10.0 * penalty_factor)
+        
+        return penalty
 
     def initialize_swarm(self):
         swarm = []
@@ -370,7 +416,11 @@ class Particle:
         self.velocity = np.random.uniform(
             -swarm.velocity_bounds, swarm.velocity_bounds, swarm.dims
         )
-        self.best_cost = swarm.obj_func(self.best_pos)
+        # Use respect boundary aware objective if enabled
+        if swarm.use_respect_boundary:
+            self.best_cost = swarm.objective_with_respect_boundary(self.best_pos)
+        else:
+            self.best_cost = swarm.obj_func(self.best_pos)
 
     def cognitive_weight(self):
         return (self.swarm.c1 * np.random.uniform(0, 1, self.dims)) * (
@@ -412,7 +462,11 @@ class Particle:
         if self.swarm.algo == 'sa':
             if np.array_equal(self.pos, self.swarm.worst_pos):
                 new_pos = np.random.uniform(self.swarm.val_min, self.swarm.val_max, self.swarm.dims)
-                new_cost = self.swarm.obj_func(new_pos)
+                # Use respect boundary aware objective if enabled
+                if self.swarm.use_respect_boundary:
+                    new_cost = self.swarm.objective_with_respect_boundary(new_pos)
+                else:
+                    new_cost = self.swarm.obj_func(new_pos)
                 if new_cost < self.best_cost:
                     self.best_cost = new_cost
                     self.pos = new_pos
@@ -450,7 +504,11 @@ class Particle:
             self.pos = self.apply_mutation(current_iter)
         
         # Update best position if current position is better
-        current_cost = self.swarm.obj_func(self.pos)
+        # Use respect boundary aware objective if enabled
+        if self.swarm.use_respect_boundary:
+            current_cost = self.swarm.objective_with_respect_boundary(self.pos)
+        else:
+            current_cost = self.swarm.obj_func(self.pos)
         if current_cost < self.best_cost:
             self.best_cost = current_cost
             self.best_pos = self.pos.copy()
