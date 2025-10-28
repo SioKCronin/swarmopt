@@ -139,6 +139,60 @@
                 <li>GitHub README demonstrations</li>
             </ul>
         </div>
+
+        <!-- Respect Boundary Visualizations -->
+        <div class="gif-container">
+            <div class="gif-item">
+                <h3>🎯 Respect Boundary - 2D Convergence</h3>
+                <p>Particles maintain safe distance from target</p>
+                <img src="respect_boundary_2d.png" alt="Respect Boundary 2D">
+                <p style="margin-top: 10px; font-size: 12px; color: #555;">
+                    Demonstrates how particles converge to a safe "standoff distance" around the target 
+                    rather than converging exactly on it. Essential for safety-critical applications.
+                </p>
+            </div>
+            
+            <div class="gif-item">
+                <h3>🛰️ Satellite Positioning Example</h3>
+                <p>ISS altitude maintenance with respect boundary</p>
+                <img src="respect_boundary_satellite.png" alt="Satellite Positioning">
+                <p style="margin-top: 10px; font-size: 12px; color: #555;">
+                    Real-world example: Satellites optimize their position while maintaining safe distance 
+                    from Earth (6,771 km from center = 400 km altitude). Shows 3D positioning and altitude distribution.
+                </p>
+            </div>
+            
+            <div class="gif-item">
+                <h3>📊 With vs Without Comparison</h3>
+                <p>Impact of respect boundary on convergence</p>
+                <img src="respect_boundary_comparison.png" alt="Respect Boundary Comparison">
+                <p style="margin-top: 10px; font-size: 12px; color: #555;">
+                    Side-by-side comparison showing standard PSO convergence (left) versus respect boundary 
+                    enforcement (right). Notice how particles stay outside the red boundary zone.
+                </p>
+            </div>
+            
+            <div class="description">
+                <h3>🔒 Respect Boundary Feature</h3>
+                <p><strong>Safety-First Design:</strong> Automatically enforced when a target position is specified.</p>
+                <ul>
+                    <li><strong>Automatic:</strong> 10% of search space diagonal by default</li>
+                    <li><strong>Mandatory:</strong> Cannot be disabled for safety-critical applications</li>
+                    <li><strong>Applications:</strong> Satellites, drones, robots, collision avoidance</li>
+                    <li><strong>Smart:</strong> Particles converge to sphere around target, not on it</li>
+                </ul>
+                <p style="margin-top: 15px; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 5px;">
+                    <strong>⚠️ Safety Notice:</strong> When you provide a <code>target_position</code>, 
+                    the respect boundary is automatically enabled and cannot be disabled. This prevents 
+                    particles from getting too close to potentially hazardous targets.
+                </p>
+                <p style="margin-top: 15px; font-family: monospace; background: #f8f9fa; padding: 10px; border-radius: 5px;">
+                    <strong>Usage:</strong><br>
+                    swarm = Swarm(..., target_position=[x, y, z])<br>
+                    # Respect boundary automatically enforced!
+                </p>
+            </div>
+        </div>
     </div>
 </body>
 </html>
