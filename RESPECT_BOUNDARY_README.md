@@ -31,13 +31,12 @@ from swarmopt import Swarm
 
 # Define target position
 target = np.array([5.0, 5.0, 5.0])
-respect_distance = 2.0  # Stay at least 2 units away
 
 # Define objective function
 def distance_to_target(x):
     return np.linalg.norm(x - target)
 
-# Create swarm with respect boundary
+# Create swarm with respect boundary (automatically enabled!)
 swarm = Swarm(
     n_particles=20,
     dims=3,
@@ -45,26 +44,21 @@ swarm = Swarm(
     epochs=50,
     obj_func=distance_to_target,
     algo='global',
-    respect_boundary=respect_distance,  # Enable respect boundary
-    target_position=target               # Target to respect
+    target_position=target  # Respect boundary automatically enforced for safety!
 )
+# ⚠️ Warning will be shown: "Respect boundary automatically enabled for safety: X.XXX"
 
 # Optimize
 swarm.optimize()
 
 # Results
 final_distance = np.linalg.norm(swarm.best_pos - target)
-print(f"Converged to distance: {final_distance}")  # Will be ≥ 2.0
-print(f"Boundary respected: {final_distance >= respect_distance}")
+print(f"Converged to distance: {final_distance}")
+print(f"Automatic respect boundary: {swarm.respect_boundary:.4f}")
+print(f"Boundary respected: {final_distance >= swarm.respect_boundary}")
 ```
 
 ## Parameters
-
-### `respect_boundary` (float or None)
-- **Description**: Minimum allowed distance from target position
-- **Default**: `None` (disabled)
-- **Units**: Same as your coordinate system
-- **Example**: `respect_boundary=2.0`
 
 ### `target_position` (array-like or None)
 - **Description**: Position of the target to respect
@@ -72,7 +66,14 @@ print(f"Boundary respected: {final_distance >= respect_distance}")
 - **Shape**: Must match `dims` parameter
 - **Example**: `target_position=[10.0, 10.0, 10.0]`
 
-**Note**: Both parameters must be specified to enable respect boundary feature.
+### `respect_boundary` (float, automatic)
+- **Description**: Minimum allowed distance from target position
+- **Automatic**: Calculated as 10% of search space diagonal when `target_position` is provided
+- **Cannot be disabled**: For safety-critical applications, this is mandatory
+- **Units**: Same as your coordinate system
+- **Formula**: `0.1 × √(dims × (val_max - val_min)²)`
+
+**⚠️ IMPORTANT SAFETY FEATURE**: When you provide a `target_position`, the respect boundary is **automatically enabled and cannot be disabled**. This is by design to prevent accidents in safety-critical applications where particles must maintain a minimum safe distance from targets.
 
 ## How It Works
 
