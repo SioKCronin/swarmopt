@@ -145,6 +145,38 @@ pareto_front = swarm.mo_optimizer.archive
 print(f"Found {len(pareto_front)} Pareto-optimal solutions")
 ```
 
+### Respect Boundary (Safety-Critical Applications)
+
+```python
+import numpy as np
+from swarmopt import Swarm
+
+# Example: Satellite positioning at ISS altitude
+earth_center = np.array([0.0, 0.0, 0.0])
+earth_radius = 6371.0  # km
+desired_altitude = 400.0  # km (ISS altitude)
+
+def orbit_energy(position):
+    distance = np.linalg.norm(position - earth_center)
+    optimal_orbit = earth_radius + desired_altitude
+    return abs(distance - optimal_orbit)
+
+# Create swarm with automatic respect boundary
+swarm = Swarm(
+    n_particles=30,
+    dims=3,
+    c1=2.0, c2=2.0, w=0.9,
+    epochs=50,
+    obj_func=orbit_energy,
+    target_position=earth_center  # Respect boundary automatically enforced!
+)
+# ⚠️ Particles will maintain safe distance (6,771 km from Earth center)
+
+swarm.optimize()
+altitude = np.linalg.norm(swarm.best_pos) - earth_radius
+print(f"Optimal altitude: {altitude:.2f} km")
+```
+
 ## Algorithms
 
 ### Single-Objective
