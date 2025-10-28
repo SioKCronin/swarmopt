@@ -58,6 +58,16 @@ TEST_SCRIPTS = {
         'category': 'Multiobjective PSO',
         'time': '~5min'
     },
+    'test_multiobjective_challenges.py': {
+        'description': 'Stress test MOPSO on hardest benchmarks (ZDT4, DTLZ3, DTLZ7, etc.)',
+        'category': 'Multiobjective PSO',
+        'time': '~15min'
+    },
+    'test_delegate_positioning.py': {
+        'description': 'Test delegate positioning for redundant agents around target',
+        'category': 'Respect Boundary',
+        'time': '~2min'
+    },
     'example.py': {
         'description': 'Comprehensive example showcasing all SwarmOpt features',
         'category': 'Examples',
