@@ -49,7 +49,7 @@ class Swarm:
                  ppso_enabled=False, proactive_ratio=0.25, knowledge_method='gaussian',
                  exploration_weight=0.5,
                  multiobjective=False, mo_algorithm='nsga2', archive_size=100,
-                 target_position=None):
+                 target_position=None, n_delegates=0, delegate_spread='uniform'):
         """Intialize the swarm
 
         Attributes
@@ -148,6 +148,9 @@ class Swarm:
         
         # Respect boundary parameters (mandatory for safety-critical applications)
         self.target_position = np.array(target_position) if target_position is not None else None
+        self.n_delegates = n_delegates
+        self.delegate_spread = delegate_spread
+        self.delegate_positions = []
         
         # If target_position is provided, ALWAYS enforce respect boundary
         if target_position is not None:
@@ -156,11 +159,17 @@ class Swarm:
             self.respect_boundary = 0.1 * search_space_diagonal
             self.use_respect_boundary = True
             
+            # Generate delegate positions if requested
+            if n_delegates > 0:
+                self.delegate_positions = self._generate_delegate_positions()
+            
             # Log the automatic safety boundary
             import warnings
+            delegate_info = f" with {n_delegates} delegate positions" if n_delegates > 0 else ""
             warnings.warn(
                 f"Respect boundary automatically enabled for safety: {self.respect_boundary:.4f}. "
-                f"Particles will maintain minimum distance from target at {target_position}. "
+                f"Particles will maintain minimum distance from target at {target_position}"
+                f"{delegate_info}. "
                 f"This is mandatory for safety-critical applications and cannot be disabled.",
                 UserWarning
             )
@@ -199,6 +208,142 @@ class Swarm:
 
     def shape(self):
         return [self.n_particles, self.dims]
+    
+    def _generate_delegate_positions(self):
+        """
+        Generate delegate positions in polar/spherical coordinates around target
+        
+        Useful for positioning repair drones, service satellites, or redundant
+        agents around a target while maintaining respect boundary distance.
+        
+        Returns:
+        --------
+        list : Delegate positions at respect boundary distance from target
+        """
+        delegate_positions = []
+        
+        if self.dims == 2:
+            # 2D: Position delegates in circle around target
+            for i in range(self.n_delegates):
+                if self.delegate_spread == 'uniform':
+                    # Evenly spaced around circle
+                    angle = 2 * np.pi * i / self.n_delegates
+                elif self.delegate_spread == 'random':
+                    # Random angles
+                    angle = 2 * np.pi * np.random.random()
+                elif self.delegate_spread == 'opposite':
+                    # Position delegates opposite each other (for redundancy)
+                    angle = np.pi * i
+                else:
+                    angle = 2 * np.pi * i / self.n_delegates
+                
+                # Position at respect boundary distance
+                offset = np.array([
+                    self.respect_boundary * np.cos(angle),
+                    self.respect_boundary * np.sin(angle)
+                ])
+                delegate_pos = self.target_position + offset
+                delegate_positions.append(delegate_pos)
+        
+        elif self.dims == 3:
+            # 3D: Position delegates on sphere around target
+            for i in range(self.n_delegates):
+                if self.delegate_spread == 'uniform':
+                    # Fibonacci sphere for uniform distribution
+                    phi = np.pi * (3. - np.sqrt(5.))  # Golden angle
+                    y = 1 - (i / float(self.n_delegates - 1)) * 2  # y from 1 to -1
+                    radius = np.sqrt(1 - y * y)
+                    theta = phi * i
+                    
+                    x = np.cos(theta) * radius
+                    z = np.sin(theta) * radius
+                    
+                elif self.delegate_spread == 'random':
+                    # Random positions on sphere
+                    theta = 2 * np.pi * np.random.random()
+                    phi = np.arccos(2 * np.random.random() - 1)
+                    
+                    x = np.sin(phi) * np.cos(theta)
+                    y = np.sin(phi) * np.sin(theta)
+                    z = np.cos(phi)
+                    
+                elif self.delegate_spread == 'opposite':
+                    # Position delegates opposite each other
+                    if i % 2 == 0:
+                        theta, phi = 0, np.pi * (i // 2) / max(1, self.n_delegates // 2)
+                    else:
+                        theta, phi = np.pi, np.pi * (i // 2) / max(1, self.n_delegates // 2)
+                    
+                    x = np.sin(phi) * np.cos(theta)
+                    y = np.sin(phi) * np.sin(theta)
+                    z = np.cos(phi)
+                else:
+                    # Default to uniform
+                    phi = np.pi * (3. - np.sqrt(5.))
+                    y = 1 - (i / float(self.n_delegates - 1)) * 2
+                    radius = np.sqrt(1 - y * y)
+                    theta = phi * i
+                    
+                    x = np.cos(theta) * radius
+                    z = np.sin(theta) * radius
+                
+                # Scale to respect boundary distance
+                offset = self.respect_boundary * np.array([x, y, z])
+                delegate_pos = self.target_position + offset
+                delegate_positions.append(delegate_pos)
+        
+        else:
+            # Higher dimensions: Use hypersphere sampling
+            for i in range(self.n_delegates):
+                # Random point on unit hypersphere
+                random_point = np.random.randn(self.dims)
+                random_point /= np.linalg.norm(random_point)
+                
+                # Scale to respect boundary
+                offset = self.respect_boundary * random_point
+                delegate_pos = self.target_position + offset
+                delegate_positions.append(delegate_pos)
+        
+        return delegate_positions
+    
+    def get_delegate_assignments(self):
+        """
+        Get the best particle assignments to delegate positions
+        
+        Returns:
+        --------
+        dict : Mapping of delegate_index -> closest_particle
+        """
+        if len(self.delegate_positions) == 0:
+            return {}
+        
+        assignments = {}
+        used_particles = set()
+        
+        # Assign each delegate position to nearest particle
+        for i, delegate_pos in enumerate(self.delegate_positions):
+            best_particle = None
+            best_distance = float('inf')
+            
+            for j, particle in enumerate(self.swarm):
+                if j in used_particles:
+                    continue
+                
+                distance = np.linalg.norm(particle.pos - delegate_pos)
+                if distance < best_distance:
+                    best_distance = distance
+                    best_particle = j
+            
+            if best_particle is not None:
+                assignments[i] = {
+                    'particle_index': best_particle,
+                    'particle_pos': self.swarm[best_particle].pos,
+                    'target_pos': delegate_pos,
+                    'distance': best_distance
+                }
+                used_particles.add(best_particle)
+        
+        return assignments
     
     def objective_with_respect_boundary(self, position):
         """
