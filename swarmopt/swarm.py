@@ -147,9 +147,17 @@ class Swarm:
         self.mo_optimizer = None
         
         # Respect boundary parameters
-        self.respect_boundary = respect_boundary
         self.target_position = np.array(target_position) if target_position is not None else None
-        self.use_respect_boundary = respect_boundary is not None and target_position is not None
+        
+        # If target_position is provided but no respect_boundary, use a default
+        if target_position is not None and respect_boundary is None:
+            # Default to 10% of the search space diagonal as respect boundary
+            search_space_diagonal = np.sqrt(dims * (val_max - val_min)**2)
+            self.respect_boundary = 0.1 * search_space_diagonal
+        else:
+            self.respect_boundary = respect_boundary
+        
+        self.use_respect_boundary = self.respect_boundary is not None and self.target_position is not None
 
         self.obj_func = obj_func
         self.best_cost = float('inf')
