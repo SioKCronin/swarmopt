@@ -8,7 +8,8 @@ at specific polar positions around a target with automatic respect boundary.
 
 import numpy as np
 import sys
-sys.path.insert(0, '..')
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from swarmopt import Swarm
 
 def test_2d_delegates():
