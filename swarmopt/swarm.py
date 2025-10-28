@@ -49,7 +49,7 @@ class Swarm:
                  ppso_enabled=False, proactive_ratio=0.25, knowledge_method='gaussian',
                  exploration_weight=0.5,
                  multiobjective=False, mo_algorithm='nsga2', archive_size=100,
-                 respect_boundary=None, target_position=None):
+                 target_position=None):
         """Intialize the swarm
 
         Attributes
@@ -146,10 +146,27 @@ class Swarm:
         self.archive_size = archive_size
         self.mo_optimizer = None
         
-        # Respect boundary parameters
-        self.respect_boundary = respect_boundary
+        # Respect boundary parameters (mandatory for safety-critical applications)
         self.target_position = np.array(target_position) if target_position is not None else None
-        self.use_respect_boundary = respect_boundary is not None and target_position is not None
+        
+        # If target_position is provided, ALWAYS enforce respect boundary
+        if target_position is not None:
+            # Automatically calculate safe respect boundary (10% of search space diagonal)
+            search_space_diagonal = np.sqrt(dims * (val_max - val_min)**2)
+            self.respect_boundary = 0.1 * search_space_diagonal
+            self.use_respect_boundary = True
+            
+            # Log the automatic safety boundary
+            import warnings
+            warnings.warn(
+                f"Respect boundary automatically enabled for safety: {self.respect_boundary:.4f}. "
+                f"Particles will maintain minimum distance from target at {target_position}. "
+                f"This is mandatory for safety-critical applications and cannot be disabled.",
+                UserWarning
+            )
+        else:
+            self.respect_boundary = None
+            self.use_respect_boundary = False
 
         self.obj_func = obj_func
         self.best_cost = float('inf')
