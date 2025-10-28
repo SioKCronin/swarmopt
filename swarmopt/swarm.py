@@ -155,7 +155,7 @@ class Swarm:
         # If target_position is provided, ALWAYS enforce respect boundary
         if target_position is not None:
             # Automatically calculate safe respect boundary (10% of search space diagonal)
-            search_space_diagonal = np.sqrt(dims * (val_max - val_min)**2)
+            search_space_diagonal = np.sqrt(self.dims * (self.val_max - self.val_min)**2)
             self.respect_boundary = 0.1 * search_space_diagonal
             self.use_respect_boundary = True
             
