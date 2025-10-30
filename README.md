@@ -45,10 +45,10 @@ Run the comprehensive test suite:
 # Run all tests
 python run_tests.py
 
-# Or run specific tests
-python tests_scripts/index.py list          # Show all available tests
-python tests_scripts/index.py all           # Run all tests
-python tests_scripts/index.py test_name    # Run specific test
+# Or run specific test categories
+python run_tests.py --unit                 # Fast unit tests only
+python run_tests.py --show                 # Show all available tests
+python tests/index.py                      # Interactive test runner
 ```
 
 ## 🎬 Visualizations
