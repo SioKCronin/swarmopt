@@ -2,43 +2,36 @@
 """
 SwarmOpt Test Runner
 
-This script provides an easy way to run all SwarmOpt tests
-from the main directory.
+Quick entry point to run the full SwarmOpt test suite.
 """
 
-import os
 import sys
-import subprocess
 from pathlib import Path
 
-def main():
-    """Run all tests in the tests_scripts directory"""
-    print("🚀 SwarmOpt Test Runner")
-    print("=" * 30)
-    
-    # Change to tests_scripts directory
-    tests_dir = Path(__file__).parent / "tests_scripts"
-    
-    if not tests_dir.exists():
-        print("❌ tests_scripts directory not found!")
-        return False
-    
-    # Run the index script
-    index_script = tests_dir / "index.py"
-    
-    if index_script.exists():
-        print("📁 Running tests from tests_scripts directory...")
-        print()
-        
-        # Change to tests_scripts directory and run index
-        os.chdir(tests_dir)
-        result = subprocess.run([sys.executable, "index.py", "all"], 
-                              capture_output=False, text=True)
-        return result.returncode == 0
-    else:
-        print("❌ index.py not found in tests_scripts directory!")
-        return False
+# Add tests directory to path
+tests_dir = Path(__file__).parent / 'tests'
+sys.path.insert(0, str(tests_dir))
+
+# Import and run the test index
+from index import run_all_tests, show_index
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    if len(sys.argv) > 1 and sys.argv[1] == '--help':
+        print("SwarmOpt Test Runner")
+        print()
+        print("Usage:")
+        print("  python run_tests.py              # Run full test suite")
+        print("  python run_tests.py --show       # Show test index")
+        print("  python run_tests.py --unit       # Run only unit tests")
+        print("  python run_tests.py --help       # Show this help")
+        print()
+        print("Or use tests/index.py for interactive mode:")
+        print("  python tests/index.py")
+    elif len(sys.argv) > 1 and sys.argv[1] == '--show':
+        show_index()
+    elif len(sys.argv) > 1 and sys.argv[1] == '--unit':
+        from index import run_unit_tests
+        run_unit_tests()
+    else:
+        # Run full test suite
+        run_all_tests()

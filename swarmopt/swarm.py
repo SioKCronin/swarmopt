@@ -103,7 +103,7 @@ class Swarm:
         self.k = k
         self.u = u
         self.decrement = 0.7 / m_swarms
-        
+
         # Inertia weight parameters
         self.inertia_func = inertia_func
         self.w_start = w_start
@@ -204,7 +204,7 @@ class Swarm:
             self.swarm = self.initialize_swarm()
 
         if self.algo != 'cpso' and not self.multiobjective:
-            self.update_global_best_pos()
+        self.update_global_best_pos()
 
     def shape(self):
         return [self.n_particles, self.dims]
@@ -468,9 +468,9 @@ class Swarm:
                 self.regroup = True
             for particle in self.swarm:
                 particle.update(i)  # Pass current iteration for inertia weight calculation
-            self.update_local_best_pos()
-            self.update_global_best_pos()
-            self.update_global_worst_pos()
+                self.update_local_best_pos()
+                self.update_global_best_pos()
+                self.update_global_worst_pos()
             
             # Monitor diversity and apply interventions if needed
             if self.diversity_monitoring:
@@ -582,7 +582,7 @@ class Particle:
         if swarm.use_respect_boundary:
             self.best_cost = swarm.objective_with_respect_boundary(self.best_pos)
         else:
-            self.best_cost = swarm.obj_func(self.best_pos)
+        self.best_cost = swarm.obj_func(self.best_pos)
 
     def cognitive_weight(self):
         return (self.swarm.c1 * np.random.uniform(0, 1, self.dims)) * (
@@ -628,7 +628,7 @@ class Particle:
                 if self.swarm.use_respect_boundary:
                     new_cost = self.swarm.objective_with_respect_boundary(new_pos)
                 else:
-                    new_cost = self.swarm.obj_func(new_pos)
+                new_cost = self.swarm.obj_func(new_pos)
                 if new_cost < self.best_cost:
                     self.best_cost = new_cost
                     self.pos = new_pos
