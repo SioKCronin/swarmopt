@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Test Mutation Operators for Local Optima Escape
+Test Variation Operators for Local Optima Escape
 
-This script tests the new mutation operators designed to help particles
+This script tests the new variation operators designed to help particles
 escape local optima and prevent premature convergence.
 """
 
@@ -10,9 +10,9 @@ import numpy as np
 from swarmopt import Swarm
 from swarmopt.functions import sphere, rosenbrock, ackley, rastrigin
 
-def test_mutation_operators():
-    """Test different mutation operators"""
-    print("🧪 Testing Mutation Operators for Local Optima Escape")
+def test_variation_operators():
+    """Test different variation operators"""
+    print("🧪 Testing Variation Operators for Local Optima Escape")
     print("=" * 60)
     
     # Test parameters
@@ -23,19 +23,19 @@ def test_mutation_operators():
     w = 0.9
     epochs = 50
     
-    # Test different mutation strategies
-    mutation_strategies = [
-        ('gaussian', 'Gaussian Mutation'),
-        ('adaptive_strength', 'Adaptive Strength Mutation'),
+    # Test different variation strategies
+    variation_strategies = [
+        ('gaussian', 'Gaussian Variation'),
+        ('adaptive_strength', 'Adaptive Strength Variation'),
         ('escape_local_optima', 'Escape Local Optima'),
         ('diversity_preserving', 'Diversity Preserving'),
-        ('opposition_based', 'Opposition-Based Mutation'),
-        ('hybrid', 'Hybrid Mutation')
+        ('opposition_based', 'Opposition-Based Variation'),
+        ('hybrid', 'Hybrid Variation')
     ]
     
     results = {}
     
-    for strategy, name in mutation_strategies:
+    for strategy, name in variation_strategies:
         print(f"\n🔬 Testing {name}...")
         
         # Test on challenging Rosenbrock function
@@ -46,9 +46,9 @@ def test_mutation_operators():
             epochs=epochs,
             obj_func=rosenbrock,
             algo='global',
-            mutation_strategy=strategy,
-            mutation_rate=0.1,
-            mutation_strength=0.1
+            variation_strategy=strategy,
+            variation_rate=0.1,
+            variation_strength=0.1
         )
         
         swarm.optimize()
@@ -59,15 +59,15 @@ def test_mutation_operators():
         
         print(f"   {name}: Cost = {swarm.best_cost:.6f}, Time = {swarm.runtime:.3f}s")
     
-    # Find best mutation strategy
+    # Find best variation strategy
     best_strategy = min(results.keys(), key=lambda k: results[k]['cost'])
-    print(f"\n🏆 Best mutation strategy: {best_strategy} (cost: {results[best_strategy]['cost']:.6f})")
+    print(f"\n🏆 Best variation strategy: {best_strategy} (cost: {results[best_strategy]['cost']:.6f})")
     
     return results
 
-def test_mutation_vs_no_mutation():
-    """Compare PSO with and without mutation"""
-    print("\n⚔️ Mutation vs No Mutation Comparison")
+def test_variation_vs_no_variation():
+    """Compare PSO with and without variation"""
+    print("\n⚔️ Variation vs No Variation Comparison")
     print("=" * 50)
     
     # Test parameters
@@ -76,9 +76,9 @@ def test_mutation_vs_no_mutation():
     epochs = 40
     obj_func = ackley  # Challenging function with many local optima
     
-    # Test without mutation
-    print("Testing PSO without mutation...")
-    swarm_no_mutation = Swarm(
+    # Test without variation
+    print("Testing PSO without variation...")
+    swarm_no_variation = Swarm(
         n_particles=n_particles,
         dims=dims,
         c1=2.0, c2=2.0, w=0.9,
@@ -86,40 +86,40 @@ def test_mutation_vs_no_mutation():
         obj_func=obj_func,
         algo='global'
     )
-    swarm_no_mutation.optimize()
+    swarm_no_variation.optimize()
     
-    # Test with hybrid mutation
-    print("Testing PSO with hybrid mutation...")
-    swarm_with_mutation = Swarm(
+    # Test with hybrid variation
+    print("Testing PSO with hybrid variation...")
+    swarm_with_variation = Swarm(
         n_particles=n_particles,
         dims=dims,
         c1=2.0, c2=2.0, w=0.9,
         epochs=epochs,
         obj_func=obj_func,
         algo='global',
-        mutation_strategy='hybrid',
-        mutation_rate=0.15,
-        mutation_strength=0.1
+        variation_strategy='hybrid',
+        variation_rate=0.15,
+        variation_strength=0.1
     )
-    swarm_with_mutation.optimize()
+    swarm_with_variation.optimize()
     
     print(f"\n📊 Results:")
-    print(f"   No Mutation:     Cost = {swarm_no_mutation.best_cost:.6f}, Time = {swarm_no_mutation.runtime:.3f}s")
-    print(f"   With Mutation:   Cost = {swarm_with_mutation.best_cost:.6f}, Time = {swarm_with_mutation.runtime:.3f}s")
+    print(f"   No Variation:     Cost = {swarm_no_variation.best_cost:.6f}, Time = {swarm_no_variation.runtime:.3f}s")
+    print(f"   With Variation:   Cost = {swarm_with_variation.best_cost:.6f}, Time = {swarm_with_variation.runtime:.3f}s")
     
-    improvement = ((swarm_no_mutation.best_cost - swarm_with_mutation.best_cost) / 
-                  swarm_no_mutation.best_cost) * 100
-    print(f"   Improvement:     {improvement:.1f}% better with mutation")
+    improvement = ((swarm_no_variation.best_cost - swarm_with_variation.best_cost) / 
+                  swarm_no_variation.best_cost) * 100
+    print(f"   Improvement:     {improvement:.1f}% better with variation")
     
     return {
-        'no_mutation': swarm_no_mutation.best_cost,
-        'with_mutation': swarm_with_mutation.best_cost,
+        'no_variation': swarm_no_variation.best_cost,
+        'with_variation': swarm_with_variation.best_cost,
         'improvement': improvement
     }
 
-def test_mutation_on_multimodal_functions():
-    """Test mutation on functions with multiple local optima"""
-    print("\n🎯 Testing Mutation on Multimodal Functions")
+def test_variation_on_multimodal_functions():
+    """Test variation on functions with multiple local optima"""
+    print("\n🎯 Testing Variation on Multimodal Functions")
     print("=" * 50)
     
     functions = [
@@ -133,18 +133,18 @@ def test_mutation_on_multimodal_functions():
     for func, name in functions:
         print(f"\nTesting {name}...")
         
-        # Without mutation
+        # Without variation
         swarm_no_mut = Swarm(
             n_particles=20, dims=2, c1=2.0, c2=2.0, w=0.9,
             epochs=30, obj_func=func, algo='global'
         )
         swarm_no_mut.optimize()
         
-        # With hybrid mutation
+        # With hybrid variation
         swarm_mut = Swarm(
             n_particles=20, dims=2, c1=2.0, c2=2.0, w=0.9,
             epochs=30, obj_func=func, algo='global',
-            mutation_strategy='hybrid', mutation_rate=0.2, mutation_strength=0.1
+            variation_strategy='hybrid', variation_rate=0.2, variation_strength=0.1
         )
         swarm_mut.optimize()
         
@@ -152,20 +152,20 @@ def test_mutation_on_multimodal_functions():
                       swarm_no_mut.best_cost) * 100
         
         results[name] = {
-            'no_mutation': swarm_no_mut.best_cost,
-            'with_mutation': swarm_mut.best_cost,
+            'no_variation': swarm_no_mut.best_cost,
+            'with_variation': swarm_mut.best_cost,
             'improvement': improvement
         }
         
-        print(f"   No Mutation:     {swarm_no_mut.best_cost:.6f}")
-        print(f"   With Mutation:   {swarm_mut.best_cost:.6f}")
+        print(f"   No Variation:     {swarm_no_mut.best_cost:.6f}")
+        print(f"   With Variation:   {swarm_mut.best_cost:.6f}")
         print(f"   Improvement:     {improvement:.1f}%")
     
     return results
 
-def test_adaptive_mutation_strength():
-    """Test adaptive mutation strength over time"""
-    print("\n📈 Testing Adaptive Mutation Strength")
+def test_adaptive_variation_strength():
+    """Test adaptive variation strength over time"""
+    print("\n📈 Testing Adaptive Variation Strength")
     print("=" * 50)
     
     # Test on challenging function
@@ -176,14 +176,14 @@ def test_adaptive_mutation_strength():
         epochs=40,
         obj_func=rastrigin,
         algo='global',
-        mutation_strategy='adaptive_strength',
-        mutation_rate=0.2,
-        mutation_strength=0.05
+        variation_strategy='adaptive_strength',
+        variation_rate=0.2,
+        variation_strength=0.05
     )
     
     swarm.optimize()
     
-    print(f"✅ Adaptive mutation results:")
+    print(f"✅ Adaptive variation results:")
     print(f"   Final cost: {swarm.best_cost:.6f}")
     print(f"   Runtime: {swarm.runtime:.3f}s")
     print(f"   Strategy: Adaptive strength increases over time")
@@ -191,8 +191,8 @@ def test_adaptive_mutation_strength():
     return swarm.best_cost
 
 def test_escape_local_optima():
-    """Test escape local optima mutation"""
-    print("\n🚀 Testing Escape Local Optima Mutation")
+    """Test escape local optima variation"""
+    print("\n🚀 Testing Escape Local Optima Variation")
     print("=" * 50)
     
     # Test on function known to have local optima
@@ -203,9 +203,9 @@ def test_escape_local_optima():
         epochs=50,
         obj_func=ackley,
         algo='global',
-        mutation_strategy='escape_local_optima',
-        mutation_rate=0.1,
-        mutation_strength=0.2
+        variation_strategy='escape_local_optima',
+        variation_rate=0.1,
+        variation_strength=0.2
     )
     
     swarm.optimize()
@@ -217,12 +217,12 @@ def test_escape_local_optima():
     
     return swarm.best_cost
 
-def test_opposition_based_mutation():
-    """Test opposition-based mutation"""
-    print("\n🔄 Testing Opposition-Based Mutation")
+def test_opposition_based_variation():
+    """Test opposition-based variation"""
+    print("\n🔄 Testing Opposition-Based Variation")
     print("=" * 50)
     
-    # Test opposition-based mutation
+    # Test opposition-based variation
     swarm = Swarm(
         n_particles=15,
         dims=2,
@@ -230,14 +230,14 @@ def test_opposition_based_mutation():
         epochs=40,
         obj_func=sphere,
         algo='global',
-        mutation_strategy='opposition_based',
-        mutation_rate=0.15,
-        mutation_strength=0.1
+        variation_strategy='opposition_based',
+        variation_rate=0.15,
+        variation_strength=0.1
     )
     
     swarm.optimize()
     
-    print(f"✅ Opposition-based mutation results:")
+    print(f"✅ Opposition-based variation results:")
     print(f"   Final cost: {swarm.best_cost:.6f}")
     print(f"   Runtime: {swarm.runtime:.3f}s")
     print(f"   Strategy: Explore opposite regions of search space")
@@ -245,31 +245,31 @@ def test_opposition_based_mutation():
     return swarm.best_cost
 
 def main():
-    """Run all mutation operator tests"""
-    print("🎯 Mutation Operators Test Suite")
+    """Run all variation operator tests"""
+    print("🎯 Variation Operators Test Suite")
     print("=" * 60)
-    print("Testing mutation operators designed to help particles")
+    print("Testing variation operators designed to help particles")
     print("escape local optima and prevent premature convergence.")
     
     # Run all tests
-    test_mutation_operators()
-    test_mutation_vs_no_mutation()
-    test_mutation_on_multimodal_functions()
-    test_adaptive_mutation_strength()
+    test_variation_operators()
+    test_variation_vs_no_variation()
+    test_variation_on_multimodal_functions()
+    test_adaptive_variation_strength()
     test_escape_local_optima()
-    test_opposition_based_mutation()
+    test_opposition_based_variation()
     
     print("\n" + "=" * 60)
-    print("🎉 Mutation Operators Testing Complete!")
+    print("🎉 Variation Operators Testing Complete!")
     print("=" * 60)
-    print("\n✨ New Mutation Features:")
-    print("✅ Gaussian, adaptive, escape local optima mutations")
-    print("✅ Diversity preserving and opposition-based mutations")
-    print("✅ Hybrid mutation with multiple strategies")
+    print("\n✨ New Variation Features:")
+    print("✅ Gaussian, adaptive, escape local optima variations")
+    print("✅ Diversity preserving and opposition-based variations")
+    print("✅ Hybrid variation with multiple strategies")
     print("✅ Stagnation detection and adaptive response")
-    print("✅ Strong mutations for stuck particles")
+    print("✅ Strong variations for stuck particles")
     print("\n🎯 Usage:")
-    print("swarm = Swarm(..., mutation_strategy='hybrid', mutation_rate=0.1)")
+    print("swarm = Swarm(..., variation_strategy='hybrid', variation_rate=0.1)")
 
 if __name__ == "__main__":
     main()

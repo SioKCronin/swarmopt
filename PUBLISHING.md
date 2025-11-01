@@ -143,7 +143,7 @@ git push origin v0.2.0
 - ✅ **Cooperative PSO**: Multiple collaborating swarms
 - ✅ **Proactive PSO**: Knowledge gain guided exploration
 - ✅ **Diversity Monitoring**: Prevent premature convergence
-- ✅ **Mutation Operators**: Escape local optima
+- ✅ **Variation Operators**: Escape local optima
 - ✅ **Inertia Variations**: 8 different strategies
 - ✅ **Velocity Clamping**: 11 clamping variations
 - ✅ **Airfoil Optimization**: CST, Hicks-Henne, Bézier, NACA-k
@@ -209,7 +209,7 @@ Create `CHANGELOG.md`:
 - Cooperative PSO with multiple swarms
 - Proactive PSO with knowledge gain
 - Diversity monitoring and intervention
-- Mutation operators for local optima escape
+- Variation operators for local optima escape
 - 8 inertia weight variations
 - 11 velocity clamping strategies
 - Airfoil optimization suite

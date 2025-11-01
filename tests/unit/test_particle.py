@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 from context import Particle, Swarm
-from functions import sphere
+from context import functions
 
 class TestParticle(unittest.TestCase):
     def setUp(self):
@@ -14,7 +14,7 @@ class TestParticle(unittest.TestCase):
         self.val_min = 1
         self.val_max = 10
         self.max_start_velocity = 2
-        self.obj_func = sphere
+        self.obj_func = functions.sphere
         self.swarm = Swarm(
             1, # n_particles
             self.dims,

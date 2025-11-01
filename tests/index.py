@@ -32,7 +32,7 @@ TEST_CATEGORIES = {
             'test_cpso.py': 'Test Cooperative PSO (~3min)',
             'test_ppso.py': 'Test Proactive PSO (~3min)',
             'test_diversity_system.py': 'Test diversity monitoring (~4min)',
-            'test_mutation_operators.py': 'Test mutation operators (~3min)',
+            'test_variation_operators.py': 'Test variation operators (~3min)',
             'test_airfoil_optimization.py': 'Test airfoil optimization (~4min)',
             'test_multiobjective.py': 'Test multiobjective PSO (~5min)',
             'test_multiobjective_challenges.py': 'Stress test on hard benchmarks (~15min)',

@@ -172,7 +172,7 @@ def test_diversity_interventions():
             algo='global',
             diversity_monitoring=True,
             diversity_threshold=0.1,
-            mutation_strategy=strategy if strategy != 'restart' else None
+            variation_strategy=strategy if strategy != 'restart' else None
         )
         
         swarm.optimize()
@@ -301,7 +301,7 @@ def main():
     print("✅ Multiple diversity metrics (Euclidean, Manhattan, Variance, Radius, Entropy)")
     print("✅ Real-time diversity monitoring during optimization")
     print("✅ Automatic intervention when diversity crisis detected")
-    print("✅ Particle restart, escape mutations, diversity preservation")
+    print("✅ Particle restart, escape variations, diversity preservation")
     print("✅ Opposition-based and adaptive strength interventions")
     print("✅ Comprehensive diversity statistics and trend analysis")
     print("\n🎯 Usage:")

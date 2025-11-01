@@ -33,9 +33,9 @@ TEST_SCRIPTS = {
         'category': 'Cooperative PSO',
         'time': '~2min'
     },
-    'test_mutation_operators.py': {
-        'description': 'Test mutation operators for local optima escape',
-        'category': 'Mutation Operators',
+    'test_variation_operators.py': {
+        'description': 'Test variation operators for local optima escape',
+        'category': 'Variation Operators',
         'time': '~1min'
     },
     'test_diversity_system.py': {

@@ -9,7 +9,7 @@ This directory contains all test scripts, examples, and demonstration code for t
 - `test_inertia_variations.py` - Test and compare different inertia weight strategies
 - `test_velocity_clamping.py` - Test all velocity clamping variations
 - `test_cpso.py` - Comprehensive Cooperative PSO testing
-- `test_mutation_operators.py` - Test mutation operators for local optima escape
+- `test_variation_operators.py` - Test variation operators for local optima escape
 - `test_diversity_system.py` - Test diversity measurement and intervention system
 
 ### 📚 **Examples and Demos**
@@ -33,8 +33,8 @@ python test_velocity_clamping.py
 # Test Cooperative PSO
 python test_cpso.py
 
-# Test mutation operators
-python test_mutation_operators.py
+# Test variation operators
+python test_variation_operators.py
 
 # Test diversity measurement system
 python test_diversity_system.py
@@ -49,7 +49,7 @@ python example.py
 python test_inertia_variations.py --function sphere --epochs 50
 python test_velocity_clamping.py --strategy adaptive
 python test_cpso.py --communication best
-python test_mutation_operators.py --strategy hybrid
+python test_variation_operators.py --strategy hybrid
 ```
 
 ## 📊 **Test Categories**
@@ -82,9 +82,9 @@ python test_mutation_operators.py --strategy hybrid
   - Comparison with standard PSO
   - Scalability testing
 
-### **5. Mutation Operators**
-- `test_mutation_operators.py`
-  - 10+ mutation strategies
+### **5. Variation Operators**
+- `test_variation_operators.py`
+  - 10+ variation strategies
   - Local optima escape testing
   - Stagnation detection
   - Adaptive response testing

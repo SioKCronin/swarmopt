@@ -323,7 +323,7 @@ def recommend_diversity_intervention(swarm_stats: dict) -> str:
         if swarm_stats['convergence_metrics']['is_converged']:
             return 'restart'  # Complete restart needed
         elif swarm_stats['diversity'] < 0.05:
-            return 'escape_local_optima'  # Strong escape mutation
+            return 'escape_local_optima'  # Strong escape variation
         else:
             return 'diversity_preserving'  # Gentle diversity restoration
     
@@ -331,7 +331,7 @@ def recommend_diversity_intervention(swarm_stats: dict) -> str:
         return 'opposition_based'  # Explore opposite regions
     
     elif swarm_stats['velocity_diversity'] < 0.01:
-        return 'adaptive_strength'  # Increase mutation strength
+        return 'adaptive_strength'  # Increase variation strength
     
     else:
         return 'none'  # No intervention needed

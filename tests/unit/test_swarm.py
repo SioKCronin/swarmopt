@@ -1,6 +1,6 @@
 import unittest
 from context import Swarm
-from functions import sphere
+from context import functions
 
 class TestSwarm(unittest.TestCase):
     def setUp(self):
@@ -10,7 +10,7 @@ class TestSwarm(unittest.TestCase):
         self.c2 = 0.3
         self.w = 0.9
         self.epochs = 5
-        self.obj_func = sphere
+        self.obj_func = functions.sphere
         self.v_clamp = [-5.12, 5.12]
 
     def test_initialize_swarm(self):
