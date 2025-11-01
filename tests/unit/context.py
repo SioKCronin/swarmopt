@@ -1,8 +1,11 @@
 import os
 import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import utils.distance as distance
-import utils.inertia as inertia
-from swarm import Swarm, Particle
-import functions
+# Ensure project root is on path
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
+from swarmopt.swarm import Swarm, Particle
+from swarmopt import functions
+from swarmopt.utils import distance, inertia

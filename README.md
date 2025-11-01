@@ -233,7 +233,7 @@ print(f"Optimal altitude: {altitude:.2f} km")
 
 * Cooperative Approach to PSO (CPSO)(multiple collaborating swarms)
 * Proactive Particles in Swarm Optimization (PPSO) (self-tuning swarms)
-* Mutation operator variations
+* Variation operator variations
 * Multiobjective variations
 * Benchmark on something canonical like MNIST
 

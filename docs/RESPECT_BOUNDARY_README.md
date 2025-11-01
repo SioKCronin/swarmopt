@@ -308,7 +308,7 @@ For more complex scenarios, customize the objective function or subclass `Swarm`
 
 - **Velocity Clamping**: Controls particle speed
 - **Diversity Monitoring**: Prevents premature convergence
-- **Mutation Operators**: Helps escape local optima near boundary
+- **Variation Operators**: Helps escape local optima near boundary
 
 ## Testing
 

@@ -15,7 +15,7 @@ try:
         soft_clamping, hybrid_clamping, convergence_based_clamping
     )
     from .utils.cpso import CPSO
-    from .utils.mutation import apply_mutation, MUTATION_STRATEGIES
+    from .utils.variation import apply_variation, VARIATION_STRATEGIES
     from .utils.diversity import DiversityMonitor, calculate_swarm_diversity
     from .utils.ppso import PPSO
     from .utils.simple_multiobjective import SimpleMultiObjectivePSO
@@ -32,7 +32,7 @@ except ImportError:
         soft_clamping, hybrid_clamping, convergence_based_clamping
     )
     from utils.cpso import CPSO
-    from utils.mutation import apply_mutation, MUTATION_STRATEGIES
+    from utils.variation import apply_variation, VARIATION_STRATEGIES
     from utils.diversity import DiversityMonitor, calculate_swarm_diversity
     from utils.ppso import PPSO
     from utils.simple_multiobjective import SimpleMultiObjectivePSO
@@ -44,7 +44,7 @@ class Swarm:
                  k=5, u=0.5, m_swarms=3, hueristic_change=0.9, r=5,
                  w_start=0.9, w_end=0.4, z=0.5, velocity_clamp_func='basic',
                  n_swarms=None, communication_strategy='best',
-                 mutation_strategy=None, mutation_rate=0.1, mutation_strength=0.1,
+                 variation_strategy=None, variation_rate=0.1, variation_strength=0.1,
                  diversity_monitoring=False, diversity_threshold=0.1,
                  ppso_enabled=False, proactive_ratio=0.25, knowledge_method='gaussian',
                  exploration_weight=0.5,
@@ -122,10 +122,10 @@ class Swarm:
         self.communication_strategy = communication_strategy
         self.cpso = None
         
-        # Mutation parameters
-        self.mutation_strategy = mutation_strategy
-        self.mutation_rate = mutation_rate
-        self.mutation_strength = mutation_strength
+        # Variation parameters
+        self.variation_strategy = variation_strategy
+        self.variation_rate = variation_rate
+        self.variation_strength = variation_strength
         
         # Diversity monitoring parameters
         self.diversity_monitoring = diversity_monitoring
@@ -204,7 +204,7 @@ class Swarm:
             self.swarm = self.initialize_swarm()
 
         if self.algo != 'cpso' and not self.multiobjective:
-        self.update_global_best_pos()
+            self.update_global_best_pos()
 
     def shape(self):
         return [self.n_particles, self.dims]
@@ -582,7 +582,7 @@ class Particle:
         if swarm.use_respect_boundary:
             self.best_cost = swarm.objective_with_respect_boundary(self.best_pos)
         else:
-        self.best_cost = swarm.obj_func(self.best_pos)
+            self.best_cost = swarm.obj_func(self.best_pos)
 
     def cognitive_weight(self):
         return (self.swarm.c1 * np.random.uniform(0, 1, self.dims)) * (
@@ -628,7 +628,7 @@ class Particle:
                 if self.swarm.use_respect_boundary:
                     new_cost = self.swarm.objective_with_respect_boundary(new_pos)
                 else:
-                new_cost = self.swarm.obj_func(new_pos)
+                    new_cost = self.swarm.obj_func(new_pos)
                 if new_cost < self.best_cost:
                     self.best_cost = new_cost
                     self.pos = new_pos
@@ -661,9 +661,9 @@ class Particle:
         
         self.pos += self.velocity
         
-        # Apply mutation if enabled
-        if self.swarm.mutation_strategy is not None:
-            self.pos = self.apply_mutation(current_iter)
+        # Apply variation if enabled
+        if self.swarm.variation_strategy is not None:
+            self.pos = self.apply_variation(current_iter)
         
         # Update best position if current position is better
         # Use respect boundary aware objective if enabled
@@ -684,48 +684,48 @@ class Particle:
             else:
                 self.stagnation_count = 1
     
-    def apply_mutation(self, current_iter: int):
-        """Apply mutation to particle position"""
-        from .utils.mutation import apply_mutation, detect_stalled_particles, detect_converged_particles
+    def apply_variation(self, current_iter: int):
+        """Apply variation to particle position"""
+        from .utils.variation import apply_variation, detect_stalled_particles, detect_converged_particles
         
-        # Get all particles for population-based mutations
+        # Get all particles for population-based variations
         all_particles = [p.pos for p in self.swarm.swarm]
         
         # Check if this particle is stalled or converged
         is_stalled = hasattr(self, 'stagnation_count') and self.stagnation_count >= 10
         is_converged = np.linalg.norm(self.velocity) < 1e-6
         
-        # Choose mutation strategy based on particle state
+        # Choose variation strategy based on particle state
         if is_stalled or is_converged:
-            # Strong mutation for stuck particles
-            if self.swarm.mutation_strategy == 'hybrid':
-                return apply_mutation(
+            # Strong variation for stuck particles
+            if self.swarm.variation_strategy == 'hybrid':
+                return apply_variation(
                     self.pos, 'escape_local_optima',
                     bounds=(self.swarm.val_min, self.swarm.val_max),
                     escape_strength=2.0
                 )
-            elif self.swarm.mutation_strategy == 'adaptive_strength':
-                return apply_mutation(
+            elif self.swarm.variation_strategy == 'adaptive_strength':
+                return apply_variation(
                     self.pos, 'adaptive_strength',
                     current_iter=current_iter, max_iter=self.swarm.epochs,
-                    base_strength=self.swarm.mutation_strength,
+                    base_strength=self.swarm.variation_strength,
                     bounds=(self.swarm.val_min, self.swarm.val_max)
                 )
             else:
-                # Default strong mutation
-                return apply_mutation(
-                    self.pos, self.swarm.mutation_strategy,
-                    mutation_rate=0.3, mutation_strength=self.swarm.mutation_strength * 2,
+                # Default strong variation
+                return apply_variation(
+                    self.pos, self.swarm.variation_strategy,
+                    variation_rate=0.3, variation_strength=self.swarm.variation_strength * 2,
                     bounds=(self.swarm.val_min, self.swarm.val_max),
                     current_iter=current_iter, max_iter=self.swarm.epochs,
                     population=all_particles
                 )
         else:
-            # Normal mutation
-            return apply_mutation(
-                self.pos, self.swarm.mutation_strategy,
-                mutation_rate=self.swarm.mutation_rate,
-                mutation_strength=self.swarm.mutation_strength,
+            # Normal variation
+            return apply_variation(
+                self.pos, self.swarm.variation_strategy,
+                variation_rate=self.swarm.variation_rate,
+                variation_strength=self.swarm.variation_strength,
                 bounds=(self.swarm.val_min, self.swarm.val_max),
                 current_iter=current_iter, max_iter=self.swarm.epochs,
                 population=all_particles
@@ -741,20 +741,20 @@ class Particle:
             self._restart_worst_particles(0.3)  # Restart 30% of worst particles
             
         elif intervention == 'escape_local_optima':
-            # Apply strong escape mutations to converged particles
-            self._apply_escape_mutations(stats)
+            # Apply strong escape variations to converged particles
+            self._apply_escape_variations(stats)
             
         elif intervention == 'diversity_preserving':
-            # Apply diversity-preserving mutations
-            self._apply_diversity_mutations()
+            # Apply diversity-preserving variations
+            self._apply_diversity_variations()
             
         elif intervention == 'opposition_based':
-            # Apply opposition-based mutations
-            self._apply_opposition_mutations()
+            # Apply opposition-based variations
+            self._apply_opposition_variations()
             
         elif intervention == 'adaptive_strength':
-            # Increase mutation strength for all particles
-            self._increase_mutation_strength()
+            # Increase variation strength for all particles
+            self._increase_variation_strength()
     
     def _restart_worst_particles(self, restart_ratio: float):
         """Restart worst performing particles"""
@@ -773,51 +773,51 @@ class Particle:
             particle.velocity = np.random.uniform(-self.velocity_bounds, self.velocity_bounds, self.dims)
             particle.stagnation_count = 0
     
-    def _apply_escape_mutations(self, stats: dict):
-        """Apply escape mutations to converged particles"""
-        from .utils.mutation import apply_mutation
+    def _apply_escape_variations(self, stats: dict):
+        """Apply escape variations to converged particles"""
+        from .utils.variation import apply_variation
         
         for particle in self.swarm:
             if stats['convergence_metrics']['is_converged']:
-                # Apply strong escape mutation
-                particle.pos = apply_mutation(
+                # Apply strong escape variation
+                particle.pos = apply_variation(
                     particle.pos, 'escape_local_optima',
                     bounds=(self.val_min, self.val_max),
                     escape_strength=2.0
                 )
     
-    def _apply_diversity_mutations(self):
-        """Apply diversity-preserving mutations"""
-        from .utils.mutation import apply_mutation
+    def _apply_diversity_variations(self):
+        """Apply diversity-preserving variations"""
+        from .utils.variation import apply_variation
         
         positions = [p.pos for p in self.swarm]
         for particle in self.swarm:
-            particle.pos = apply_mutation(
+            particle.pos = apply_variation(
                 particle.pos, 'diversity_preserving',
-                population=positions, mutation_rate=0.3
+                population=positions, variation_rate=0.3
             )
     
-    def _apply_opposition_mutations(self):
-        """Apply opposition-based mutations"""
-        from .utils.mutation import apply_mutation
+    def _apply_opposition_variations(self):
+        """Apply opposition-based variations"""
+        from .utils.variation import apply_variation
         
         for particle in self.swarm:
-            particle.pos = apply_mutation(
+            particle.pos = apply_variation(
                 particle.pos, 'opposition_based',
                 bounds=(self.val_min, self.val_max),
-                mutation_rate=0.2
+                variation_rate=0.2
             )
     
-    def _increase_mutation_strength(self):
-        """Increase mutation strength for all particles"""
-        # This would be implemented by temporarily increasing mutation parameters
-        # For now, we'll apply adaptive strength mutations
-        from .utils.mutation import apply_mutation
+    def _increase_variation_strength(self):
+        """Increase variation strength for all particles"""
+        # This would be implemented by temporarily increasing variation parameters
+        # For now, we'll apply adaptive strength variations
+        from .utils.variation import apply_variation
         
         for particle in self.swarm:
-            particle.pos = apply_mutation(
+            particle.pos = apply_variation(
                 particle.pos, 'adaptive_strength',
                 current_iter=0, max_iter=self.epochs,
-                base_strength=self.mutation_strength * 2,
+                base_strength=self.variation_strength * 2,
                 bounds=(self.val_min, self.val_max)
             )

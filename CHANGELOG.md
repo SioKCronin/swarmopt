@@ -37,17 +37,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Sample density awareness
   - Adaptive exploration weights
 
-#### Diversity & Mutation
+#### Diversity & Variation
 - **Diversity Monitoring**: Prevent premature convergence
   - 9 diversity metrics (Euclidean, Manhattan, Variance, etc.)
   - Automatic intervention triggers
   - Diversity-based particle restart
 
-- **Mutation Operators**: Escape local optima
-  - 14 mutation strategies
-  - Gaussian, Uniform, Polynomial mutations
-  - Escape and diversity-preserving mutations
-  - Adaptive mutation strength
+- **Variation Operators**: Escape local optima
+  - 14 variation strategies
+  - Gaussian, Uniform, Polynomial variations
+  - Escape and diversity-preserving variations
+  - Adaptive variation strength
   - Stagnation detection
 
 #### Inertia & Velocity Control
