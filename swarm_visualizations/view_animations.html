@@ -101,18 +101,6 @@
         </div>
         
         <div class="description">
-            <h3>✈️ Airfoil Optimization</h3>
-            <p>Advanced aerodynamic optimization with multiple parameterization methods:</p>
-            <ul>
-                <li><strong>CST (Class-Shape Transformation):</strong> Bernstein polynomials with class and shape functions</li>
-                <li><strong>Hicks-Henne:</strong> Bump functions for baseline airfoil modification</li>
-                <li><strong>Bézier Curves:</strong> Control point-based smooth airfoil representation</li>
-                <li><strong>NACA-k:</strong> Modified NACA 4-digit series with trailing edge control</li>
-            </ul>
-            <p><a href="airfoil_optimization_viewer.html" target="_blank" style="color: #2c3e50; text-decoration: none; font-weight: bold; background: #3498db; color: white; padding: 10px 20px; border-radius: 5px; display: inline-block; margin-top: 10px;">🎯 View Airfoil Optimization Results →</a></p>
-        </div>
-        
-        <div class="description">
             <h3>🎯 What These Animations Show</h3>
             <ul>
                 <li><strong>🔵 Blue dots</strong> = Particles moving through the search space</li>
@@ -153,16 +141,6 @@
             </div>
             
             <div class="gif-item">
-                <h3>🛰️ Satellite Positioning Example</h3>
-                <p>ISS altitude maintenance with respect boundary</p>
-                <img src="respect_boundary_satellite.png" alt="Satellite Positioning">
-                <p style="margin-top: 10px; font-size: 12px; color: #555;">
-                    Real-world example: Satellites optimize their position while maintaining safe distance 
-                    from Earth (6,771 km from center = 400 km altitude). Shows 3D positioning and altitude distribution.
-                </p>
-            </div>
-            
-            <div class="gif-item">
                 <h3>📊 With vs Without Comparison</h3>
                 <p>Impact of respect boundary on convergence</p>
                 <img src="respect_boundary_comparison.png" alt="Respect Boundary Comparison">
@@ -172,23 +150,13 @@
                 </p>
             </div>
             
-            <div class="gif-item">
-                <h3>🎯 Delegate Positioning</h3>
-                <p>Redundant agents positioned around target</p>
-                <img src="delegate_positioning.png" alt="Delegate Positioning">
-                <p style="margin-top: 10px; font-size: 12px; color: #555;">
-                    Demonstrates delegate positioning feature: 4 agents (green squares) positioned uniformly 
-                    around target with automatic respect boundary. Perfect for satellite repair missions with redundancy.
-                </p>
-            </div>
-            
             <div class="description">
                 <h3>🔒 Respect Boundary Feature</h3>
                 <p><strong>Safety-First Design:</strong> Automatically enforced when a target position is specified.</p>
                 <ul>
                     <li><strong>Automatic:</strong> 10% of search space diagonal by default</li>
                     <li><strong>Mandatory:</strong> Cannot be disabled for safety-critical applications</li>
-                    <li><strong>Applications:</strong> Satellites, drones, robots, collision avoidance</li>
+                    <li><strong>Applications:</strong> Drones, robots, collision avoidance</li>
                     <li><strong>Smart:</strong> Particles converge to sphere around target, not on it</li>
                 </ul>
                 <p style="margin-top: 15px; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 5px;">
