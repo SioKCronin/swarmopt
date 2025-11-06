@@ -228,13 +228,6 @@ print(f"Optimal altitude: {altitude:.2f} km")
 * **Hybrid Clamping** - Adaptive + exponential
 * **Convergence-Based** - Based on optimization progress
 
-## 🚧 On Deck
-
-* Proactive Particles in Swarm Optimization (PPSO) (self-tuning swarms)
-* Variation operator variations
-* Multiobjective variations
-* Benchmark on something canonical like MNIST
-
 ## Performance
 
 ### Inertia Weight Performance
