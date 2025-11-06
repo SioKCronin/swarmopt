@@ -247,13 +247,6 @@ print(f"Optimal altitude: {altitude:.2f} km")
 - **Adaptive Inertia + Adaptive Clamping**: Best for complex landscapes
 - **Linear Inertia + Basic Clamping**: Reliable baseline
 
-## Applications
-
-* Neural network number of layers and weight optimization
-* Grid scheduling (load balancing)
-* Routing in communication networks
-* Anomaly detection
-
 ## Citation
 
 Siobhán K Cronin, SwarmOpt (2018), GitHub repository, https://github.com/SioKCronin/SwarmOpt
