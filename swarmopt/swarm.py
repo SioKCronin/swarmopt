@@ -388,7 +388,14 @@ class Swarm:
     def initialize_swarm(self):
         swarm = []
         for particle in range(self.n_particles):
-            swarm.append(Particle(self))
+            p = Particle(self)
+            # Ensure initial particles respect boundary if enabled
+            if self.use_respect_boundary:
+                p.pos = p._enforce_respect_boundary(p.pos)
+                p.best_pos = p.pos.copy()
+                # Re-evaluate cost with corrected position
+                p.best_cost = self.objective_with_respect_boundary(p.pos)
+            swarm.append(p)
         return swarm
 
     def initialize_multiswarm(self):
@@ -624,8 +631,9 @@ class Particle:
         if self.swarm.algo == 'sa':
             if np.array_equal(self.pos, self.swarm.worst_pos):
                 new_pos = np.random.uniform(self.swarm.val_min, self.swarm.val_max, self.swarm.dims)
-                # Use respect boundary aware objective if enabled
+                # Enforce respect boundary if enabled
                 if self.swarm.use_respect_boundary:
+                    new_pos = self._enforce_respect_boundary(new_pos)
                     new_cost = self.swarm.objective_with_respect_boundary(new_pos)
                 else:
                     new_cost = self.swarm.obj_func(new_pos)
@@ -635,6 +643,9 @@ class Particle:
                 if self.best_cost >= getattr(self.swarm, 'alpha', 0.5):
                     best_neighbor = self.swarm.get_best_neighbor(self)
                     self.pos = best_neighbor[0][0]
+                    # Enforce boundary after setting neighbor position
+                    if self.swarm.use_respect_boundary:
+                        self.pos = self._enforce_respect_boundary(self.pos)
                     self.best_cost = best_neighbor[0][1]
 
             self.velocity = (current_w * self.velocity) + (self.cognitive_weight() + self.global_weight())
@@ -664,6 +675,14 @@ class Particle:
         # Apply variation if enabled
         if self.swarm.variation_strategy is not None:
             self.pos = self.apply_variation(current_iter)
+            # Enforce boundary after variation (variations might violate boundary)
+            if self.swarm.use_respect_boundary:
+                self.pos = self._enforce_respect_boundary(self.pos)
+        
+        # Enforce respect boundary: hard constraint to keep particles outside boundary
+        # This ensures particles never enter the unsafe zone
+        if self.swarm.use_respect_boundary:
+            self.pos = self._enforce_respect_boundary(self.pos)
         
         # Update best position if current position is better
         # Use respect boundary aware objective if enabled
@@ -683,6 +702,43 @@ class Particle:
                 self.stagnation_count += 1
             else:
                 self.stagnation_count = 1
+    
+    def _enforce_respect_boundary(self, position: np.ndarray) -> np.ndarray:
+        """
+        Enforce respect boundary constraint: push particles outside boundary.
+        
+        If a particle is inside the respect boundary, move it to the boundary
+        surface (on the line from target to particle position).
+        
+        Args:
+            position: Current particle position
+            
+        Returns:
+            Position adjusted to be outside respect boundary
+        """
+        distance_to_target = np.linalg.norm(position - self.swarm.target_position)
+        
+        # If outside boundary, no adjustment needed
+        if distance_to_target >= self.swarm.respect_boundary:
+            return position
+        
+        # If inside boundary (or exactly on it), push to boundary surface
+        if distance_to_target < 1e-10:
+            # Particle is at target position - move to random position on boundary
+            # Generate random unit vector
+            random_direction = np.random.randn(self.dims)
+            random_direction /= np.linalg.norm(random_direction)
+            # Position at boundary distance
+            adjusted_position = self.swarm.target_position + self.swarm.respect_boundary * random_direction
+        else:
+            # Particle is inside boundary - push to boundary surface
+            # Direction from target to particle
+            direction = position - self.swarm.target_position
+            direction_unit = direction / distance_to_target
+            # Position at boundary distance along same direction
+            adjusted_position = self.swarm.target_position + self.swarm.respect_boundary * direction_unit
+        
+        return adjusted_position
     
     def apply_variation(self, current_iter: int):
         """Apply variation to particle position"""
@@ -768,8 +824,14 @@ class Particle:
             particle = particles_with_costs[i][0]
             # Reinitialize position
             particle.pos = np.random.uniform(self.val_min, self.val_max, self.dims)
+            # Enforce respect boundary if enabled
+            if self.use_respect_boundary:
+                particle.pos = particle._enforce_respect_boundary(particle.pos)
             particle.best_pos = particle.pos.copy()
-            particle.best_cost = self.obj_func(particle.pos)
+            if self.use_respect_boundary:
+                particle.best_cost = self.objective_with_respect_boundary(particle.pos)
+            else:
+                particle.best_cost = self.obj_func(particle.pos)
             particle.velocity = np.random.uniform(-self.velocity_bounds, self.velocity_bounds, self.dims)
             particle.stagnation_count = 0
     
