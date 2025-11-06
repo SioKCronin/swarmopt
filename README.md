@@ -2,9 +2,10 @@
 
 # SwarmOpt
 
-SwarmOpt is a swarm optimization algorithm implemented in Python. 
+SwarmOpt is a library of swarm optimization algorithms implemented in Python. 
 
-The PSO lineage was sparked by Eberhart and Kennedy in their original paper on PSOs in 1995, 
+Swarm intelligence leverages population-based search solutions to balance exploration and exploitation with respect 
+to specified cost functions. The PSO lineage was sparked by Eberhart and Kennedy in their original paper on PSOs in 1995, 
 and the intervening years have seen many variations spring from their central idea. 
 
 ## Installation
@@ -55,7 +56,7 @@ python tests/index.py                      # Interactive test runner
 
 See SwarmOpt in action with our animated demonstrations:
 
-**[🎬 View Particle Swarm Animations](https://htmlpreview.github.io/?https://github.com/SioKCronin/swarmopt/blob/update2/swarm_visualizations/view_animations.html)**
+**[🎬 View Particle Swarm Animations](https://htmlpreview.github.io/?https://github.com/SioKCronin/swarmopt/blob/master/swarm_visualizations/view_animations.html)**
 
 The visualizations show:
 - 🔵 **Blue dots** = Particles moving through the search space
@@ -69,7 +70,7 @@ The visualizations show:
 - **Demo 3**: Challenging Rosenbrock function
 - **Demo 4**: Complex Ackley function with chaotic inertia
 
-> 💡 **Tip**: The animations are also available as GIF files in the [`swarm_visualizations/`](https://github.com/SioKCronin/swarmopt/tree/update2/swarm_visualizations) directory for download and offline viewing.
+> 💡 **Tip**: The animations are also available as GIF files in the [`swarm_visualizations/`](https://github.com/SioKCronin/swarmopt/tree/master/swarm_visualizations) directory for download and offline viewing.
 
 ## Advanced Usage
 
@@ -224,6 +225,14 @@ print(f"Optimal distance from target: {distance:.2f}")
 * **Hybrid Clamping** - Adaptive + exponential
 * **Convergence-Based** - Based on optimization progress
 
+## 🚧 On Deck
+
+* Cooperative Approach to PSO (CPSO)(multiple collaborating swarms)
+* Proactive Particles in Swarm Optimization (PPSO) (self-tuning swarms)
+* Variation operator variations
+* Multiobjective variations
+* Benchmark on something canonical like MNIST
+
 ## Performance
 
 ### Inertia Weight Performance
@@ -242,6 +251,13 @@ print(f"Optimal distance from target: {distance:.2f}")
 - **Exponential Inertia + Hybrid Clamping**: Optimal for most problems
 - **Adaptive Inertia + Adaptive Clamping**: Best for complex landscapes
 - **Linear Inertia + Basic Clamping**: Reliable baseline
+
+## Applications
+
+* Neural network number of layers and weight optimization
+* Grid scheduling (load balancing)
+* Routing in communication networks
+* Anomaly detection
 
 ## Citation
 
