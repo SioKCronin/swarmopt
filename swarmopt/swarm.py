@@ -679,6 +679,9 @@ class Particle:
         # Apply velocity clamping
         self.velocity = self.swarm.apply_velocity_clamping(self.velocity, current_iter)
         
+        # Store original position for velocity adjustment
+        old_pos = self.pos.copy()
+        
         self.pos += self.velocity
         
         # Apply variation if enabled
@@ -691,7 +694,44 @@ class Particle:
         # Enforce respect boundary: hard constraint to keep particles outside boundary
         # This ensures particles never enter the unsafe zone
         if self.swarm.use_respect_boundary:
-            self.pos = self._enforce_respect_boundary(self.pos)
+            new_pos = self._enforce_respect_boundary(self.pos)
+            
+            # Check if position was actually adjusted (with tolerance for floating point)
+            pos_changed = np.linalg.norm(new_pos - old_pos) > 1e-10
+            
+            if pos_changed:
+                # Particle was pushed outside - adjust velocity to prevent immediate re-entry
+                # Direction from target to new position
+                to_particle = new_pos - self.swarm.target_position
+                distance_to_target = np.linalg.norm(to_particle)
+                if distance_to_target > 1e-10:
+                    # Normalize and scale to maintain similar magnitude
+                    outward_direction = to_particle / distance_to_target
+                    # Check if velocity is pointing toward target (bad)
+                    to_target = self.swarm.target_position - old_pos
+                    if np.linalg.norm(to_target) > 1e-10:
+                        to_target_norm = to_target / np.linalg.norm(to_target)
+                        # Dot product: if positive, velocity component points toward target
+                        velocity_toward_target = np.dot(self.velocity, to_target_norm)
+                        if velocity_toward_target > 0:
+                            # Remove the component pointing toward target
+                            velocity_parallel = velocity_toward_target * to_target_norm
+                            self.velocity = self.velocity - velocity_parallel
+                            # Add small outward component to prevent re-entry
+                            velocity_magnitude = np.linalg.norm(self.velocity)
+                            if velocity_magnitude < 0.1:
+                                # If velocity is too small, give it outward push
+                                self.velocity = outward_direction * 0.1
+                            else:
+                                # Add outward bias while preserving magnitude
+                                outward_component = outward_direction * min(velocity_magnitude * 0.3, 0.5)
+                                self.velocity = self.velocity + outward_component
+                                # Renormalize to preserve magnitude
+                                new_magnitude = np.linalg.norm(self.velocity)
+                                if new_magnitude > 1e-10:
+                                    self.velocity = self.velocity * (velocity_magnitude / new_magnitude)
+            
+            self.pos = new_pos
         
         # Update best position if current position is better
         # Use respect boundary aware objective if enabled
