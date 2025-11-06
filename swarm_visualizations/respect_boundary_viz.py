@@ -8,8 +8,10 @@ including a satellite positioning example.
 
 import numpy as np
 import sys
-sys.path.insert(0, '..')
-from swarmopt import Swarm
+import os
+# Add parent directory to path to import swarmopt
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from swarmopt.swarm import Swarm
 
 try:
     import matplotlib.pyplot as plt
@@ -115,7 +117,8 @@ def create_2d_respect_boundary_viz():
            bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
     
     plt.tight_layout()
-    plt.savefig('respect_boundary_2d.png', dpi=300, bbox_inches='tight')
+    output_path = 'swarm_visualizations/respect_boundary_2d.png'
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
     
     print(f"✅ Saved: respect_boundary_2d.png")
@@ -215,7 +218,8 @@ def create_comparison_viz():
                  fontsize=16, fontweight='bold', y=1.00)
     
     plt.tight_layout()
-    plt.savefig('respect_boundary_comparison.png', dpi=300, bbox_inches='tight')
+    output_path = 'swarm_visualizations/respect_boundary_comparison.png'
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
     
     print(f"✅ Saved: respect_boundary_comparison.png")
