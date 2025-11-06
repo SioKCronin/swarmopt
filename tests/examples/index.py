@@ -48,11 +48,6 @@ TEST_SCRIPTS = {
         'category': 'Proactive PSO',
         'time': '~3min'
     },
-    'test_airfoil_optimization.py': {
-        'description': 'Test airfoil optimization with CST, Hicks-Henne, Bézier, NACA-k',
-        'category': 'Airfoil Optimization',
-        'time': '~4min'
-    },
     'test_multiobjective.py': {
         'description': 'Test multiobjective optimization with NSGA-II and SPEA2 algorithms',
         'category': 'Multiobjective PSO',
@@ -62,11 +57,6 @@ TEST_SCRIPTS = {
         'description': 'Stress test MOPSO on hardest benchmarks (ZDT4, DTLZ3, DTLZ7, etc.)',
         'category': 'Multiobjective PSO',
         'time': '~15min'
-    },
-    'test_delegate_positioning.py': {
-        'description': 'Test delegate positioning for redundant agents around target',
-        'category': 'Respect Boundary',
-        'time': '~2min'
     },
     'example.py': {
         'description': 'Comprehensive example showcasing all SwarmOpt features',

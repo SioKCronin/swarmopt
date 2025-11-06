@@ -33,11 +33,9 @@ TEST_CATEGORIES = {
             'test_ppso.py': 'Test Proactive PSO (~3min)',
             'test_diversity_system.py': 'Test diversity monitoring (~4min)',
             'test_variation_operators.py': 'Test variation operators (~3min)',
-            'test_airfoil_optimization.py': 'Test airfoil optimization (~4min)',
             'test_multiobjective.py': 'Test multiobjective PSO (~5min)',
             'test_multiobjective_challenges.py': 'Stress test on hard benchmarks (~15min)',
             'test_respect_boundary.py': 'Test respect boundary feature (~2min)',
-            'test_delegate_positioning.py': 'Test delegate positioning (~2min)',
         }
     },
     'examples': {

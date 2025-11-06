@@ -121,145 +121,6 @@ def create_2d_respect_boundary_viz():
     print(f"✅ Saved: respect_boundary_2d.png")
     return swarm
 
-def create_satellite_positioning_viz():
-    """Create satellite positioning visualization"""
-    if not MATPLOTLIB_AVAILABLE:
-        return
-    
-    print("🛰️  Creating Satellite Positioning Visualization...")
-    
-    # Earth parameters
-    earth_center = np.array([0.0, 0.0, 0.0])
-    earth_radius = 6371.0  # km
-    desired_altitude = 400.0  # km (ISS altitude)
-    
-    # Objective: Minimize deviation from optimal circular orbit
-    optimal_orbit_radius = earth_radius + desired_altitude
-    
-    def orbit_energy(position):
-        distance = np.linalg.norm(position - earth_center)
-        # Penalty for deviating from optimal orbit
-        return abs(distance - optimal_orbit_radius)
-    
-    # Run optimization
-    swarm = Swarm(
-        n_particles=30,
-        dims=3,
-        c1=2.0, c2=2.0, w=0.9,
-        epochs=60,
-        obj_func=orbit_energy,
-        algo='global',
-        target_position=earth_center,
-        velocity_clamp=(-1000, 1000)
-    )
-    
-    swarm.optimize()
-    
-    # Create 3D visualization
-    fig = plt.figure(figsize=(15, 6))
-    
-    # Left plot: 3D view
-    ax1 = fig.add_subplot(121, projection='3d')
-    
-    # Plot Earth
-    u = np.linspace(0, 2 * np.pi, 50)
-    v = np.linspace(0, np.pi, 50)
-    x_earth = earth_radius * np.outer(np.cos(u), np.sin(v))
-    y_earth = earth_radius * np.outer(np.sin(u), np.sin(v))
-    z_earth = earth_radius * np.outer(np.ones(np.size(u)), np.cos(v))
-    ax1.plot_surface(x_earth, y_earth, z_earth, color='blue', alpha=0.3, 
-                     label='Earth')
-    
-    # Plot respect boundary (minimum safe orbit)
-    min_safe_radius = swarm.respect_boundary
-    x_boundary = min_safe_radius * np.outer(np.cos(u), np.sin(v))
-    y_boundary = min_safe_radius * np.outer(np.sin(u), np.sin(v))
-    z_boundary = min_safe_radius * np.outer(np.ones(np.size(u)), np.cos(v))
-    ax1.plot_wireframe(x_boundary, y_boundary, z_boundary, 
-                       color='red', alpha=0.2, linewidth=0.5,
-                       label=f'Respect Boundary ({min_safe_radius:.0f} km)')
-    
-    # Plot optimal orbit
-    x_optimal = optimal_orbit_radius * np.outer(np.cos(u), np.sin(v))
-    y_optimal = optimal_orbit_radius * np.outer(np.sin(u), np.sin(v))
-    z_optimal = optimal_orbit_radius * np.outer(np.ones(np.size(u)), np.cos(v))
-    ax1.plot_wireframe(x_optimal, y_optimal, z_optimal,
-                       color='green', alpha=0.2, linewidth=0.5,
-                       label=f'Optimal Orbit ({optimal_orbit_radius:.0f} km)')
-    
-    # Plot satellites
-    for particle in swarm.swarm:
-        distance = np.linalg.norm(particle.pos - earth_center)
-        if distance >= min_safe_radius:
-            color = 'green'
-            alpha = 0.8
-        else:
-            color = 'red'
-            alpha = 0.5
-        
-        ax1.scatter(particle.pos[0], particle.pos[1], particle.pos[2],
-                   c=color, s=50, alpha=alpha)
-    
-    # Plot best position
-    ax1.scatter(swarm.best_pos[0], swarm.best_pos[1], swarm.best_pos[2],
-               c='gold', s=200, marker='*', 
-               edgecolors='orange', linewidths=2,
-               label='Optimal Satellite Position')
-    
-    ax1.set_xlabel('X (km)', fontsize=12)
-    ax1.set_ylabel('Y (km)', fontsize=12)
-    ax1.set_zlabel('Z (km)', fontsize=12)
-    ax1.set_title('3D Satellite Positioning', fontsize=14, fontweight='bold')
-    
-    # Right plot: 2D cross-section and statistics
-    ax2 = fig.add_subplot(122)
-    
-    # Calculate distances
-    distances = [np.linalg.norm(p.pos - earth_center) for p in swarm.swarm]
-    altitudes = [d - earth_radius for d in distances]
-    
-    # Plot histogram of altitudes
-    ax2.hist(altitudes, bins=20, edgecolor='black', alpha=0.7, color='skyblue')
-    ax2.axvline(desired_altitude, color='green', linestyle='--', 
-               linewidth=2, label=f'Target Altitude ({desired_altitude} km)')
-    ax2.axvline(min_safe_radius - earth_radius, color='red', linestyle='--',
-               linewidth=2, label=f'Min Safe Altitude ({min_safe_radius - earth_radius:.0f} km)')
-    
-    ax2.set_xlabel('Altitude (km)', fontsize=12)
-    ax2.set_ylabel('Number of Satellites', fontsize=12)
-    ax2.set_title('Satellite Altitude Distribution', fontsize=14, fontweight='bold')
-    ax2.legend(fontsize=10)
-    ax2.grid(True, alpha=0.3)
-    
-    # Add statistics
-    best_distance = np.linalg.norm(swarm.best_pos - earth_center)
-    best_altitude = best_distance - earth_radius
-    
-    stats_text = f'Satellite Positioning Results:\n\n'
-    stats_text += f'Earth Radius: {earth_radius} km\n'
-    stats_text += f'Target Altitude: {desired_altitude} km\n'
-    stats_text += f'Min Safe Altitude: {min_safe_radius - earth_radius:.0f} km\n\n'
-    stats_text += f'Best Position Altitude: {best_altitude:.2f} km\n'
-    stats_text += f'Deviation from Target: {abs(best_altitude - desired_altitude):.2f} km\n'
-    stats_text += f'Safety Compliance: ✅ {best_distance >= min_safe_radius}\n\n'
-    stats_text += f'Avg Altitude: {np.mean(altitudes):.2f} km\n'
-    stats_text += f'Std Altitude: {np.std(altitudes):.2f} km'
-    
-    ax2.text(0.98, 0.98, stats_text, transform=ax2.transAxes,
-            fontsize=10, verticalalignment='top', horizontalalignment='right',
-            bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.9))
-    
-    plt.suptitle('🛰️  Satellite Positioning with Respect Boundary\n' +
-                 'PSO maintains safe orbital distance from Earth',
-                 fontsize=16, fontweight='bold', y=1.00)
-    
-    plt.tight_layout()
-    plt.savefig('respect_boundary_satellite.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    
-    print(f"✅ Saved: respect_boundary_satellite.png")
-    return swarm
-
 def create_comparison_viz():
     """Create comparison: with vs without respect boundary"""
     if not MATPLOTLIB_AVAILABLE:
@@ -375,7 +236,6 @@ def main():
     
     # Create visualizations
     create_2d_respect_boundary_viz()
-    create_satellite_positioning_viz()
     create_comparison_viz()
     
     print("\n" + "=" * 70)
@@ -383,11 +243,10 @@ def main():
     print("=" * 70)
     print("\nGenerated files:")
     print("  • respect_boundary_2d.png - Basic 2D convergence")
-    print("  • respect_boundary_satellite.png - Satellite positioning example")
     print("  • respect_boundary_comparison.png - With vs without comparison")
     print("\n💡 These visualizations demonstrate:")
     print("  ✓ Safe distance enforcement")
-    print("  ✓ Real-world satellite positioning")
+    print("  ✓ Real-world safety-critical applications")
     print("  ✓ Comparison of convergence behavior")
 
 if __name__ == "__main__":
