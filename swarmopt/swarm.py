@@ -506,13 +506,22 @@ class Swarm:
             
             if particle.best_cost < self.best_cost:
                 self.best_cost = particle.best_cost
-                self.best_pos = particle.best_pos
+                best_pos = particle.best_pos
+                # Enforce respect boundary on global best position if enabled
+                # (though particle.best_pos should already be enforced)
+                if self.use_respect_boundary:
+                    best_pos = particle._enforce_respect_boundary(best_pos)
+                self.best_pos = best_pos
 
     def update_local_best_pos(self):
         for particle in self.swarm:
             local_best = self.get_best_neighbor(particle)
             particle.local_best_cost = local_best[0][1]
-            particle.local_best_pos = local_best[0][0]
+            local_best_pos = local_best[0][0]
+            # Enforce respect boundary on local best position if enabled
+            if self.use_respect_boundary:
+                local_best_pos = particle._enforce_respect_boundary(local_best_pos)
+            particle.local_best_pos = local_best_pos
 
     def update_global_worst_pos(self):
         for particle in self.swarm:
@@ -707,36 +716,58 @@ class Particle:
         """
         Enforce respect boundary constraint: push particles outside boundary.
         
-        If a particle is inside the respect boundary, move it to the boundary
-        surface (on the line from target to particle position).
+        If a particle is inside the respect boundary, move it to slightly outside
+        the boundary surface (on the line from target to particle position) to
+        account for floating point precision errors.
         
         Args:
             position: Current particle position
             
         Returns:
-            Position adjusted to be outside respect boundary
+            Position adjusted to be outside respect boundary (with safety margin)
         """
+        # Safety margin to ensure particles are truly outside, not just on boundary
+        # Use a larger margin (1e-6) to account for floating point precision errors
+        # in subsequent calculations (velocity updates, etc.)
+        SAFETY_MARGIN = 1e-6
+        safe_boundary = self.swarm.respect_boundary + SAFETY_MARGIN
+        
         distance_to_target = np.linalg.norm(position - self.swarm.target_position)
         
-        # If outside boundary, no adjustment needed
-        if distance_to_target >= self.swarm.respect_boundary:
+        # If clearly outside boundary (with margin), no adjustment needed
+        if distance_to_target > safe_boundary:
             return position
         
-        # If inside boundary (or exactly on it), push to boundary surface
+        # If inside boundary (or close to it), push to safe distance outside boundary
         if distance_to_target < 1e-10:
-            # Particle is at target position - move to random position on boundary
+            # Particle is at or very close to target position - move to random position outside boundary
             # Generate random unit vector
-            random_direction = np.random.randn(self.dims)
+            random_direction = np.random.randn(self.swarm.dims)
             random_direction /= np.linalg.norm(random_direction)
-            # Position at boundary distance
-            adjusted_position = self.swarm.target_position + self.swarm.respect_boundary * random_direction
+            # Position at safe distance outside boundary
+            adjusted_position = self.swarm.target_position + safe_boundary * random_direction
         else:
-            # Particle is inside boundary - push to boundary surface
+            # Particle is inside or on boundary - push to safe distance outside boundary
             # Direction from target to particle
             direction = position - self.swarm.target_position
             direction_unit = direction / distance_to_target
-            # Position at boundary distance along same direction
-            adjusted_position = self.swarm.target_position + self.swarm.respect_boundary * direction_unit
+            # Position at safe distance outside boundary along same direction
+            adjusted_position = self.swarm.target_position + safe_boundary * direction_unit
+        
+        # Verify the adjusted position is actually outside the boundary
+        # (due to floating point precision, recalculate distance)
+        final_distance = np.linalg.norm(adjusted_position - self.swarm.target_position)
+        if final_distance < self.swarm.respect_boundary:
+            # If still inside (shouldn't happen, but safety check), push out further
+            # Normalize direction vector from target to adjusted position
+            correction_direction = adjusted_position - self.swarm.target_position
+            if np.linalg.norm(correction_direction) > 1e-10:
+                correction_direction /= np.linalg.norm(correction_direction)
+            else:
+                # If direction is degenerate, use random direction
+                correction_direction = np.random.randn(self.swarm.dims)
+                correction_direction /= np.linalg.norm(correction_direction)
+            adjusted_position = self.swarm.target_position + safe_boundary * correction_direction
         
         return adjusted_position
     
