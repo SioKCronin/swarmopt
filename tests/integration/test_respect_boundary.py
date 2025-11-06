@@ -145,9 +145,9 @@ def test_multiple_respect_distances():
     
     return results
 
-def test_satellite_positioning():
-    """Test satellite standoff distance scenario"""
-    print("\n🛰️  Testing Satellite Positioning (Standoff Distance)")
+def test_standoff_distance():
+    """Test standoff distance scenario"""
+    print("\n🎯  Testing Standoff Distance (Safety-Critical)")
     print("=" * 60)
     
     # Earth center as target
@@ -327,7 +327,7 @@ def main():
     test_basic_respect_boundary()
     test_3d_respect_boundary()
     test_multiple_respect_distances()
-    test_satellite_positioning()
+    test_standoff_distance()
     test_obstacle_avoidance()
     test_visualization()
     
@@ -337,7 +337,7 @@ def main():
     
     print("\n✨ Respect Boundary Features:")
     print("✅ Particles converge to safe distance from target")
-    print("✅ Useful for satellite positioning and standoff operations")
+    print("✅ Useful for safety-critical applications and standoff operations")
     print("✅ Enables obstacle avoidance with safety margins")
     print("✅ Works in 2D and 3D spaces")
     print("✅ Configurable respect distance")
