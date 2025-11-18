@@ -4,6 +4,13 @@
 
 This project combines **Topological Data Analysis (TDA)** with **Particle Swarm Optimization (PSO)** to model and control cancer growth dynamics. The central innovation is using persistent homology to characterize tumor morphology and optimize treatment strategies that collapse invasive topological features.
 
+### Workflow Overview
+
+1. **Reduce large-scale tumor simulations using TDA** – run Mapper / persistent homology / UMAP-PCA pipelines to capture the dominant manifold or cluster signatures, then export those reduced coordinates or summaries as the search domain.
+2. **Define the optimization problem** – express treatment, simulation, or control objectives in terms of the reduced representation (e.g., Wasserstein distances, Betti targets), keeping constraints there so solutions remain interpretable.
+3. **Run swarm optimization to find the global optimum** – apply SwarmOpt or ETDA-specific PSO variants on the reduced parameter space, leveraging stochastic exploration to locate promising treatment policies.
+4. **Validate and interpret the best solution** – lift the swarm-derived optimum back to the full biological or simulation model and perform domain-specific checks (dose limits, mechanistic plausibility) before clinical interpretation.
+
 ## 🎯 Core Concept
 
 ### Problem Statement
