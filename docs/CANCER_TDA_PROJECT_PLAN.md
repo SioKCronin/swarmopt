@@ -359,4 +359,4 @@ For questions, collaborations, or contributions, please open an issue or contact
 
 ---
 
-**Built with [SwarmOpt](https://github.com/SioKCronin/swarmopt)** 🐝
+**Built with [SwarmOpt](https://github.com/SioKCronin/swarmopt)**
