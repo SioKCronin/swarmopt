@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Respect Boundary**: Safety-critical standoff distance optimization
   - Automatic enforcement when target position specified
   - Default: 10% of search space diagonal
-  - Applications: Satellites, drones, robots, collision avoidance
+  - Applications: Satellites, robots, collision avoidance
   - Cannot be disabled for safety-critical applications
 
 #### Multiobjective Optimization
