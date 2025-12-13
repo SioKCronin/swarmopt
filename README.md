@@ -201,16 +201,16 @@ print(f"Optimal distance from target: {distance:.2f}")
 * **ZDT1, ZDT2, ZDT3** - Zitzler-Deb-Thiele test functions
 * **DTLZ1, DTLZ2** - Deb-Thiele-Laumanns-Zitzler test functions
 
-## ✅ Implemented Features
+## Implemented Features
 
 ### Inertia Weight Variations
 * **Constant** - Traditional fixed inertia weight
 * **Linear Decreasing** - Classic linear decay (default)
 * **Chaotic** - Chaotic inertia using logistic map
 * **Random** - Random inertia between 0.5-1.0
-* **Adaptive** - Adapts based on convergence progress ⭐
+* **Adaptive** - Adapts based on convergence progress 
 * **Chaotic-Random** - Combination of chaotic and random
-* **Exponential Decreasing** - Exponential decay ⭐
+* **Exponential Decreasing** - Exponential decay 
 * **Sigmoid Decreasing** - Sigmoid decay curve
 
 ### Velocity Clamping Variations
@@ -225,7 +225,7 @@ print(f"Optimal distance from target: {distance:.2f}")
 * **Hybrid Clamping** - Adaptive + exponential
 * **Convergence-Based** - Based on optimization progress
 
-## 🚧 On Deck
+## On Deck
 
 * Cooperative Approach to PSO (CPSO)(multiple collaborating swarms)
 * Proactive Particles in Swarm Optimization (PPSO) (self-tuning swarms)
