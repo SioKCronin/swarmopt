@@ -182,10 +182,10 @@ print(f"Optimal distance from target: {distance:.2f}")
 * Unified PSO - Parsopoulos &  Vrahatis 2004
 * Dynamic Multi-Swarm PSO - Liang & Suganthan 2005
 * Simulated Annealing PSO - Mu, Cao, & Wang 2009
-* **Cooperative PSO (CPSO)** - Van den Bergh & Engelbrecht 2004 ⭐
+* **Cooperative PSO (CPSO)** - Van den Bergh & Engelbrecht 2004
 
 ### Multiobjective
-* **Multiobjective PSO** - Handles multiple conflicting objectives simultaneously ⭐
+* **Multiobjective PSO** - Handles multiple conflicting objectives simultaneously
 
 ## Benchmark Functions
 
