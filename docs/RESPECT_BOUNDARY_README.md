@@ -2,11 +2,14 @@
 
 ## Overview
 
-The **Respect Boundary** feature allows particles in a swarm to converge to a safe distance around a target rather than exactly on it. This is useful for applications requiring a "standoff distance" or "safety margin" from a target position.
+The **Respect Boundary** feature allows particles in a swarm to converge to a safe distance
+around a target rather than exactly on it. This is useful for applications requiring a "standoff distance" 
+or "safety margin" from a target position.
 
 ## Key Concept
 
-Instead of converging to the optimal position (which might be dangerous or undesirable), particles find the optimal position on or outside a **sphere of respect** around the target.
+Instead of converging to the optimal position (which might be dangerous or undesirable), 
+particles find the optimal position on or outside a **sphere of respect** around the target.
 
 ```
       Target
@@ -46,7 +49,7 @@ swarm = Swarm(
     algo='global',
     target_position=target  # Respect boundary automatically enforced for safety!
 )
-# ⚠️ Warning will be shown: "Respect boundary automatically enabled for safety: X.XXX"
+# Warning will be shown: "Respect boundary automatically enabled for safety: X.XXX"
 
 # Optimize
 swarm.optimize()
@@ -73,7 +76,7 @@ print(f"Boundary respected: {final_distance >= swarm.respect_boundary}")
 - **Units**: Same as your coordinate system
 - **Formula**: `0.1 × √(dims × (val_max - val_min)²)`
 
-**⚠️ IMPORTANT SAFETY FEATURE**: When you provide a `target_position`, the respect boundary is **automatically enabled and cannot be disabled**. This is by design to prevent accidents in safety-critical applications where particles must maintain a minimum safe distance from targets.
+** IMPORTANT SAFETY FEATURE**: When you provide a `target_position`, the respect boundary is **automatically enabled and cannot be disabled**. This is by design to prevent accidents in safety-critical applications where particles must maintain a minimum safe distance from targets.
 
 ## How It Works
 
@@ -120,7 +123,7 @@ swarm = Swarm(
 )
 ```
 
-### 2. Obstacle Avoidance ⚠️
+### 2. Obstacle Avoidance
 
 Navigate around obstacles with safety margins:
 

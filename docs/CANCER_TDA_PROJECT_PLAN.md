@@ -1,10 +1,12 @@
-# 🔬 TDA-Guided PSO for Cancer Growth Modeling and Control
+# TDA-Guided PSO for Cancer Growth Modeling and Control
 
 ## Project Overview
 
-This project combines **Topological Data Analysis (TDA)** with **Particle Swarm Optimization (PSO)** to model and control cancer growth dynamics. The central innovation is using persistent homology to characterize tumor morphology and optimize treatment strategies that collapse invasive topological features.
+This project combines **Topological Data Analysis (TDA)** with **Particle Swarm Optimization (PSO)** to model and control 
+cancer growth dynamics. The central innovation is using persistent homology to characterize tumor morphology and 
+optimize treatment strategies that collapse invasive topological features.
 
-## 🎯 Core Concept
+## Core Concept
 
 ### Problem Statement
 Current cancer models struggle to capture the complex spatial patterns and invasive behaviors that determine treatment outcomes. Topological features (loops, voids, connected components) provide robust descriptors of tumor morphology that are invariant to noise and deformations.
@@ -15,7 +17,7 @@ Current cancer models struggle to capture the complex spatial patterns and invas
 3. **Search** for treatment policies that collapse invasive topology
 4. **Control** tumor growth by targeting specific topological features
 
-## 📊 Technical Architecture
+## Technical Architecture
 
 ### Phase 1: Parameter Fitting (Inverse Problem)
 ```
@@ -52,7 +54,7 @@ where:
   - |H2| = number of cavities
 ```
 
-## 🔧 Implementation Plan
+## Implementation Plan
 
 ### Repository Structure
 ```

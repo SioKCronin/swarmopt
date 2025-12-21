@@ -2,7 +2,7 @@
 
 This directory contains comprehensive documentation for SwarmOpt features.
 
-## 📖 Available Documentation
+## Available Documentation
 
 ### Core Features
 
@@ -19,14 +19,14 @@ This directory contains comprehensive documentation for SwarmOpt features.
   - Treatment optimization
   - Topological control
 
-## 🔗 Quick Links
+## Quick Links
 
 - [Main README](../README.md)
 - [Test Scripts](../tests_scripts/README.md)
 - [Visualizations](../swarm_visualizations/README.md)
 - [Examples](../tests_scripts/)
 
-## 📝 Documentation Organization
+## Documentation Organization
 
 ```
 docs/
