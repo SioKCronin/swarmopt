@@ -229,7 +229,6 @@ print(f"Optimal distance from target: {distance:.2f}")
 
 * Cooperative Approach to PSO (CPSO)(multiple collaborating swarms)
 * Proactive Particles in Swarm Optimization (PPSO) (self-tuning swarms)
-* Variation operator variations
 * Multiobjective variations
 * Benchmark on something canonical like MNIST
 
