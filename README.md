@@ -2,7 +2,7 @@
 
 # SwarmOpt
 
-SwarmOpt is a library of swarm optimization algorithms implemented in Python. 
+SwarmOpt is a swarm optimizer implemented in Python. 
 
 Swarm intelligence leverages population-based search solutions to balance exploration and exploitation with respect 
 to specified cost functions. The PSO lineage was sparked by Eberhart and Kennedy in their original paper on PSOs in 1995, 
@@ -46,17 +46,17 @@ Run the comprehensive test suite:
 # Run all tests
 python run_tests.py
 
-# Or run specific tests
-python tests_scripts/index.py list          # Show all available tests
-python tests_scripts/index.py all           # Run all tests
-python tests_scripts/index.py test_name    # Run specific test
+# Or run specific test categories
+python run_tests.py --unit                 # Fast unit tests only
+python run_tests.py --show                 # Show all available tests
+python tests/index.py                      # Interactive test runner
 ```
 
 ## 🎬 Visualizations
 
 See SwarmOpt in action with our animated demonstrations:
 
-**[🎬 View Particle Swarm Animations](https://htmlpreview.github.io/?https://github.com/SioKCronin/swarmopt/blob/update2/swarm_visualizations/view_animations.html)**
+**[🎬 View Particle Swarm Animations](https://htmlpreview.github.io/?https://github.com/SioKCronin/swarmopt/blob/master/swarm_visualizations/view_animations.html)**
 
 The visualizations show:
 - 🔵 **Blue dots** = Particles moving through the search space
@@ -70,7 +70,7 @@ The visualizations show:
 - **Demo 3**: Challenging Rosenbrock function
 - **Demo 4**: Complex Ackley function with chaotic inertia
 
-> 💡 **Tip**: The animations are also available as GIF files in the [`swarm_visualizations/`](https://github.com/SioKCronin/swarmopt/tree/update2/swarm_visualizations) directory for download and offline viewing.
+> 💡 **Tip**: The animations are also available as GIF files in the [`swarm_visualizations/`](https://github.com/SioKCronin/swarmopt/tree/master/swarm_visualizations) directory for download and offline viewing.
 
 ## Advanced Usage
 
@@ -117,6 +117,63 @@ swarm = Swarm(
 )
 ```
 
+### Multiobjective Optimization
+
+```python
+from swarmopt import Swarm
+from swarmopt.utils.simple_multiobjective import zdt1
+
+# Define multiobjective function (returns array of objectives)
+def multiobjective_function(x):
+    return zdt1(x)  # Returns [f1, f2]
+
+# Create multiobjective swarm
+swarm = Swarm(
+    n_particles=20,
+    dims=5,
+    c1=2.0, c2=2.0, w=0.9,
+    epochs=50,
+    obj_func=multiobjective_function,
+    multiobjective=True,  # Enable multiobjective optimization
+    archive_size=50       # Size of Pareto front archive
+)
+
+# Run optimization
+swarm.optimize()
+
+# Access results
+pareto_front = swarm.mo_optimizer.archive
+print(f"Found {len(pareto_front)} Pareto-optimal solutions")
+```
+
+### Respect Boundary (Safety-Critical Applications)
+
+```python
+import numpy as np
+from swarmopt import Swarm
+
+# Example: Respect boundary for safety-critical applications
+target = np.array([10.0, 10.0])
+
+def distance_objective(position):
+    return np.linalg.norm(position - target)
+
+# Create swarm with automatic respect boundary
+swarm = Swarm(
+    n_particles=30,
+    dims=2,
+    c1=2.0, c2=2.0, w=0.9,
+    epochs=50,
+    obj_func=distance_objective,
+    target_position=target  # Respect boundary automatically enforced!
+)
+# ⚠️ Particles will maintain safe distance from target
+
+swarm.optimize()
+distance = np.linalg.norm(swarm.best_pos - target)
+print(f"Optimal distance from target: {distance:.2f}")
+```
+
 ## Algorithms
 
 ### Single-Objective
@@ -125,11 +182,14 @@ swarm = Swarm(
 * Unified PSO - Parsopoulos &  Vrahatis 2004
 * Dynamic Multi-Swarm PSO - Liang & Suganthan 2005
 * Simulated Annealing PSO - Mu, Cao, & Wang 2009
-* **Cooperative PSO (CPSO)** - Van den Bergh & Engelbrecht 2004 ⭐
+* **Cooperative PSO (CPSO)** - Van den Bergh & Engelbrecht 2004
+
+### Multiobjective
+* **Multiobjective PSO** - Handles multiple conflicting objectives simultaneously
 
 ## Benchmark Functions
 
-Single objective test functions:
+### Single Objective
 * Sphere Function
 * Rosenbrock's Function
 * Ackley's Function
@@ -137,16 +197,20 @@ Single objective test functions:
 * Rastrigin's Function
 * Weierstrass Function
 
-## ✅ Implemented Features
+### Multiobjective
+* **ZDT1, ZDT2, ZDT3** - Zitzler-Deb-Thiele test functions
+* **DTLZ1, DTLZ2** - Deb-Thiele-Laumanns-Zitzler test functions
+
+## Implemented Features
 
 ### Inertia Weight Variations
 * **Constant** - Traditional fixed inertia weight
 * **Linear Decreasing** - Classic linear decay (default)
 * **Chaotic** - Chaotic inertia using logistic map
 * **Random** - Random inertia between 0.5-1.0
-* **Adaptive** - Adapts based on convergence progress ⭐
+* **Adaptive** - Adapts based on convergence progress 
 * **Chaotic-Random** - Combination of chaotic and random
-* **Exponential Decreasing** - Exponential decay ⭐
+* **Exponential Decreasing** - Exponential decay 
 * **Sigmoid Decreasing** - Sigmoid decay curve
 
 ### Velocity Clamping Variations
@@ -161,8 +225,9 @@ Single objective test functions:
 * **Hybrid Clamping** - Adaptive + exponential
 * **Convergence-Based** - Based on optimization progress
 
-## 🚧 On Deck
+## On Deck
 
+* Cooperative Approach to PSO (CPSO)(multiple collaborating swarms)
 * Proactive Particles in Swarm Optimization (PPSO) (self-tuning swarms)
 * Multiobjective variations
 * Benchmark on something canonical like MNIST
