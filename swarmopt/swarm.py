@@ -944,7 +944,7 @@ class Particle:
     def _increase_variation_strength(self):
         """Increase variation strength for all particles"""
         # This would be implemented by temporarily increasing variation parameters
-        # For now, we'll apply adaptive strength variations
+        # At present, we apply adaptive strength variations
         from .utils.variation import apply_variation
         
         for particle in self.swarm:
