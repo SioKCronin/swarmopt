@@ -38,6 +38,28 @@ swarm.optimize()
 print(f"Best cost: {swarm.best_cost}")
 ```
 
+## 🚀 GPU Docker Quickstart
+
+Run the Huntington speech topology demo in an isolated GPU-ready container:
+
+1. **Prerequisites**
+   - Docker Engine 24+
+   - NVIDIA driver + [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)
+2. **Build**
+   ```bash
+   docker compose -f docker-compose.gpu.yml build demo
+   ```
+3. **Run**
+   ```bash
+   docker compose -f docker-compose.gpu.yml run --rm demo
+   ```
+
+The compose service mounts the repository into `/opt/swarmopt`, so edits on the host are visible inside the container. Override the default command to run other scripts, e.g.:
+
+```bash
+docker compose -f docker-compose.gpu.yml run --rm demo python3 tests/examples/multiobjective_example.py
+```
+
 ## 🧪 Testing
 
 Run the comprehensive test suite:
