@@ -31,4 +31,3 @@ RUN python3 -m pip install --no-cache-dir -e .
 CMD ["python3", "tests/examples/huntington_speech_tda.py"]
 
 
-

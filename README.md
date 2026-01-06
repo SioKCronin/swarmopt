@@ -52,26 +52,6 @@ python run_tests.py --show                 # Show all available tests
 python tests/index.py                      # Interactive test runner
 ```
 
-## 🎬 Visualizations
-
-See SwarmOpt in action with our animated demonstrations:
-
-**[🎬 View Particle Swarm Animations](https://htmlpreview.github.io/?https://github.com/SioKCronin/swarmopt/blob/master/swarm_visualizations/view_animations.html)**
-
-The visualizations show:
-- 🔵 **Blue dots** = Particles moving through the search space
-- 🔴 **Red star** = Best position found so far  
-- 🟡 **Gold X** = Optimal solution (if known)
-- 📈 **Right plot** = Cost function evolution over time
-
-### Demo Animations
-- **Demo 1**: Classic PSO approach
-- **Demo 2**: Advanced adaptive approach  
-- **Demo 3**: Challenging Rosenbrock function
-- **Demo 4**: Complex Ackley function with chaotic inertia
-
-> 💡 **Tip**: The animations are also available as GIF files in the [`swarm_visualizations/`](https://github.com/SioKCronin/swarmopt/tree/master/swarm_visualizations) directory for download and offline viewing.
-
 ## Advanced Usage
 
 ### Inertia Weight Variations
@@ -117,6 +97,33 @@ swarm = Swarm(
 )
 ```
 
+### Horse Herd Optimization Algorithm (HHOA)
+
+```python
+from swarmopt import Swarm
+from swarmopt.functions import sphere
+
+# HHOA mimics horse herd behavior with three phases:
+# 1. Grazing (exploration)
+# 2. Leadership (exploitation)
+# 3. Following (social learning)
+
+swarm = Swarm(
+    n_particles=30,
+    dims=2,
+    c1=2.0, c2=2.0, w=0.9,  # Parameters ignored for HHOA but kept for compatibility
+    epochs=100,
+    obj_func=sphere,
+    algo='hhoa',  # Enable Horse Herd Optimization Algorithm
+    velocity_clamp=(-5, 5)
+)
+
+swarm.optimize()
+print(f"Best cost: {swarm.best_cost}")
+```
+
+**Reference:** [A high-speed MPPT based horse herd optimization algorithm](https://www.nature.com/articles/s41598-025-85481-6)
+
 ### Multiobjective Optimization
 
 ```python
@@ -145,6 +152,33 @@ swarm.optimize()
 pareto_front = swarm.mo_optimizer.archive
 print(f"Found {len(pareto_front)} Pareto-optimal solutions")
 ```
+
+### Horse Herd Optimization Algorithm (HHOA)
+
+```python
+from swarmopt import Swarm
+from swarmopt.functions import sphere
+
+# HHOA mimics horse herd behavior with three phases:
+# 1. Grazing (exploration)
+# 2. Leadership (exploitation)
+# 3. Following (social learning)
+
+swarm = Swarm(
+    n_particles=30,
+    dims=2,
+    c1=2.0, c2=2.0, w=0.9,  # Parameters ignored for HHOA but kept for compatibility
+    epochs=100,
+    obj_func=sphere,
+    algo='hhoa',  # Enable Horse Herd Optimization Algorithm
+    velocity_clamp=(-5, 5)
+)
+
+swarm.optimize()
+print(f"Best cost: {swarm.best_cost}")
+```
+
+**Reference:** [A high-speed MPPT based horse herd optimization algorithm](https://www.nature.com/articles/s41598-025-85481-6)
 
 ### Respect Boundary (Safety-Critical Applications)
 
@@ -182,10 +216,11 @@ print(f"Optimal distance from target: {distance:.2f}")
 * Unified PSO - Parsopoulos &  Vrahatis 2004
 * Dynamic Multi-Swarm PSO - Liang & Suganthan 2005
 * Simulated Annealing PSO - Mu, Cao, & Wang 2009
-* **Cooperative PSO (CPSO)** - Van den Bergh & Engelbrecht 2004 ⭐
+* Cooperative PSO (CPSO) - Van den Bergh & Engelbrecht 2004
+* **Horse Herd Optimization Algorithm (HHOA)** - Ibrahim et al. 2025 ⭐
 
 ### Multiobjective
-* **Multiobjective PSO** - Handles multiple conflicting objectives simultaneously ⭐
+* Multiobjective PSO - Handles multiple conflicting objectives simultaneously 
 
 ## Benchmark Functions
 
@@ -201,7 +236,7 @@ print(f"Optimal distance from target: {distance:.2f}")
 * **ZDT1, ZDT2, ZDT3** - Zitzler-Deb-Thiele test functions
 * **DTLZ1, DTLZ2** - Deb-Thiele-Laumanns-Zitzler test functions
 
-## ✅ Implemented Features
+## Implemented Features
 
 ### Inertia Weight Variations
 * **Constant** - Traditional fixed inertia weight
@@ -225,7 +260,7 @@ print(f"Optimal distance from target: {distance:.2f}")
 * **Hybrid Clamping** - Adaptive + exponential
 * **Convergence-Based** - Based on optimization progress
 
-## 🚧 On Deck
+## On Deck
 
 * Cooperative Approach to PSO (CPSO)(multiple collaborating swarms)
 * Proactive Particles in Swarm Optimization (PPSO) (self-tuning swarms)
@@ -255,10 +290,10 @@ print(f"Optimal distance from target: {distance:.2f}")
 ## Applications
 
 * Neural network number of layers and weight optimization
-* Grid scheduling (load balancing)
+* Satelite positioning
 * Routing in communication networks
 * Anomaly detection
 
 ## Citation
 
-Siobhán K Cronin, SwarmOpt (2018), GitHub repository, https://github.com/SioKCronin/SwarmOpt
+Siobhan K Cronin, SwarmOpt (2018), GitHub repository, https://github.com/SioKCronin/SwarmOpt

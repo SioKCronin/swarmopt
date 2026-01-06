@@ -1,0 +1,37 @@
+# Include important files
+include README.md
+include LICENSE.md
+include CHANGELOG.md
+include requirements.txt
+include PUBLISHING.md
+include RELEASE_CHECKLIST.md
+include CODE_OF_CONDUCT.md
+include CONTRIBUTING.md
+
+# Include documentation
+recursive-include docs *.md
+
+# Exclude build artifacts
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude *.pyd
+global-exclude __pycache__
+global-exclude *.so
+global-exclude *.egg-info
+global-exclude dist/
+global-exclude build/
+
+# Exclude test files and examples (not needed in package)
+prune tests
+prune benchmarks
+prune tutorials
+
+# Exclude development files
+global-exclude .git*
+global-exclude .pytest_cache
+global-exclude .coverage
+global-exclude htmlcov/
+global-exclude *.swp
+global-exclude *.swo
+global-exclude *~
+

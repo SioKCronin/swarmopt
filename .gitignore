@@ -7,3 +7,14 @@ __pycache__/
 *.egg-info/
 swarmopt.egg-info/
 swarmopt/lib/
+swarmopt/bin/
+swarmopt/lib/
+swarmopt/pyvenv.cfg
+swarmopt/share/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/

@@ -19,6 +19,7 @@ try:
     from .utils.diversity import DiversityMonitor, calculate_swarm_diversity
     from .utils.ppso import PPSO
     from .utils.simple_multiobjective import SimpleMultiObjectivePSO
+    from .utils.hhoa import HHOA
 except ImportError:
     from utils.distance import euclideanDistance
     from utils.inertia import (
@@ -36,6 +37,7 @@ except ImportError:
     from utils.diversity import DiversityMonitor, calculate_swarm_diversity
     from utils.ppso import PPSO
     from utils.simple_multiobjective import SimpleMultiObjectivePSO
+    from utils.hhoa import HHOA
 
 
 class Swarm:
@@ -139,6 +141,10 @@ class Swarm:
         self.knowledge_method = knowledge_method
         self.exploration_weight = exploration_weight
         self.ppso = None
+        
+        # HHOA parameters
+        self.hhoa_enabled = (algo == 'hhoa')
+        self.hhoa = None
         
         # Multiobjective parameters
         self.multiobjective = multiobjective
@@ -437,6 +443,23 @@ class Swarm:
             
             # Run PPSO optimization
             results = self.ppso.optimize()
+            self.best_cost = results['best_cost']
+            self.best_pos = results['best_pos']
+            self.runtime = results['runtime']
+            return
+        
+        # Initialize HHOA if enabled
+        if self.hhoa_enabled:
+            self.hhoa = HHOA(
+                n_horses=self.n_particles,
+                dims=self.dims,
+                obj_func=self.obj_func,
+                bounds=(self.val_min, self.val_max),
+                epochs=self.epochs
+            )
+            
+            # Run HHOA optimization
+            results = self.hhoa.optimize()
             self.best_cost = results['best_cost']
             self.best_pos = results['best_pos']
             self.runtime = results['runtime']
@@ -944,7 +967,7 @@ class Particle:
     def _increase_variation_strength(self):
         """Increase variation strength for all particles"""
         # This would be implemented by temporarily increasing variation parameters
-        # For now, we'll apply adaptive strength variations
+        # At present, we apply adaptive strength variations
         from .utils.variation import apply_variation
         
         for particle in self.swarm:

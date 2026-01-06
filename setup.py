@@ -20,7 +20,7 @@ setup(
               'optimization', 'multiobjective', 'hyperparameter tuning',
               'cooperative PSO', 'NSGA-II', 'machine learning'],
     packages=find_packages(exclude=['tests', 'tests_scripts', 'benchmarks', 
-                                   'tutorials', 'swarm_visualizations']),
+                                   'tutorials']),
     install_requires=[
         'numpy>=1.19.0',
     ],
@@ -50,7 +50,6 @@ setup(
         'Bug Reports': 'https://github.com/siokcronin/swarmopt/issues',
         'Source': 'https://github.com/siokcronin/swarmopt',
         'Documentation': 'https://github.com/siokcronin/swarmopt/tree/main/docs',
-        'Visualizations': 'https://htmlpreview.github.io/?https://github.com/SioKCronin/swarmopt/blob/master/swarm_visualizations/view_animations.html',
     },
     zip_safe=False,
 )

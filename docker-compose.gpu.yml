@@ -21,4 +21,3 @@ services:
       - .:/opt/swarmopt:rw
     working_dir: /opt/swarmopt
 
-

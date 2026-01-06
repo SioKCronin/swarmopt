@@ -5,7 +5,7 @@ All notable changes to SwarmOpt will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.0] - 2025-01-XX
+## [0.2.0] - 2024-12-14
 
 ### 🎯 Major Features Added
 
@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Respect Boundary**: Safety-critical standoff distance optimization
   - Automatic enforcement when target position specified
   - Default: 10% of search space diagonal
-  - Applications: Satellites, drones, robots, collision avoidance
+  - Applications: Satellites, robots, collision avoidance
   - Cannot be disabled for safety-critical applications
 
 #### Multiobjective Optimization

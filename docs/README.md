@@ -2,7 +2,7 @@
 
 This directory contains comprehensive documentation for SwarmOpt features.
 
-## 📖 Available Documentation
+## Available Documentation
 
 ### Core Features
 
@@ -12,27 +12,18 @@ This directory contains comprehensive documentation for SwarmOpt features.
   - Safety margins
   - Automatic enforcement
 
-### Research & Applications
-
-- **[Cancer TDA Project Plan](CANCER_TDA_PROJECT_PLAN.md)** - TDA-guided PSO for cancer modeling
-  - Persistent homology
-  - Treatment optimization
-  - Topological control
-
-## 🔗 Quick Links
+## Quick Links
 
 - [Main README](../README.md)
 - [Test Scripts](../tests_scripts/README.md)
-- [Visualizations](../swarm_visualizations/README.md)
 - [Examples](../tests_scripts/)
 
-## 📝 Documentation Organization
+## Documentation Organization
 
 ```
 docs/
 ├── README.md                      # This file
-├── RESPECT_BOUNDARY_README.md     # Respect boundary feature
-└── CANCER_TDA_PROJECT_PLAN.md     # Cancer TDA research plan
+└── RESPECT_BOUNDARY_README.md     # Respect boundary feature
 ```
 
 ## 🚀 Getting Started
@@ -40,7 +31,6 @@ docs/
 1. **Installation**: See [main README](../README.md#installation)
 2. **Basic Usage**: See [main README](../README.md#usage)
 3. **Examples**: See [tests_scripts/](../tests_scripts/)
-4. **Visualizations**: See [swarm_visualizations/](../swarm_visualizations/)
 
 ## 📧 Contributing
 
