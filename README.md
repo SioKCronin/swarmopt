@@ -243,9 +243,9 @@ print(f"Optimal distance from target: {distance:.2f}")
 * **Linear Decreasing** - Classic linear decay (default)
 * **Chaotic** - Chaotic inertia using logistic map
 * **Random** - Random inertia between 0.5-1.0
-* **Adaptive** - Adapts based on convergence progress ⭐
+* **Adaptive** - Adapts based on convergence progress
 * **Chaotic-Random** - Combination of chaotic and random
-* **Exponential Decreasing** - Exponential decay ⭐
+* **Exponential Decreasing** - Exponential decay
 * **Sigmoid Decreasing** - Sigmoid decay curve
 
 ### Velocity Clamping Variations
