@@ -159,27 +159,6 @@ print(f"Found {len(pareto_front)} Pareto-optimal solutions")
 from swarmopt import Swarm
 from swarmopt.functions import sphere
 
-# HHOA mimics horse herd behavior with three phases:
-# 1. Grazing (exploration)
-# 2. Leadership (exploitation)
-# 3. Following (social learning)
-
-swarm = Swarm(
-    n_particles=30,
-    dims=2,
-    c1=2.0, c2=2.0, w=0.9,  # Parameters ignored for HHOA but kept for compatibility
-    epochs=100,
-    obj_func=sphere,
-    algo='hhoa',  # Enable Horse Herd Optimization Algorithm
-    velocity_clamp=(-5, 5)
-)
-
-swarm.optimize()
-print(f"Best cost: {swarm.best_cost}")
-```
-
-**Reference:** [A high-speed MPPT based horse herd optimization algorithm](https://www.nature.com/articles/s41598-025-85481-6)
-
 ### Respect Boundary (Safety-Critical Applications)
 
 ```python
