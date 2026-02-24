@@ -7,18 +7,18 @@ from time import gmtime, strftime
 import os
 file_path = 'csvfiles/{}.csv'.format(strftime("%Y-%m-%d-%H-%M-%S"))
 
+def run_20(n, dims, c1, c2, w, iters, obj_func, v_clamp):
+    costs = []
+    runtimes = []
+    for _ in range(20):
+        s = Swarm(n, dims, c1, c2, w, iters, obj_func, v_clamp)
+        s.optimize()
+        costs.append(s.best_cost)
+        runtimes.append(s.runtime)
+    return np.mean(costs), np.mean(runtimes)
+
+
 def run_all_tests(n, dims, c1, c2, w, iters):
-
-    def run_20(n, dims, c1, c2, w, iters, obj_func, v_clamp):
-        costs = []
-        runtimes = []
-        for i in range(20):
-            s = Swarm(n, dims, c1, c2, w, iters, obj_func, v_clamp)
-            s.optimize()
-            costs.append(s.best_cost)
-            runtimes.append(s.runtime)
-        return [np.mean(costs), np.mean(runtimes)]
-
     funcs = [
         [functions.sphere, [-5.12, 5.12]],
         [functions.ackley, [-32.768, 32.768]],
@@ -29,27 +29,23 @@ def run_all_tests(n, dims, c1, c2, w, iters):
 
     algos = [["global_best", Swarm]]
 
-
     with open(file_path, 'a', newline='') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(["algo", "function", "avg_cost", "avg_time"])
 
-    for algo_name, algo in algos:
+        for algo_name, algo in algos:
+            for func in funcs:
+                print("--------------------------")
+                print("Testing %s" % func[0])
+                s = algo(n, dims, c1, c2, w, iters, func[0], func[1])
+                s.optimize()
+                print("Single run Best Cost:", s.best_cost)
+                print("Single run Runtime:", s.runtime)
 
-        for func in funcs:
-            print("--------------------------")
-            print("Testing %s" % func[0])
-            s = algo(n, dims, c1, c2, w, iters, func[0], func[1])
-            s.optimize()
-            print("Single run Best Cost:", s.best_cost)
-            print("Single run Runtime:", s.runtime)
+                avg_cost, avg_runtime = run_20(n, dims, c1, c2, w, iters, func[0], func[1])
+                print("Run 20 Average Cost:", avg_cost)
+                print("Run 20 Average Runtime:", avg_runtime)
 
-            avg_cost, avg_runtime = run_20(n, dims, c1, c2, w, iters, func[0], func[1])
-            print("Run 20 Average Cost:", avg_cost)
-            print("Run 20 Average Runtime:", avg_runtime)
-
-            with open(file_path, 'a', newline='') as csvfile:
-                writer = csv.writer(csvfile)
                 writer.writerow([algo_name, func[0].__name__, avg_cost, avg_runtime])
 
 if __name__ == '__main__':
