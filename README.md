@@ -104,9 +104,9 @@ from swarmopt import Swarm
 from swarmopt.functions import sphere
 
 # HHOA mimics horse herd behavior with three phases:
-# 1. Grazing (exploration)
-# 2. Leadership (exploitation)
-# 3. Following (social learning)
+# 1. Grazing
+# 2. Leadership
+# 3. Following
 
 swarm = Swarm(
     n_particles=30,
@@ -153,40 +153,6 @@ pareto_front = swarm.mo_optimizer.archive
 print(f"Found {len(pareto_front)} Pareto-optimal solutions")
 ```
 
-### Horse Herd Optimization Algorithm (HHOA)
-
-```python
-from swarmopt import Swarm
-from swarmopt.functions import sphere
-
-### Respect Boundary (Safety-Critical Applications)
-
-```python
-import numpy as np
-from swarmopt import Swarm
-
-# Example: Respect boundary for safety-critical applications
-target = np.array([10.0, 10.0])
-
-def distance_objective(position):
-    return np.linalg.norm(position - target)
-
-# Create swarm with automatic respect boundary
-swarm = Swarm(
-    n_particles=30,
-    dims=2,
-    c1=2.0, c2=2.0, w=0.9,
-    epochs=50,
-    obj_func=distance_objective,
-    target_position=target  # Respect boundary automatically enforced!
-)
-# ⚠️ Particles will maintain safe distance from target
-
-swarm.optimize()
-distance = np.linalg.norm(swarm.best_pos - target)
-print(f"Optimal distance from target: {distance:.2f}")
-```
-
 ## Algorithms
 
 ### Single-Objective
@@ -196,7 +162,7 @@ print(f"Optimal distance from target: {distance:.2f}")
 * Dynamic Multi-Swarm PSO - Liang & Suganthan 2005
 * Simulated Annealing PSO - Mu, Cao, & Wang 2009
 * Cooperative PSO (CPSO) - Van den Bergh & Engelbrecht 2004
-* **Horse Herd Optimization Algorithm (HHOA)** - Ibrahim et al. 2025 ⭐
+* Horse Herd Optimization Algorithm (HHOA) - Ibrahim et al. 2025 ⭐
 
 ### Multiobjective
 * Multiobjective PSO - Handles multiple conflicting objectives simultaneously 
@@ -238,14 +204,6 @@ print(f"Optimal distance from target: {distance:.2f}")
 * **Soft Clamping** - Soft bounds using tanh
 * **Hybrid Clamping** - Adaptive + exponential
 * **Convergence-Based** - Based on optimization progress
-
-## On Deck
-
-* Cooperative Approach to PSO (CPSO)(multiple collaborating swarms)
-* Proactive Particles in Swarm Optimization (PPSO) (self-tuning swarms)
-* Variation operator variations
-* Multiobjective variations
-* Benchmark on something canonical like MNIST
 
 ## Performance
 
