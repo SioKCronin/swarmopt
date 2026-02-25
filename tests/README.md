@@ -2,9 +2,9 @@
 
 This directory contains all test scripts, examples, and demonstration code for the SwarmOpt library.
 
-## 📁 File Organization
+## File Organization
 
-### 🧪 **Core Test Scripts**
+### **Core Test Scripts**
 - `test_installation.py` - Verify SwarmOpt installation and basic functionality
 - `test_inertia_variations.py` - Test and compare different inertia weight strategies
 - `test_velocity_clamping.py` - Test all velocity clamping variations
@@ -12,12 +12,12 @@ This directory contains all test scripts, examples, and demonstration code for t
 - `test_variation_operators.py` - Test variation operators for local optima escape
 - `test_diversity_system.py` - Test diversity measurement and intervention system
 
-### 📚 **Examples and Demos**
+### **Examples and Demos**
 - `example.py` - Comprehensive example showcasing all SwarmOpt features
 - `INSTALL.md` - Installation and usage guide
 - `PR_DESCRIPTION.md` - Detailed Pull Request description
 
-## 🚀 **Quick Start**
+## **Quick Start**
 
 ### Run All Tests
 ```bash
@@ -52,7 +52,7 @@ python test_cpso.py --communication best
 python test_variation_operators.py --strategy hybrid
 ```
 
-## 📊 **Test Categories**
+## **Test Categories**
 
 ### **1. Installation & Basic Functionality**
 - `test_installation.py`
@@ -96,7 +96,7 @@ python test_variation_operators.py --strategy hybrid
   - Automatic interventions
   - Performance comparisons
 
-## 🎯 **Expected Outputs**
+## **Expected Outputs**
 
 ### **Test Results**
 - ✅/❌ Pass/fail indicators
@@ -115,7 +115,7 @@ python test_variation_operators.py --strategy hybrid
 - JSON swarm statistics
 - Text-based analysis reports
 
-## 🔧 **Configuration**
+## **Configuration**
 
 ### **Test Parameters**
 Most test scripts accept command-line arguments:
@@ -131,7 +131,7 @@ python test_script.py --particles 20 --epochs 50 --dims 3
 - `--algorithm NAME` - PSO algorithm
 - `--visualize` - Enable visualizations
 
-## 📈 **Performance Benchmarks**
+## **Performance Benchmarks**
 
 ### **Standard Test Functions**
 - **Sphere** - Simple convex function
@@ -149,7 +149,7 @@ python test_script.py --particles 20 --epochs 50 --dims 3
 - **Griewank**: Should handle product terms
 - **Weierstrass**: Should handle non-differentiability
 
-## 🐛 **Troubleshooting**
+## **Troubleshooting**
 
 ### **Common Issues**
 1. **Import errors** - Ensure SwarmOpt is installed
@@ -166,7 +166,7 @@ python test_script.py --verbose
 python test_script.py --debug
 ```
 
-## 📝 **Adding New Tests**
+## **Adding New Tests**
 
 ### **Test Template**
 ```python
@@ -203,7 +203,7 @@ if __name__ == "__main__":
 - Provide clear output
 - Include usage examples
 
-## 🎉 **Contributing**
+## **Contributing**
 
 When adding new test scripts:
 1. Follow the naming convention `test_*.py`
