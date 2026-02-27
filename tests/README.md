@@ -1,10 +1,23 @@
 # Test Scripts Directory
 
-This directory contains all test scripts, examples, and demonstration code for the SwarmOpt library.
+This directory contains all test scripts, examples, demonstration code, and a **researcher benchmark suite** for the SwarmOpt library.
 
 ## File Organization
 
-### **Core Test Scripts**
+### **Benchmarks (researchers)**
+- `benchmarks/run_suite.py` – Compare algorithms × functions × runs; outputs CSV/JSON and a summary table.
+- `benchmarks/configs/` – Configs: `quick.json`, `unimodal.json`, `multimodal.json`.
+- See `benchmarks/README.md` for usage and how to add new algorithms/functions.
+
+**Quick run from project root:**
+```bash
+python run_tests.py --benchmark
+python tests/benchmarks/run_suite.py --config medium --output results/
+python tests/benchmarks/run_suite.py --list-algorithms
+python tests/benchmarks/run_suite.py --list-functions
+```
+
+### **Core Test Scripts (integration/)**
 - `test_installation.py` - Verify SwarmOpt installation and basic functionality
 - `test_inertia_variations.py` - Test and compare different inertia weight strategies
 - `test_velocity_clamping.py` - Test all velocity clamping variations

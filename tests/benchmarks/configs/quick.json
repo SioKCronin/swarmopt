@@ -1,0 +1,11 @@
+{
+  "description": "Quick comparison: few algorithms and functions, 2 runs each",
+  "algorithms": ["global_linear", "global_adaptive", "cpso_best"],
+  "functions": ["sphere", "rosenbrock", "ackley"],
+  "dims": 5,
+  "n_particles": 20,
+  "epochs": 30,
+  "runs_per_cell": 2,
+  "velocity_clamp": [-5, 5],
+  "seed": 42
+}

@@ -42,6 +42,7 @@ if __name__ == "__main__":
         print("  python run_tests.py --with-examples   # Full suite + examples")
         print("  python run_tests.py --examples       # Run all examples only")
         print("  python run_tests.py --examples NAME  # Run one example")
+        print("  python run_tests.py --benchmark [key] # Run researcher benchmark suite")
         print("  python run_tests.py --show            # Show test index and exit")
         print("  python run_tests.py --help            # Show this help")
         print()
@@ -91,6 +92,13 @@ if __name__ == "__main__":
             ok, _ = run_example(script)
             all_ok = all_ok and ok
         sys.exit(0 if all_ok else 1)
+
+    if "--benchmark" in sys.argv:
+        from index import run_benchmark, get_test_categories
+        idx = sys.argv.index("--benchmark")
+        key = sys.argv[idx + 1] if idx + 1 < len(sys.argv) and not sys.argv[idx + 1].startswith("-") else "run_suite.py"
+        ok, _ = run_benchmark(key)
+        sys.exit(0 if ok else 1)
 
     # No recognized command: run full suite (--quick / --with-examples)
     ok = run_all_tests(quick=quick, include_examples=include_examples)

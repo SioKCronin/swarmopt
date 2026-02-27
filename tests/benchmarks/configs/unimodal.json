@@ -1,0 +1,11 @@
+{
+  "description": "Unimodal functions only — compare convergence speed",
+  "algorithms": ["global_linear", "global_adaptive", "global_exponential", "cpso_best"],
+  "functions": ["sphere", "sum_squares", "zakharov"],
+  "dims": 10,
+  "n_particles": 25,
+  "epochs": 50,
+  "runs_per_cell": 4,
+  "velocity_clamp": [-5, 5],
+  "seed": 42
+}

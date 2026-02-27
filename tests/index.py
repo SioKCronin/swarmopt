@@ -71,6 +71,19 @@ def discover_example_scripts():
     return scripts
 
 
+def get_benchmark_scripts():
+    """Benchmark suite entries for researchers (algorithm × function × runs)."""
+    bench_dir = TESTS_DIR / "benchmarks"
+    if not (bench_dir / "run_suite.py").exists():
+        return {}
+    return {
+        "run_suite.py": "Researcher benchmark suite (quick config)",
+        "run_suite.py --config medium": "Benchmark medium config",
+        "run_suite.py --config unimodal": "Benchmark unimodal functions only",
+        "run_suite.py --config multimodal": "Benchmark multimodal functions only",
+    }
+
+
 def get_test_categories(quick=False):
     """Build test categories (with optional quick-mode filter)."""
     integration = discover_integration_scripts()
@@ -89,6 +102,10 @@ def get_test_categories(quick=False):
         'examples': {
             'description': 'Examples and demonstrations',
             'scripts': discover_example_scripts(),
+        },
+        'benchmarks': {
+            'description': 'Researcher benchmark suite (compare algorithms × functions)',
+            'scripts': get_benchmark_scripts(),
         },
     }
 
@@ -123,6 +140,15 @@ def show_index(quick=False):
     for i, (script, desc) in enumerate(cats['examples']['scripts'].items(), 1):
         print(f"  {i:2d}. {script:40s} - {desc}")
     print()
+
+    # Benchmarks (researchers)
+    if cats.get('benchmarks', {}).get('scripts'):
+        print("📊 BENCHMARKS (researchers)")
+        print("-" * 80)
+        print(f"  {cats['benchmarks']['description']}")
+        for i, (script, desc) in enumerate(cats['benchmarks']['scripts'].items(), 1):
+            print(f"  {i:2d}. {script:45s} - {desc}")
+        print()
 
 def run_unit_tests(verbose=True, with_timing=True):
     """Run all unit tests. Returns (success: bool, elapsed_sec: float)."""
@@ -178,6 +204,27 @@ def run_example(script_name, verbose=True, with_timing=True):
     success = result.returncode == 0
     if verbose and with_timing:
         print(f"\n  ⏱  {script_name}: {elapsed:.1f}s")
+    return success, elapsed
+
+
+def run_benchmark(script_key, verbose=True, with_timing=True):
+    """Run a benchmark suite entry (e.g. 'run_suite.py' or 'run_suite.py --config medium'). Returns (success, elapsed)."""
+    bench_script = TESTS_DIR / "benchmarks" / "run_suite.py"
+    if not bench_script.exists():
+        if verbose:
+            print("❌ Benchmark suite not found: tests/benchmarks/run_suite.py")
+        return False, 0.0
+    parts = script_key.split()
+    cmd = [sys.executable, str(bench_script)] + (parts[1:] if len(parts) > 1 else [])
+    if verbose:
+        print(f"\n📊 Running benchmark: {' '.join(parts)}...")
+        print("=" * 80)
+    t0 = time.perf_counter()
+    result = subprocess.run(cmd, cwd=TESTS_DIR, capture_output=False)
+    elapsed = time.perf_counter() - t0
+    success = result.returncode == 0
+    if verbose and with_timing:
+        print(f"\n  ⏱  Benchmark: {elapsed:.1f}s")
     return success, elapsed
 
 def run_all_tests(quick=False, include_examples=False):
@@ -254,7 +301,8 @@ def main():
     print("  5. Run FULL test suite (unit + integration)")
     print("  6. Run full suite + examples")
     print("  7. Run quick suite (skip long integration tests)")
-    print("  8. Show index again")
+    print("  8. Run benchmark suite (researchers)")
+    print("  9. Show index again")
     print("  0. Exit")
     print()
 
@@ -284,6 +332,18 @@ def main():
             ok = run_all_tests(quick=True, include_examples=False)
             sys.exit(0 if ok else 1)
         elif choice == "8":
+            bench_scripts = cats.get("benchmarks", {}).get("scripts", {})
+            if bench_scripts:
+                keys = list(bench_scripts.keys())
+                for i, k in enumerate(keys, 1):
+                    print(f"  {i}. {k}")
+                key = input("\nEnter benchmark key (or number): ").strip()
+                if key.isdigit() and 1 <= int(key) <= len(keys):
+                    key = keys[int(key) - 1]
+                run_benchmark(key if key in bench_scripts else keys[0])
+            else:
+                print("No benchmark suite found.")
+        elif choice == "9":
             show_index()
             main()
         elif choice == "0":
@@ -330,16 +390,21 @@ if __name__ == "__main__":
                 ok, _ = run_example(script)
                 all_ok = all_ok and ok
             sys.exit(0 if all_ok else 1)
+        elif arg == "benchmark" or arg == "benchmarks":
+            key = sys.argv[2] if len(sys.argv) > 2 and not sys.argv[2].startswith("-") else "run_suite.py"
+            ok, _ = run_benchmark(key)
+            sys.exit(0 if ok else 1)
         elif arg in ("--help", "-h"):
-            print("Usage: python index.py [all|unit|integration|examples] [name] [--quick] [--examples]")
+            print("Usage: python index.py [all|unit|integration|examples|benchmark] [name] [--quick] [--examples]")
             print("  all              Run unit + integration (exit 0/1)")
             print("  unit             Run pytest unit tests")
             print("  integration [n]  Run integration test(s)")
             print("  examples [n]     Run example(s)")
+            print("  benchmark [key]  Run researcher benchmark suite (e.g. run_suite.py --config medium)")
             print("  --quick, -q      Skip long-running tests (with all/integration)")
             print("  --examples       Include examples in 'all'")
         else:
-            print(f"Usage: {sys.argv[0]} [all|unit|integration|examples] [name] [--quick] [--examples]")
+            print(f"Usage: {sys.argv[0]} [all|unit|integration|examples|benchmark] [name] [--quick] [--examples]")
     else:
         # Interactive mode
         main()

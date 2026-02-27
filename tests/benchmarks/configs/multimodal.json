@@ -1,0 +1,11 @@
+{
+  "description": "Multimodal functions — compare escape from local optima",
+  "algorithms": ["global_linear", "global_adaptive", "local_linear", "cpso_best", "ppso"],
+  "functions": ["rosenbrock", "ackley", "rastrigin", "griewank", "weierstrass"],
+  "dims": 10,
+  "n_particles": 30,
+  "epochs": 80,
+  "runs_per_cell": 4,
+  "velocity_clamp": [-5, 5],
+  "seed": 42
+}
