@@ -162,7 +162,7 @@ print(f"Found {len(pareto_front)} Pareto-optimal solutions")
 * Dynamic Multi-Swarm PSO - Liang & Suganthan 2005
 * Simulated Annealing PSO - Mu, Cao, & Wang 2009
 * Cooperative PSO (CPSO) - Van den Bergh & Engelbrecht 2004
-* Horse Herd Optimization Algorithm (HHOA) - Ibrahim et al. 2025 ⭐
+* Horse Herd Optimization Algorithm (HHOA) - Ibrahim et al. 2025
 
 ### Multiobjective
 * Multiobjective PSO - Handles multiple conflicting objectives simultaneously 
