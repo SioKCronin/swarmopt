@@ -153,6 +153,22 @@ pareto_front = swarm.mo_optimizer.archive
 print(f"Found {len(pareto_front)} Pareto-optimal solutions")
 ```
 
+### Satellite repair swarm (browser report + algorithm leaderboard)
+
+Helper swarms position around a damaged satellite while enforcing a mandatory standoff **respect boundary**. The example benchmarks **Global**, **Local**, **Unified**, and **Simulated Annealing** PSO on the same objective and seed, then writes a self-contained HTML page you can open locally (`file://`).
+
+```bash
+pip install -e ".[examples]"   # or: pip install -r requirements.txt
+python tests/examples/satellite_repair_swarm.py
+```
+
+Outputs (under `examples_output/`, gitignored):
+
+- `satellite_repair_report.html` — open in your browser; embedded 3D figure + leaderboard
+- `satellite_repair_swarm.png` — same plot on disk (also embedded in the HTML)
+
+The leaderboard ranks algorithms by a **composite score** (60% relative solution quality, 40% relative runtime). The 3D visualization is regenerated for the **top composite** algorithm.
+
 ## Algorithms
 
 ### Single-Objective
@@ -230,6 +246,7 @@ print(f"Found {len(pareto_front)} Pareto-optimal solutions")
 * Satelite positioning
 * Routing in communication networks
 * Anomaly detection
+* Satellite repair helper-swarm standoff positioning
 
 ## Citation
 
