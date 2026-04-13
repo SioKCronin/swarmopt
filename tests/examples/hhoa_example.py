@@ -22,7 +22,7 @@ def main():
     """Demonstrate HHOA on various benchmark functions"""
     
     print("=" * 70)
-    print("🐴 Horse Herd Optimization Algorithm (HHOA) Demo")
+    print("Horse Herd Optimization Algorithm (HHOA) Demo")
     print("=" * 70)
     print("\nBased on: https://www.nature.com/articles/s41598-025-85481-6")
     print("\nHHOA models three horse behaviors:")
