@@ -221,31 +221,10 @@ The leaderboard ranks algorithms by a **composite score** (60% relative solution
 * **Hybrid Clamping** - Adaptive + exponential
 * **Convergence-Based** - Based on optimization progress
 
-## Performance
-
-### Inertia Weight Performance
-- **Adaptive Inertia**: Best performer on most functions
-- **Exponential Decreasing**: Excellent convergence
-- **Linear Decreasing**: Reliable baseline
-- **Chaotic Inertia**: Good for exploration
-
-### Velocity Clamping Performance
-- **Hybrid Clamping**: Best overall performance
-- **Exponential Clamping**: Excellent convergence
-- **Adaptive Clamping**: Good balance of exploration/exploitation
-- **Soft Clamping**: Smooth convergence
-
-### Combined Performance
-- **Exponential Inertia + Hybrid Clamping**: Optimal for most problems
-- **Adaptive Inertia + Adaptive Clamping**: Best for complex landscapes
-- **Linear Inertia + Basic Clamping**: Reliable baseline
-
-## Applications
+## Sample Applications
 
 * Neural network number of layers and weight optimization
-* Satelite positioning
 * Routing in communication networks
-* Anomaly detection
 * Satellite repair helper-swarm standoff positioning
 
 ## Citation
