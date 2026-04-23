@@ -38,7 +38,7 @@ swarm.optimize()
 print(f"Best cost: {swarm.best_cost}")
 ```
 
-## 🧪 Testing
+## Testing
 
 Run the comprehensive test suite:
 
@@ -51,123 +51,6 @@ python run_tests.py --unit                 # Fast unit tests only
 python run_tests.py --show                 # Show all available tests
 python tests/index.py                      # Interactive test runner
 ```
-
-## Advanced Usage
-
-### Inertia Weight Variations
-```python
-# Use adaptive inertia weight
-swarm = Swarm(
-    n_particles=30, dims=2, c1=2.0, c2=2.0, w=0.9, epochs=100,
-    obj_func=sphere, algo='global',
-    inertia_func='adaptive',  # Try: linear, exponential, chaotic, random, adaptive
-    w_start=0.9, w_end=0.4
-)
-```
-
-### Velocity Clamping Variations
-```python
-# Use hybrid velocity clamping
-swarm = Swarm(
-    n_particles=30, dims=2, c1=2.0, c2=2.0, w=0.9, epochs=100,
-    obj_func=sphere, algo='global',
-    velocity_clamp_func='hybrid'  # Try: basic, adaptive, exponential, chaotic, soft
-)
-```
-
-### Combined Advanced Features
-```python
-# Combine inertia and velocity clamping
-swarm = Swarm(
-    n_particles=50, dims=3, c1=2.0, c2=2.0, w=0.9, epochs=200,
-    obj_func=sphere, algo='global',
-    inertia_func='exponential', w_start=0.9, w_end=0.4,
-    velocity_clamp_func='adaptive'
-)
-```
-
-### Cooperative PSO (CPSO)
-```python
-# Multiple collaborating swarms
-swarm = Swarm(
-    n_particles=20, dims=6, c1=2.0, c2=2.0, w=0.9, epochs=100,
-    obj_func=sphere, algo='cpso',
-    n_swarms=3,  # 3 collaborating swarms
-    communication_strategy='best'  # Try: best, random, tournament
-)
-```
-
-### Horse Herd Optimization Algorithm (HHOA)
-
-```python
-from swarmopt import Swarm
-from swarmopt.functions import sphere
-
-# HHOA mimics horse herd behavior with three phases:
-# 1. Grazing
-# 2. Leadership
-# 3. Following
-
-swarm = Swarm(
-    n_particles=30,
-    dims=2,
-    c1=2.0, c2=2.0, w=0.9,  # Parameters ignored for HHOA but kept for compatibility
-    epochs=100,
-    obj_func=sphere,
-    algo='hhoa',  # Enable Horse Herd Optimization Algorithm
-    velocity_clamp=(-5, 5)
-)
-
-swarm.optimize()
-print(f"Best cost: {swarm.best_cost}")
-```
-
-**Reference:** [A high-speed MPPT based horse herd optimization algorithm](https://www.nature.com/articles/s41598-025-85481-6)
-
-### Multiobjective Optimization
-
-```python
-from swarmopt import Swarm
-from swarmopt.utils.simple_multiobjective import zdt1
-
-# Define multiobjective function (returns array of objectives)
-def multiobjective_function(x):
-    return zdt1(x)  # Returns [f1, f2]
-
-# Create multiobjective swarm
-swarm = Swarm(
-    n_particles=20,
-    dims=5,
-    c1=2.0, c2=2.0, w=0.9,
-    epochs=50,
-    obj_func=multiobjective_function,
-    multiobjective=True,  # Enable multiobjective optimization
-    archive_size=50       # Size of Pareto front archive
-)
-
-# Run optimization
-swarm.optimize()
-
-# Access results
-pareto_front = swarm.mo_optimizer.archive
-print(f"Found {len(pareto_front)} Pareto-optimal solutions")
-```
-
-### Satellite repair swarm (browser report + algorithm leaderboard)
-
-Helper swarms position around a damaged satellite while enforcing a mandatory standoff **respect boundary**. The example benchmarks **Global**, **Local**, **Unified**, and **Simulated Annealing** PSO on the same objective and seed, then writes a self-contained HTML page you can open locally (`file://`).
-
-```bash
-pip install -e ".[examples]"   # or: pip install -r requirements.txt
-python tests/examples/satellite_repair_swarm.py
-```
-
-Outputs (under `examples_output/`, gitignored):
-
-- `satellite_repair_report.html` — open in your browser; embedded 3D figure + leaderboard
-- `satellite_repair_swarm.png` — same plot on disk (also embedded in the HTML)
-
-The leaderboard ranks algorithms by a **composite score** (60% relative solution quality, 40% relative runtime). The 3D visualization is regenerated for the **top composite** algorithm.
 
 ## Algorithms
 
