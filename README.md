@@ -52,6 +52,10 @@ python run_tests.py --show                 # Show all available tests
 python tests/index.py                      # Interactive test runner
 ```
 
+## Benchmarks
+
+Stratified empirical comparisons (repeated trials, spread, ranks per function class) are in [`benchmarks/README.md`](benchmarks/README.md). Run the driver from the repo root with `python benchmarks/run_benchmarks.py` (see that file for options and requirements).
+
 ## Algorithms
 
 ### Single-Objective

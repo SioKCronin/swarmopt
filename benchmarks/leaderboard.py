@@ -16,7 +16,9 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 
 
+# Minimum required for aggregation; new benchmark CSVs may include stratum, std_cost.
 REQUIRED_COLUMNS = ("algo", "function", "avg_cost", "avg_time")
+OPTIONAL_DISPLAY = ("stratum", "std_cost")
 
 
 def _repo_benchmarks_dir() -> Path:
@@ -35,6 +37,9 @@ def load_rows(csv_dir: Path) -> List[Dict[str, str]]:
                 continue
             for raw in reader:
                 row = {k: (raw.get(k) or "").strip() for k in REQUIRED_COLUMNS}
+                for opt in OPTIONAL_DISPLAY:
+                    if opt in fields:
+                        row[opt] = (raw.get(opt) or "").strip()
                 if not row["algo"] or not row["function"]:
                     continue
                 try:
@@ -76,20 +81,44 @@ def ranks_by_function(aggregated: List[Dict[str, str]]) -> Dict[Tuple[str, str],
 
 def render_html(aggregated: List[Dict[str, str]], ranks: Dict[Tuple[str, str], int]) -> str:
     rows_html = []
+    has_stratum = any(r.get("stratum") for r in aggregated)
+    has_std = any(r.get("std_cost") for r in aggregated)
     for row in aggregated:
         rank = ranks[(row["function"], row["algo"])]
         medal = {1: "🥇", 2: "🥈", 3: "🥉"}.get(rank, "")
+        if not has_stratum:
+            stratum_cell = ""
+        elif (row.get("stratum") or "").strip():
+            stratum_cell = f"<td>{html.escape(row['stratum'])}</td>"
+        else:
+            stratum_cell = "<td class=\"na\">—</td>"
+        std_cell = ""
+        if has_std:
+            s = row.get("std_cost", "").strip()
+            if s:
+                try:
+                    std_cell = f"<td class=\"num\">{float(s):.6g}</td>"
+                except ValueError:
+                    std_cell = "<td class=\"na\">—</td>"
+            else:
+                std_cell = "<td class=\"na\">—</td>"
+
         rows_html.append(
             "<tr>"
             f"<td>{html.escape(row['function'])}</td>"
             f"<td>{html.escape(row['algo'])}</td>"
+            f"{stratum_cell}"
             f"<td class=\"num\">{medal} {rank}</td>"
             f"<td class=\"num\">{float(row['avg_cost']):.6g}</td>"
+            f"{std_cell}"
             f"<td class=\"num\">{float(row['avg_time']):.6g}</td>"
             "</tr>"
         )
 
-    body = "\n".join(rows_html) if rows_html else "<tr><td colspan=\"5\">No benchmark rows found.</td></tr>"
+    ncol = 5 + (1 if has_stratum else 0) + (1 if has_std else 0)
+    body = "\n".join(rows_html) if rows_html else ("<tr><td colspan=\"%d\">No benchmark rows found.</td></tr>" % ncol)
+    thead_extra = "        <th>Stratum</th>\n" if has_stratum else ""
+    thead_std = "        <th class=\"num\">Std cost</th>\n" if has_std else ""
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -142,6 +171,7 @@ def render_html(aggregated: List[Dict[str, str]], ranks: Dict[Tuple[str, str], i
     }}
     tr:last-child td {{ border-bottom: none; }}
     td.num {{ font-variant-numeric: tabular-nums; text-align: right; }}
+    td.na {{ color: #a1a1aa; text-align: center; }}
     caption {{
       caption-side: bottom;
       padding-top: 0.75rem;
@@ -152,14 +182,16 @@ def render_html(aggregated: List[Dict[str, str]], ranks: Dict[Tuple[str, str], i
 </head>
 <body>
   <h1>SwarmOpt benchmark leaderboard</h1>
-  <p class="meta">Best <code>avg_cost</code> per algorithm and test function across all runs in <code>csvfiles/</code>. Lower cost is better.</p>
+  <p class="meta">Best <code>avg_cost</code> per algorithm and test function across all runs in <code>csvfiles/</code> (across run files, keeping the best table entry). Lower cost is better.</p>
   <table>
     <thead>
       <tr>
         <th>Function</th>
         <th>Algorithm</th>
+{thead_extra}
         <th class="num">Rank</th>
         <th class="num">Avg cost</th>
+{thead_std}
         <th class="num">Avg time (s)</th>
       </tr>
     </thead>
