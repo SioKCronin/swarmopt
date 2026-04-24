@@ -1,9 +1,6 @@
-try:
-    from .swarm import Swarm
-    __all__ = ['Swarm']
-except ImportError:
-    # Keep package importable in minimal environments where optional deps are missing.
-    __all__ = []
+from .swarm import Swarm
+
+__all__ = ['Swarm']
 
 # Optional ETDA integration (if available as submodule)
 try:
