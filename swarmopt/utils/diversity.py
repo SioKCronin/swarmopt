@@ -7,7 +7,10 @@ including various diversity metrics and diversity-based interventions.
 
 import numpy as np
 from typing import List, Tuple, Optional
-from scipy.spatial.distance import pdist, squareform
+
+# SciPy is imported lazily inside functions that need pdist/squareform so that
+# `from swarmopt import Swarm` works when SciPy is not installed (optional dep).
+
 
 def calculate_swarm_diversity(particles: List[np.ndarray], method: str = 'euclidean') -> float:
     """
@@ -30,11 +33,13 @@ def calculate_swarm_diversity(particles: List[np.ndarray], method: str = 'euclid
     positions = np.array(particles)
     
     if method == 'euclidean':
+        from scipy.spatial.distance import pdist
         # Average pairwise Euclidean distance
         distances = pdist(positions, metric='euclidean')
         return np.mean(distances)
     
     elif method == 'manhattan':
+        from scipy.spatial.distance import pdist
         # Average pairwise Manhattan distance
         distances = pdist(positions, metric='cityblock')
         return np.mean(distances)
@@ -115,6 +120,8 @@ def calculate_convergence_diversity(particles: List[np.ndarray],
     
     positions = np.array(particles)
     
+    from scipy.spatial.distance import pdist, squareform
+
     # Calculate pairwise distances
     distances = pdist(positions, metric='euclidean')
     mean_distance = np.mean(distances)
@@ -194,6 +201,7 @@ def calculate_velocity_diversity(particles: List, method: str = 'magnitude') -> 
         return np.std(magnitudes)
     
     elif method == 'direction':
+        from scipy.spatial.distance import pdist
         # Diversity in velocity directions
         # Normalize velocities to unit vectors
         unit_velocities = velocities / (np.linalg.norm(velocities, axis=1, keepdims=True) + 1e-10)
@@ -201,6 +209,7 @@ def calculate_velocity_diversity(particles: List, method: str = 'magnitude') -> 
         return np.mean(distances)
     
     elif method == 'euclidean':
+        from scipy.spatial.distance import pdist
         # Euclidean distance between velocity vectors
         distances = pdist(velocities, metric='euclidean')
         return np.mean(distances)

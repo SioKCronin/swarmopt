@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SwarmOpt benchmark leaderboard</title>
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      line-height: 1.5;
+      color: #1a1a1a;
+      background: #f4f4f5;
+    }
+    body {
+      margin: 0;
+      padding: 1.5rem;
+      max-width: 56rem;
+      margin-inline: auto;
+    }
+    h1 {
+      font-size: 1.5rem;
+      margin: 0 0 0.25rem;
+    }
+    p.meta {
+      margin: 0 0 1.25rem;
+      color: #52525b;
+      font-size: 0.9rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    th, td {
+      padding: 0.65rem 0.85rem;
+      text-align: left;
+      border-bottom: 1px solid #e4e4e7;
+    }
+    th {
+      background: #fafafa;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #71717a;
+    }
+    tr:last-child td { border-bottom: none; }
+    td.num { font-variant-numeric: tabular-nums; text-align: right; }
+    caption {
+      caption-side: bottom;
+      padding-top: 0.75rem;
+      font-size: 0.8rem;
+      color: #71717a;
+    }
+  </style>
+</head>
+<body>
+  <h1>SwarmOpt benchmark leaderboard</h1>
+  <p class="meta">Best <code>avg_cost</code> per algorithm and test function across all runs in <code>csvfiles/</code>. Lower cost is better.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Function</th>
+        <th>Algorithm</th>
+        <th class="num">Rank</th>
+        <th class="num">Avg cost</th>
+        <th class="num">Avg time (s)</th>
+      </tr>
+    </thead>
+    <tbody>
+<tr><td>ackley</td><td>global_best</td><td class="num">🥇 1</td><td class="num">7.73298</td><td class="num">1.80178</td></tr>
+<tr><td>ackley</td><td>Swarm</td><td class="num">🥈 2</td><td class="num">9.07859</td><td class="num">2.01748</td></tr>
+<tr><td>griewank</td><td>Swarm</td><td class="num">🥇 1</td><td class="num">1.23506</td><td class="num">2.25763</td></tr>
+<tr><td>griewank</td><td>global_best</td><td class="num">🥈 2</td><td class="num">1.37012</td><td class="num">2.40339</td></tr>
+<tr><td>rastrigin</td><td>Swarm</td><td class="num">🥇 1</td><td class="num">2.66729</td><td class="num">1.45836</td></tr>
+<tr><td>rastrigin</td><td>global_best</td><td class="num">🥈 2</td><td class="num">2.68123</td><td class="num">1.49998</td></tr>
+<tr><td>sphere</td><td>Swarm</td><td class="num">🥇 1</td><td class="num">0.106129</td><td class="num">1.24394</td></tr>
+<tr><td>sphere</td><td>global_best</td><td class="num">🥈 2</td><td class="num">0.116541</td><td class="num">1.07435</td></tr>
+<tr><td>weierstrass</td><td>Swarm</td><td class="num">🥇 1</td><td class="num">0.576388</td><td class="num">9.11878</td></tr>
+<tr><td>weierstrass</td><td>global_best</td><td class="num">🥈 2</td><td class="num">0.661881</td><td class="num">9.25695</td></tr>
+    </tbody>
+    <caption>Regenerate with <code>python benchmarks/leaderboard.py</code> from the repo root.</caption>
+  </table>
+</body>
+</html>

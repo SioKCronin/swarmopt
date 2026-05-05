@@ -23,11 +23,13 @@ setup(
                                    'tutorials']),
     install_requires=[
         'numpy>=1.19.0',
+        'scipy>=1.5.0',
     ],
     extras_require={
         'viz': ['matplotlib>=3.3.0'],
         'multiobjective': ['scipy>=1.5.0'],
         'tda': ['giotto-tda>=0.5.0'],
+        'examples': ['matplotlib>=3.3.0'],
         'all': ['matplotlib>=3.3.0', 'scipy>=1.5.0'],
     },
     python_requires='>=3.7',

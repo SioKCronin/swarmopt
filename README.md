@@ -38,7 +38,7 @@ swarm.optimize()
 print(f"Best cost: {swarm.best_cost}")
 ```
 
-## 🧪 Testing
+## Testing
 
 Run the comprehensive test suite:
 
@@ -52,106 +52,9 @@ python run_tests.py --show                 # Show all available tests
 python tests/index.py                      # Interactive test runner
 ```
 
-## Advanced Usage
+## Benchmarks
 
-### Inertia Weight Variations
-```python
-# Use adaptive inertia weight
-swarm = Swarm(
-    n_particles=30, dims=2, c1=2.0, c2=2.0, w=0.9, epochs=100,
-    obj_func=sphere, algo='global',
-    inertia_func='adaptive',  # Try: linear, exponential, chaotic, random, adaptive
-    w_start=0.9, w_end=0.4
-)
-```
-
-### Velocity Clamping Variations
-```python
-# Use hybrid velocity clamping
-swarm = Swarm(
-    n_particles=30, dims=2, c1=2.0, c2=2.0, w=0.9, epochs=100,
-    obj_func=sphere, algo='global',
-    velocity_clamp_func='hybrid'  # Try: basic, adaptive, exponential, chaotic, soft
-)
-```
-
-### Combined Advanced Features
-```python
-# Combine inertia and velocity clamping
-swarm = Swarm(
-    n_particles=50, dims=3, c1=2.0, c2=2.0, w=0.9, epochs=200,
-    obj_func=sphere, algo='global',
-    inertia_func='exponential', w_start=0.9, w_end=0.4,
-    velocity_clamp_func='adaptive'
-)
-```
-
-### Cooperative PSO (CPSO)
-```python
-# Multiple collaborating swarms
-swarm = Swarm(
-    n_particles=20, dims=6, c1=2.0, c2=2.0, w=0.9, epochs=100,
-    obj_func=sphere, algo='cpso',
-    n_swarms=3,  # 3 collaborating swarms
-    communication_strategy='best'  # Try: best, random, tournament
-)
-```
-
-### Horse Herd Optimization Algorithm (HHOA)
-
-```python
-from swarmopt import Swarm
-from swarmopt.functions import sphere
-
-# HHOA mimics horse herd behavior with three phases:
-# 1. Grazing
-# 2. Leadership
-# 3. Following
-
-swarm = Swarm(
-    n_particles=30,
-    dims=2,
-    c1=2.0, c2=2.0, w=0.9,  # Parameters ignored for HHOA but kept for compatibility
-    epochs=100,
-    obj_func=sphere,
-    algo='hhoa',  # Enable Horse Herd Optimization Algorithm
-    velocity_clamp=(-5, 5)
-)
-
-swarm.optimize()
-print(f"Best cost: {swarm.best_cost}")
-```
-
-**Reference:** [A high-speed MPPT based horse herd optimization algorithm](https://www.nature.com/articles/s41598-025-85481-6)
-
-### Multiobjective Optimization
-
-```python
-from swarmopt import Swarm
-from swarmopt.utils.simple_multiobjective import zdt1
-
-# Define multiobjective function (returns array of objectives)
-def multiobjective_function(x):
-    return zdt1(x)  # Returns [f1, f2]
-
-# Create multiobjective swarm
-swarm = Swarm(
-    n_particles=20,
-    dims=5,
-    c1=2.0, c2=2.0, w=0.9,
-    epochs=50,
-    obj_func=multiobjective_function,
-    multiobjective=True,  # Enable multiobjective optimization
-    archive_size=50       # Size of Pareto front archive
-)
-
-# Run optimization
-swarm.optimize()
-
-# Access results
-pareto_front = swarm.mo_optimizer.archive
-print(f"Found {len(pareto_front)} Pareto-optimal solutions")
-```
+Stratified empirical comparisons (repeated trials, spread, ranks per function class) are in [`benchmarks/README.md`](benchmarks/README.md). Run the driver from the repo root with `python benchmarks/run_benchmarks.py` (see that file for options and requirements).
 
 ## Algorithms
 
@@ -162,7 +65,7 @@ print(f"Found {len(pareto_front)} Pareto-optimal solutions")
 * Dynamic Multi-Swarm PSO - Liang & Suganthan 2005
 * Simulated Annealing PSO - Mu, Cao, & Wang 2009
 * Cooperative PSO (CPSO) - Van den Bergh & Engelbrecht 2004
-* Horse Herd Optimization Algorithm (HHOA) - Ibrahim et al. 2025 ⭐
+* Horse Herd Optimization Algorithm (HHOA) - Ibrahim et al. 2025
 
 ### Multiobjective
 * Multiobjective PSO - Handles multiple conflicting objectives simultaneously 
@@ -205,31 +108,11 @@ print(f"Found {len(pareto_front)} Pareto-optimal solutions")
 * **Hybrid Clamping** - Adaptive + exponential
 * **Convergence-Based** - Based on optimization progress
 
-## Performance
-
-### Inertia Weight Performance
-- **Adaptive Inertia**: Best performer on most functions
-- **Exponential Decreasing**: Excellent convergence
-- **Linear Decreasing**: Reliable baseline
-- **Chaotic Inertia**: Good for exploration
-
-### Velocity Clamping Performance
-- **Hybrid Clamping**: Best overall performance
-- **Exponential Clamping**: Excellent convergence
-- **Adaptive Clamping**: Good balance of exploration/exploitation
-- **Soft Clamping**: Smooth convergence
-
-### Combined Performance
-- **Exponential Inertia + Hybrid Clamping**: Optimal for most problems
-- **Adaptive Inertia + Adaptive Clamping**: Best for complex landscapes
-- **Linear Inertia + Basic Clamping**: Reliable baseline
-
-## Applications
+## Sample Applications
 
 * Neural network number of layers and weight optimization
-* Satelite positioning
 * Routing in communication networks
-* Anomaly detection
+* Satellite repair helper-swarm standoff positioning
 
 ## Citation
 
