@@ -4,6 +4,10 @@
 
 set -e  # Exit on error
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$REPO_ROOT"
+
 echo "🚀 SwarmOpt Release Preparation"
 echo "================================"
 echo ""
@@ -23,15 +27,15 @@ echo "========================="
 echo ""
 
 # Check if tests exist and can be run
-if [ -f "run_tests.py" ]; then
-    echo "✅ Found run_tests.py"
+if [ -f "infra/run_tests.py" ]; then
+    echo "✅ Found infra/run_tests.py"
     read -p "Run tests now? (y/n): " RUN_TESTS
     if [ "$RUN_TESTS" = "y" ]; then
         echo "Running tests..."
-        python run_tests.py || echo "⚠️  Tests failed, but continuing..."
+        python infra/run_tests.py || echo "⚠️  Tests failed, but continuing..."
     fi
 else
-    echo "⚠️  No run_tests.py found"
+    echo "⚠️  No infra/run_tests.py found"
 fi
 
 echo ""
@@ -77,4 +81,3 @@ echo ""
 echo "5. Create GitHub release with CHANGELOG notes"
 echo ""
 echo "✅ Release preparation complete!"
-

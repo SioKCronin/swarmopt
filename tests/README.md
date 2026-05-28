@@ -11,7 +11,7 @@ This directory contains all test scripts, examples, demonstration code, and a **
 
 **Quick run from project root:**
 ```bash
-python run_tests.py --benchmark
+python infra/run_tests.py --benchmark
 python tests/benchmarks/run_suite.py --config medium --output results/
 python tests/benchmarks/run_suite.py --list-algorithms
 python tests/benchmarks/run_suite.py --list-functions

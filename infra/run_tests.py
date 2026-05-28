@@ -2,15 +2,17 @@
 """
 SwarmOpt Test Runner
 
-Entry point to run the SwarmOpt test suite from the project root.
+Entry point to run the SwarmOpt test suite from the repository root.
 Delegates to tests/index.py for all behavior; exits with 0 on success, 1 on failure.
 """
 
+import os
 import sys
 from pathlib import Path
 
-# Add tests directory to path so index can be imported
-tests_dir = Path(__file__).parent / "tests"
+REPO_ROOT = Path(__file__).resolve().parent.parent
+tests_dir = REPO_ROOT / "tests"
+os.chdir(REPO_ROOT)
 sys.path.insert(0, str(tests_dir))
 
 # Import test index (will run as main via subprocess so cwd and exit codes are correct)
@@ -33,18 +35,18 @@ if __name__ == "__main__":
         print("SwarmOpt Test Runner")
         print()
         print("Usage:")
-        print("  python run_tests.py                    # Run full test suite (unit + integration)")
-        print("  python run_tests.py --quick            # Skip long-running integration tests")
-        print("  python run_tests.py --examples        # Also run example scripts")
-        print("  python run_tests.py --unit            # Run only unit tests (pytest)")
-        print("  python run_tests.py --integration     # Run all integration tests")
-        print("  python run_tests.py --integration NAME  # Run one integration test")
-        print("  python run_tests.py --with-examples   # Full suite + examples")
-        print("  python run_tests.py --examples       # Run all examples only")
-        print("  python run_tests.py --examples NAME  # Run one example")
-        print("  python run_tests.py --benchmark [key] # Run researcher benchmark suite")
-        print("  python run_tests.py --show            # Show test index and exit")
-        print("  python run_tests.py --help            # Show this help")
+        print("  python infra/run_tests.py                    # Run full test suite (unit + integration)")
+        print("  python infra/run_tests.py --quick            # Skip long-running integration tests")
+        print("  python infra/run_tests.py --examples        # Also run example scripts")
+        print("  python infra/run_tests.py --unit            # Run only unit tests (pytest)")
+        print("  python infra/run_tests.py --integration     # Run all integration tests")
+        print("  python infra/run_tests.py --integration NAME  # Run one integration test")
+        print("  python infra/run_tests.py --with-examples   # Full suite + examples")
+        print("  python infra/run_tests.py --examples       # Run all examples only")
+        print("  python infra/run_tests.py --examples NAME  # Run one example")
+        print("  python infra/run_tests.py --benchmark [key] # Run researcher benchmark suite")
+        print("  python infra/run_tests.py --show            # Show test index and exit")
+        print("  python infra/run_tests.py --help            # Show this help")
         print()
         print("Interactive mode (pick by number):")
         print("  python tests/index.py")

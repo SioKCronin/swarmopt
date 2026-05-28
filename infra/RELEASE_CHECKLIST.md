@@ -9,7 +9,7 @@
 - [ ] Update `CHANGELOG.md` with actual release date
 
 ### 2. ✅ Code Quality
-- [ ] Run tests: `python run_tests.py`
+- [ ] Run tests: `python infra/run_tests.py`
 - [ ] Verify all imports work: `python -c "from swarmopt import Swarm"`
 - [ ] Check for any uncommitted changes: `git status`
 - [ ] Ensure README.md is up to date
@@ -29,7 +29,7 @@
 
 ### 5. Build Distribution
 ```bash
-cd /Users/carl/code/swarmopt
+# From repository root
 python -m build
 ```
 
@@ -110,8 +110,7 @@ git push origin v0.2.0
 ## Quick Command Reference
 
 ```bash
-# Full workflow
-cd /Users/carl/code/swarmopt
+# Full workflow (from repository root)
 
 # Clean
 rm -rf build/ dist/ *.egg-info/

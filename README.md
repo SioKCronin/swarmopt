@@ -44,13 +44,15 @@ Run the comprehensive test suite:
 
 ```bash
 # Run all tests
-python run_tests.py
+python infra/run_tests.py
 
 # Or run specific test categories
-python run_tests.py --unit                 # Fast unit tests only
-python run_tests.py --show                 # Show all available tests
+python infra/run_tests.py --unit           # Fast unit tests only
+python infra/run_tests.py --show           # Show all available tests
 python tests/index.py                      # Interactive test runner
 ```
+
+Build, release, and Docker tooling live under [`infra/`](infra/).
 
 ## Benchmarks
 

@@ -3,8 +3,8 @@ version: "3.9"
 services:
   demo:
     build:
-      context: .
-      dockerfile: docker/Dockerfile.gpu
+      context: ..
+      dockerfile: infra/docker/Dockerfile.gpu
     image: swarmopt-demo:gpu
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
@@ -18,6 +18,5 @@ services:
               capabilities: [gpu]
     command: ["python3", "tests/examples/huntington_speech_tda.py"]
     volumes:
-      - .:/opt/swarmopt:rw
+      - ..:/opt/swarmopt:rw
     working_dir: /opt/swarmopt
-

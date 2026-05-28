@@ -117,7 +117,7 @@ Integration tests already cover velocity clamping and variation operators in ful
 
 **Acceptance criteria**
 - [ ] New test file(s) in `tests/unit/` for velocity_clamping and variation.
-- [ ] `python run_tests.py --unit` (or `pytest tests/unit/`) passes.
+- [ ] `python infra/run_tests.py --unit` (or `pytest tests/unit/`) passes.
 - [ ] At least one test per public clamping function and at least 2–3 variation strategies covered.
 
 ---
