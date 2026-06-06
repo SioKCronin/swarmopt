@@ -52,7 +52,14 @@ python infra/run_tests.py --show           # Show all available tests
 python tests/index.py                      # Interactive test runner
 ```
 
-Build, release, and Docker tooling live under [`infra/`](infra/).
+Build, release, Docker, and dependency pin files live under [`infra/`](infra/).
+
+For local development from a clone:
+
+```bash
+pip install -e .
+make -C infra init   # optional extras (matplotlib, TDA examples, etc.)
+```
 
 ## Benchmarks
 

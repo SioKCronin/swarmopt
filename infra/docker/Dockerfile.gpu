@@ -18,11 +18,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /opt/swarmopt
 
-COPY requirements.txt requirements.txt
-COPY requirements-dev.txt requirements-dev.txt
+COPY infra/requirements.txt infra/requirements.txt
+COPY infra/requirements-dev.txt infra/requirements-dev.txt
 
 RUN python3 -m pip install --upgrade pip && \
-    python3 -m pip install --no-cache-dir -r requirements.txt -r requirements-dev.txt
+    python3 -m pip install --no-cache-dir -r infra/requirements.txt -r infra/requirements-dev.txt
 
 COPY . .
 
