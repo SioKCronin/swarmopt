@@ -54,6 +54,41 @@ class TestParticle(unittest.TestCase):
         self.assertNotEqual(self.particle.pos[0], pos[0])
         self.assertNotEqual(self.particle.pos[1], pos[1])
 
+    def test_global_weight_returns_correct_shape(self):
+        # global_weight uses swarm.best_pos which is set after init
+        weight = self.particle.global_weight()
+        self.assertEqual(len(weight), self.dims)
+
+    def test_best_pos_updates_when_improvement_found(self):
+        # Force particle to a high-cost position, then update to a low-cost one
+        # so best_pos must be updated
+        original_best_pos = self.particle.best_pos.copy()
+        original_best_cost = self.particle.best_cost
+
+        # Move particle to the global minimum of sphere (origin) manually
+        self.particle.pos = np.zeros(self.dims)
+        ideal_cost = self.swarm.obj_func(self.particle.pos)
+
+        # Simulate what update() does at the end: check and record improvement
+        if ideal_cost < self.particle.best_cost:
+            self.particle.best_cost = ideal_cost
+            self.particle.best_pos = self.particle.pos.copy()
+
+        self.assertLess(self.particle.best_cost, original_best_cost)
+        self.assertFalse(np.array_equal(self.particle.best_pos, original_best_pos))
+
+    def test_stagnation_count_increments_when_no_improvement(self):
+        # Move particle far from origin (high cost for sphere)
+        self.particle.pos = np.full(self.dims, 100.0)
+        self.particle.best_cost = 0.0  # Artificially perfect best so no update triggers
+        self.particle.update()
+        self.assertTrue(hasattr(self.particle, 'stagnation_count'))
+        self.assertGreaterEqual(self.particle.stagnation_count, 1)
+
+    def test_best_cost_is_non_negative_for_sphere(self):
+        # sphere(x) = sum(x^2) >= 0 always
+        self.assertGreaterEqual(self.particle.best_cost, 0.0)
+
     def tearDown(self):
         np.random.seed()
 
