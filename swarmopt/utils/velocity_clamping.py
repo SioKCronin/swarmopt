@@ -39,12 +39,14 @@ def chaotic_clamping(velocity, velocity_bounds, z):
 
 def dimension_wise_clamping(velocity, velocity_bounds):
     """Different clamping for each dimension"""
-    if len(velocity_bounds) == 1:
+    bounds = np.asarray(velocity_bounds)
+    if bounds.ndim == 0 or bounds.size == 1:
         # If single value, apply to all dimensions
-        return np.clip(velocity, -velocity_bounds, velocity_bounds)
+        bound = float(bounds.reshape(-1)[0])
+        return np.clip(velocity, -bound, bound)
     else:
         # If array, apply per dimension
-        return np.clip(velocity, -velocity_bounds, velocity_bounds)
+        return np.clip(velocity, -bounds, bounds)
 
 def soft_clamping(velocity, velocity_bounds, alpha=0.1):
     """Soft velocity clamping using tanh function"""
