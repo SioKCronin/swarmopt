@@ -45,6 +45,32 @@ class TestSwarm(unittest.TestCase):
         #self.assertLess(s.best_cost, 1)
         #self.assertEqual(s.best_pos, [1,1])
 
+    def test_explicit_respect_boundary_is_honored(self):
+        target = np.zeros(2)
+        respect_boundary = 3.0
+
+        def distance_to_target(x):
+            return np.linalg.norm(x - target)
+
+        with self.assertWarns(UserWarning):
+            s = Swarm(
+                n_particles=12,
+                dims=2,
+                c1=2.0,
+                c2=2.0,
+                w=0.9,
+                epochs=5,
+                obj_func=distance_to_target,
+                algo='global',
+                velocity_clamp=self.v_clamp,
+                respect_boundary=respect_boundary,
+                target_position=target
+            )
+
+        self.assertEqual(s.respect_boundary, respect_boundary)
+        s.optimize()
+        self.assertGreaterEqual(np.linalg.norm(s.best_pos - target), respect_boundary)
+
     def test_swarm_with_velocity_clamping(self):
         # Test with different velocity clamping functions
         clamping_types = ['none', 'basic', 'adaptive']
