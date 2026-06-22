@@ -206,6 +206,11 @@ class Swarm:
             )
         elif self.algo == 'multiswarm':
             self.multiswarm = self.initialize_multiswarm()
+            self.swarm = [
+                particle
+                for subswarm in self.multiswarm
+                for particle in subswarm
+            ]
         else:
             self.swarm = self.initialize_swarm()
 
@@ -256,13 +261,16 @@ class Swarm:
             for i in range(self.n_delegates):
                 if self.delegate_spread == 'uniform':
                     # Fibonacci sphere for uniform distribution
-                    phi = np.pi * (3. - np.sqrt(5.))  # Golden angle
-                    y = 1 - (i / float(self.n_delegates - 1)) * 2  # y from 1 to -1
-                    radius = np.sqrt(1 - y * y)
-                    theta = phi * i
-                    
-                    x = np.cos(theta) * radius
-                    z = np.sin(theta) * radius
+                    if self.n_delegates == 1:
+                        x, y, z = 0.0, 1.0, 0.0
+                    else:
+                        phi = np.pi * (3. - np.sqrt(5.))  # Golden angle
+                        y = 1 - (i / float(self.n_delegates - 1)) * 2  # y from 1 to -1
+                        radius = np.sqrt(1 - y * y)
+                        theta = phi * i
+                        
+                        x = np.cos(theta) * radius
+                        z = np.sin(theta) * radius
                     
                 elif self.delegate_spread == 'random':
                     # Random positions on sphere
@@ -285,13 +293,16 @@ class Swarm:
                     z = np.cos(phi)
                 else:
                     # Default to uniform
-                    phi = np.pi * (3. - np.sqrt(5.))
-                    y = 1 - (i / float(self.n_delegates - 1)) * 2
-                    radius = np.sqrt(1 - y * y)
-                    theta = phi * i
-                    
-                    x = np.cos(theta) * radius
-                    z = np.sin(theta) * radius
+                    if self.n_delegates == 1:
+                        x, y, z = 0.0, 1.0, 0.0
+                    else:
+                        phi = np.pi * (3. - np.sqrt(5.))
+                        y = 1 - (i / float(self.n_delegates - 1)) * 2
+                        radius = np.sqrt(1 - y * y)
+                        theta = phi * i
+                        
+                        x = np.cos(theta) * radius
+                        z = np.sin(theta) * radius
                 
                 # Scale to respect boundary distance
                 offset = self.respect_boundary * np.array([x, y, z])
@@ -606,6 +617,96 @@ class Swarm:
             # Default to basic clamping
             return basic_clamping(velocity, self.velocity_bounds)
 
+    def _apply_diversity_intervention(self, diversity_result: dict, current_iter: int):
+        """Apply diversity-based intervention to improve swarm diversity"""
+        intervention = diversity_result['recommended_intervention']
+        stats = diversity_result['stats']
+        
+        if intervention == 'restart':
+            # Complete restart of worst particles
+            self._restart_worst_particles(0.3)  # Restart 30% of worst particles
+            
+        elif intervention == 'escape_local_optima':
+            # Apply strong escape variations to converged particles
+            self._apply_escape_variations(stats)
+            
+        elif intervention == 'diversity_preserving':
+            # Apply diversity-preserving variations
+            self._apply_diversity_variations()
+            
+        elif intervention == 'opposition_based':
+            # Apply opposition-based variations
+            self._apply_opposition_variations()
+            
+        elif intervention == 'adaptive_strength':
+            # Increase variation strength for all particles
+            self._increase_variation_strength(current_iter)
+    
+    def _restart_worst_particles(self, restart_ratio: float):
+        """Restart worst performing particles"""
+        particles_with_costs = [(p, p.best_cost) for p in self.swarm]
+        particles_with_costs.sort(key=lambda x: x[1], reverse=True)
+        
+        n_to_restart = int(len(self.swarm) * restart_ratio)
+        for i in range(n_to_restart):
+            particle = particles_with_costs[i][0]
+            particle.pos = np.random.uniform(self.val_min, self.val_max, self.dims)
+            if self.use_respect_boundary:
+                particle.pos = particle._enforce_respect_boundary(particle.pos)
+            particle.best_pos = particle.pos.copy()
+            if self.use_respect_boundary:
+                particle.best_cost = self.objective_with_respect_boundary(particle.pos)
+            else:
+                particle.best_cost = self.obj_func(particle.pos)
+            particle.velocity = np.random.uniform(-self.velocity_bounds, self.velocity_bounds, self.dims)
+            particle.stagnation_count = 0
+    
+    def _apply_escape_variations(self, stats: dict):
+        """Apply escape variations to converged particles"""
+        from .utils.variation import apply_variation
+        
+        for particle in self.swarm:
+            if stats['convergence_metrics']['is_converged']:
+                particle.pos = apply_variation(
+                    particle.pos, 'escape_local_optima',
+                    bounds=(self.val_min, self.val_max),
+                    escape_strength=2.0
+                )
+    
+    def _apply_diversity_variations(self):
+        """Apply diversity-preserving variations"""
+        from .utils.variation import apply_variation
+        
+        positions = [p.pos for p in self.swarm]
+        for particle in self.swarm:
+            particle.pos = apply_variation(
+                particle.pos, 'diversity_preserving',
+                population=positions, variation_rate=0.3
+            )
+    
+    def _apply_opposition_variations(self):
+        """Apply opposition-based variations"""
+        from .utils.variation import apply_variation
+        
+        for particle in self.swarm:
+            particle.pos = apply_variation(
+                particle.pos, 'opposition_based',
+                bounds=(self.val_min, self.val_max),
+                variation_rate=0.2
+            )
+    
+    def _increase_variation_strength(self, current_iter: int):
+        """Apply adaptive-strength variations to all particles"""
+        from .utils.variation import apply_variation
+        
+        for particle in self.swarm:
+            particle.pos = apply_variation(
+                particle.pos, 'adaptive_strength',
+                current_iter=current_iter, max_iter=self.epochs,
+                base_strength=self.variation_strength * 2,
+                bounds=(self.val_min, self.val_max)
+            )
+
 
 class Particle:
     def __init__(self, swarm):
@@ -881,99 +982,3 @@ class Particle:
                 population=all_particles
             )
     
-    def _apply_diversity_intervention(self, diversity_result: dict, current_iter: int):
-        """Apply diversity-based intervention to improve swarm diversity"""
-        intervention = diversity_result['recommended_intervention']
-        stats = diversity_result['stats']
-        
-        if intervention == 'restart':
-            # Complete restart of worst particles
-            self._restart_worst_particles(0.3)  # Restart 30% of worst particles
-            
-        elif intervention == 'escape_local_optima':
-            # Apply strong escape variations to converged particles
-            self._apply_escape_variations(stats)
-            
-        elif intervention == 'diversity_preserving':
-            # Apply diversity-preserving variations
-            self._apply_diversity_variations()
-            
-        elif intervention == 'opposition_based':
-            # Apply opposition-based variations
-            self._apply_opposition_variations()
-            
-        elif intervention == 'adaptive_strength':
-            # Increase variation strength for all particles
-            self._increase_variation_strength()
-    
-    def _restart_worst_particles(self, restart_ratio: float):
-        """Restart worst performing particles"""
-        # Sort particles by fitness
-        particles_with_costs = [(p, p.best_cost) for p in self.swarm]
-        particles_with_costs.sort(key=lambda x: x[1], reverse=True)
-        
-        # Restart worst particles
-        n_to_restart = int(len(self.swarm) * restart_ratio)
-        for i in range(n_to_restart):
-            particle = particles_with_costs[i][0]
-            # Reinitialize position
-            particle.pos = np.random.uniform(self.val_min, self.val_max, self.dims)
-            # Enforce respect boundary if enabled
-            if self.use_respect_boundary:
-                particle.pos = particle._enforce_respect_boundary(particle.pos)
-            particle.best_pos = particle.pos.copy()
-            if self.use_respect_boundary:
-                particle.best_cost = self.objective_with_respect_boundary(particle.pos)
-            else:
-                particle.best_cost = self.obj_func(particle.pos)
-            particle.velocity = np.random.uniform(-self.velocity_bounds, self.velocity_bounds, self.dims)
-            particle.stagnation_count = 0
-    
-    def _apply_escape_variations(self, stats: dict):
-        """Apply escape variations to converged particles"""
-        from .utils.variation import apply_variation
-        
-        for particle in self.swarm:
-            if stats['convergence_metrics']['is_converged']:
-                # Apply strong escape variation
-                particle.pos = apply_variation(
-                    particle.pos, 'escape_local_optima',
-                    bounds=(self.val_min, self.val_max),
-                    escape_strength=2.0
-                )
-    
-    def _apply_diversity_variations(self):
-        """Apply diversity-preserving variations"""
-        from .utils.variation import apply_variation
-        
-        positions = [p.pos for p in self.swarm]
-        for particle in self.swarm:
-            particle.pos = apply_variation(
-                particle.pos, 'diversity_preserving',
-                population=positions, variation_rate=0.3
-            )
-    
-    def _apply_opposition_variations(self):
-        """Apply opposition-based variations"""
-        from .utils.variation import apply_variation
-        
-        for particle in self.swarm:
-            particle.pos = apply_variation(
-                particle.pos, 'opposition_based',
-                bounds=(self.val_min, self.val_max),
-                variation_rate=0.2
-            )
-    
-    def _increase_variation_strength(self):
-        """Increase variation strength for all particles"""
-        # This would be implemented by temporarily increasing variation parameters
-        # At present, we apply adaptive strength variations
-        from .utils.variation import apply_variation
-        
-        for particle in self.swarm:
-            particle.pos = apply_variation(
-                particle.pos, 'adaptive_strength',
-                current_iter=0, max_iter=self.epochs,
-                base_strength=self.variation_strength * 2,
-                bounds=(self.val_min, self.val_max)
-            )

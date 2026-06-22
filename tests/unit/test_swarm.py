@@ -108,5 +108,57 @@ class TestSwarm(unittest.TestCase):
         self.assertFalse(np.isnan(s.best_cost))
         self.assertEqual(len(s.best_pos), 3)
 
+    def test_diversity_intervention_does_not_crash(self):
+        # A one-particle swarm immediately recommends a restart intervention.
+        s = Swarm(
+            n_particles=1,
+            dims=2,
+            c1=0.5,
+            c2=0.3,
+            w=0.9,
+            epochs=1,
+            obj_func=functions.sphere,
+            velocity_clamp=self.v_clamp,
+            diversity_monitoring=True,
+        )
+        s.optimize()
+        self.assertTrue(s.diversity_history[-1]['needs_intervention'])
+
+    def test_multiswarm_initializes_particle_view(self):
+        s = Swarm(
+            n_particles=4,
+            dims=2,
+            c1=0.5,
+            c2=0.3,
+            w=0.9,
+            epochs=1,
+            obj_func=functions.sphere,
+            velocity_clamp=self.v_clamp,
+            algo='multiswarm',
+            m_swarms=2,
+        )
+        self.assertEqual(len(s.swarm), 8)
+        s.optimize()
+        self.assertIsNotNone(s.best_pos)
+
+    def test_single_uniform_delegate_in_3d(self):
+        target_position = np.array([0.0, 0.0, 0.0])
+        s = Swarm(
+            n_particles=3,
+            dims=3,
+            c1=0.5,
+            c2=0.3,
+            w=0.9,
+            epochs=1,
+            obj_func=functions.sphere,
+            velocity_clamp=self.v_clamp,
+            target_position=target_position,
+            n_delegates=1,
+            delegate_spread='uniform',
+        )
+        self.assertEqual(len(s.delegate_positions), 1)
+        distance = np.linalg.norm(s.delegate_positions[0] - target_position)
+        self.assertAlmostEqual(distance, s.respect_boundary)
+
 if __name__ == "__main__":
     unittest.main()
