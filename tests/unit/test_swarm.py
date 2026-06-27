@@ -65,6 +65,29 @@ class TestSwarm(unittest.TestCase):
                 self.assertIsNotNone(s.best_cost)
                 self.assertFalse(np.isnan(s.best_cost))
 
+    def test_respect_boundary_with_dimension_bounds(self):
+        lower_bounds = np.array([-2.0, -4.0, -6.0])
+        upper_bounds = np.array([2.0, 4.0, 6.0])
+        target = np.zeros(3)
+
+        with self.assertWarns(UserWarning):
+            s = Swarm(
+                n_particles=12,
+                dims=3,
+                c1=2.0,
+                c2=2.0,
+                w=0.8,
+                epochs=3,
+                obj_func=functions.sphere,
+                velocity_clamp=(lower_bounds, upper_bounds),
+                target_position=target
+            )
+
+        expected_boundary = 0.1 * np.linalg.norm(upper_bounds - lower_bounds)
+        self.assertEqual(s.respect_boundary, expected_boundary)
+        s.optimize()
+        self.assertGreaterEqual(np.linalg.norm(s.best_pos - target), expected_boundary)
+
     def test_swarm_with_variation(self):
         # Test with different variation strategies
         variation_strategies = ['gaussian', 'adaptive', 'boundary']
