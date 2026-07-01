@@ -108,5 +108,65 @@ class TestSwarm(unittest.TestCase):
         self.assertFalse(np.isnan(s.best_cost))
         self.assertEqual(len(s.best_pos), 3)
 
+    def test_local_best_uses_neighbor_personal_best_position(self):
+        s = Swarm(
+            n_particles=3,
+            dims=2,
+            c1=self.c1,
+            c2=self.c2,
+            w=self.w,
+            epochs=self.epochs,
+            obj_func=self.obj_func,
+            algo='local',
+            k=2,
+            velocity_clamp=self.v_clamp
+        )
+
+        s.swarm[0].pos = np.array([0.0, 0.0])
+        s.swarm[0].best_pos = np.array([0.0, 0.0])
+        s.swarm[0].best_cost = 100.0
+        s.swarm[1].pos = np.array([10.0, 10.0])
+        s.swarm[1].best_pos = np.array([1.0, 1.0])
+        s.swarm[1].best_cost = 1.0
+        s.swarm[2].pos = np.array([0.5, 0.5])
+        s.swarm[2].best_pos = np.array([0.5, 0.5])
+        s.swarm[2].best_cost = 50.0
+
+        s.update_local_best_pos()
+
+        np.testing.assert_array_equal(s.swarm[0].local_best_pos, np.array([1.0, 1.0]))
+        self.assertEqual(s.swarm[0].local_best_cost, 1.0)
+
+    def test_global_worst_recomputes_from_current_particle_bests(self):
+        s = Swarm(
+            n_particles=3,
+            dims=2,
+            c1=self.c1,
+            c2=self.c2,
+            w=self.w,
+            epochs=self.epochs,
+            obj_func=self.obj_func,
+            algo='sa',
+            velocity_clamp=self.v_clamp
+        )
+
+        s.swarm[0].best_pos = np.array([1.0, 1.0])
+        s.swarm[0].best_cost = 3.0
+        s.swarm[1].best_pos = np.array([2.0, 2.0])
+        s.swarm[1].best_cost = 7.0
+        s.swarm[2].best_pos = np.array([3.0, 3.0])
+        s.swarm[2].best_cost = 5.0
+
+        s.update_global_worst_pos()
+        np.testing.assert_array_equal(s.worst_pos, np.array([2.0, 2.0]))
+        self.assertEqual(s.worst_cost, 7.0)
+
+        s.swarm[1].best_pos = np.array([0.1, 0.1])
+        s.swarm[1].best_cost = 1.0
+
+        s.update_global_worst_pos()
+        np.testing.assert_array_equal(s.worst_pos, np.array([3.0, 3.0]))
+        self.assertEqual(s.worst_cost, 5.0)
+
 if __name__ == "__main__":
     unittest.main()

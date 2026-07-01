@@ -516,7 +516,7 @@ class Swarm:
     def get_best_neighbor(self, particle):
         distances = []
         for other in self.swarm:
-            distances.append((other.pos, other.best_cost, euclideanDistance(other.pos, particle.pos)))
+            distances.append((other.best_pos, other.best_cost, euclideanDistance(other.pos, particle.pos)))
         sorted_distances = sorted(distances, key=lambda x: x[2])
         return sorted(sorted_distances[:self.k+1], key=lambda x: x[1])
 
@@ -547,10 +547,9 @@ class Swarm:
             particle.local_best_pos = local_best_pos
 
     def update_global_worst_pos(self):
-        for particle in self.swarm:
-            if particle.best_cost > self.worst_cost:
-                self.worst_cost = particle.best_cost
-                self.worst_pos = particle.best_pos
+        worst_particle = max(self.swarm, key=lambda particle: particle.best_cost)
+        self.worst_cost = worst_particle.best_cost
+        self.worst_pos = worst_particle.best_pos
 
     def get_inertia_weight(self, current_iter):
         """Calculate current inertia weight based on the selected function"""
