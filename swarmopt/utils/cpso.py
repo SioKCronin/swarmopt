@@ -17,7 +17,8 @@ class CooperativeSwarm:
     
     def __init__(self, swarm_id: int, dimensions: List[int], n_particles: int, 
                  obj_func: Callable, c1: float = 2.0, c2: float = 2.0, 
-                 w: float = 0.9, velocity_clamp: Tuple[float, float] = (-5, 5)):
+                 w: float = 0.9, velocity_clamp: Tuple[float, float] = (-5, 5),
+                 position_constraint: Optional[Callable[[np.ndarray], np.ndarray]] = None):
         """
         Initialize a cooperative swarm
         
@@ -46,6 +47,7 @@ class CooperativeSwarm:
         self.c2 = c2
         self.w = w
         self.velocity_clamp = velocity_clamp
+        self.position_constraint = position_constraint
         
         # Initialize particles
         self.particles = []
@@ -55,19 +57,27 @@ class CooperativeSwarm:
         
         # Communication with other swarms
         self.global_context = None  # Will be set by CPSO coordinator
+
+    def _apply_position_constraint(self, position: np.ndarray) -> np.ndarray:
+        if self.position_constraint is None:
+            return position.copy()
+        return self.position_constraint(position).copy()
         
     def initialize_particles(self, full_dim: int):
         """Initialize particles for this swarm's dimensions"""
         self.particles = []
         for i in range(self.n_particles):
-            # Initialize position for this swarm's dimensions
+            # Initialize a full position, constrain it, then keep this swarm's slice.
             pos = np.random.uniform(-5, 5, len(self.dimensions))
-            particle = CooperativeParticle(pos, self.dimensions, self.velocity_clamp)
-            particle.swarm_id = self.swarm_id
-            
-            # Initialize particle cost
             full_pos = np.random.uniform(-5, 5, full_dim)
             full_pos[self.dimensions] = pos
+            full_pos = self._apply_position_constraint(full_pos)
+            pos = full_pos[self.dimensions]
+
+            particle = CooperativeParticle(pos, self.dimensions, self.velocity_clamp)
+            particle.swarm_id = self.swarm_id
+
+            # Initialize particle cost
             particle.best_cost = self.obj_func(full_pos)
             
             self.particles.append(particle)
@@ -84,7 +94,7 @@ class CooperativeSwarm:
             # Use particle's own best if swarm best is not available
             swarm_best = self.best_pos if self.best_pos is not None else particle.best_pos
             particle.update(global_context, swarm_best, self.c1, self.c2, 
-                           self.w, current_iter, self.obj_func)
+                           self.w, current_iter, self.obj_func, self.position_constraint)
             
             # Update swarm best
             if particle.best_cost < self.best_cost:
@@ -124,7 +134,9 @@ class CooperativeParticle:
         self.swarm_id = None
         
     def update(self, global_context: np.ndarray, swarm_best: np.ndarray,
-               c1: float, c2: float, w: float, current_iter: int = 0, obj_func=None):
+               c1: float, c2: float, w: float, current_iter: int = 0,
+               obj_func=None,
+               position_constraint: Optional[Callable[[np.ndarray], np.ndarray]] = None):
         """
         Update particle position and velocity
         
@@ -146,6 +158,9 @@ class CooperativeParticle:
         # Create full-dimensional position for evaluation
         full_pos = global_context.copy()
         full_pos[self.dimensions] = self.pos
+        if position_constraint is not None:
+            full_pos = position_constraint(full_pos)
+            self.pos = full_pos[self.dimensions].copy()
         
         # Evaluate current position
         current_cost = obj_func(full_pos)
@@ -176,6 +191,11 @@ class CooperativeParticle:
         
         # Update position
         self.pos += self.velocity
+        if position_constraint is not None:
+            next_full_pos = global_context.copy()
+            next_full_pos[self.dimensions] = self.pos
+            next_full_pos = position_constraint(next_full_pos)
+            self.pos = next_full_pos[self.dimensions].copy()
 
 class CPSO:
     """
@@ -189,7 +209,8 @@ class CPSO:
                  total_dimensions: int, obj_func: Callable,
                  c1: float = 2.0, c2: float = 2.0, w: float = 0.9,
                  velocity_clamp: Tuple[float, float] = (-5, 5),
-                 communication_strategy: str = 'best'):
+                 communication_strategy: str = 'best',
+                 position_constraint: Optional[Callable[[np.ndarray], np.ndarray]] = None):
         """
         Initialize Cooperative PSO
         
@@ -221,6 +242,7 @@ class CPSO:
         self.w = w
         self.velocity_clamp = velocity_clamp
         self.communication_strategy = communication_strategy
+        self.position_constraint = position_constraint
         
         # Initialize swarms
         self.swarms = []
@@ -233,17 +255,23 @@ class CPSO:
                 n_particles=n_particles_per_swarm,
                 obj_func=obj_func,
                 c1=c1, c2=c2, w=w,
-                velocity_clamp=velocity_clamp
+                velocity_clamp=velocity_clamp,
+                position_constraint=position_constraint
             )
             self.swarms.append(swarm)
         
         # Global best tracking
-        self.global_best_pos = np.random.uniform(-5, 5, total_dimensions)
+        self.global_best_pos = self._apply_position_constraint(np.random.uniform(-5, 5, total_dimensions))
         self.global_best_cost = float('inf')
-        self.global_context = np.random.uniform(-5, 5, total_dimensions)
+        self.global_context = self._apply_position_constraint(np.random.uniform(-5, 5, total_dimensions))
         
         # Communication history
         self.communication_history = []
+
+    def _apply_position_constraint(self, position: np.ndarray) -> np.ndarray:
+        if self.position_constraint is None:
+            return position.copy()
+        return self.position_constraint(position).copy()
         
     def _assign_dimensions(self) -> List[List[int]]:
         """Assign dimensions to swarms"""
@@ -289,9 +317,12 @@ class CPSO:
                     self.global_context[swarm.dimensions] = winner.pos
                 elif swarm.particles:
                     self.global_context[swarm.dimensions] = swarm.particles[0].pos
+
+        self.global_context = self._apply_position_constraint(self.global_context)
     
     def _evaluate_global_solution(self):
         """Evaluate the current global solution"""
+        self.global_context = self._apply_position_constraint(self.global_context)
         global_cost = self.obj_func(self.global_context)
         
         if global_cost < self.global_best_cost:

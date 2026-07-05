@@ -14,6 +14,10 @@ class TestSwarm(unittest.TestCase):
         self.obj_func = functions.sphere
         self.v_clamp = [-5.12, 5.12]
 
+    def assertOutsideRespectBoundary(self, swarm, position):
+        distance = np.linalg.norm(np.asarray(position) - swarm.target_position)
+        self.assertGreaterEqual(distance + 1e-12, swarm.respect_boundary)
+
     def test_initialize_swarm(self):
         s = Swarm(
             self.n_particles,
@@ -107,6 +111,102 @@ class TestSwarm(unittest.TestCase):
         self.assertIsNotNone(s.best_cost)
         self.assertFalse(np.isnan(s.best_cost))
         self.assertEqual(len(s.best_pos), 3)
+
+    def test_respect_boundary_penalty_is_positive_at_target(self):
+        target = np.array([0.0, 0.0])
+
+        def distance_to_target(x):
+            return np.linalg.norm(x - target)
+
+        s = Swarm(
+            n_particles=5,
+            dims=2,
+            c1=1.0,
+            c2=1.0,
+            w=0.5,
+            epochs=1,
+            obj_func=distance_to_target,
+            velocity_clamp=(-1.0, 1.0),
+            target_position=target,
+        )
+
+        self.assertGreater(s.objective_with_respect_boundary(target), 0.0)
+
+    def test_respect_boundary_applies_to_delegated_single_objective_optimizers(self):
+        target = np.array([0.0, 0.0])
+
+        def distance_to_target(x):
+            return np.linalg.norm(x - target)
+
+        cases = [
+            ("ppso", {"ppso_enabled": True}),
+            ("hhoa", {"algo": "hhoa"}),
+            ("cpso", {"algo": "cpso", "n_swarms": 2}),
+        ]
+
+        for seed, (name, kwargs) in enumerate(cases):
+            with self.subTest(name=name):
+                np.random.seed(seed)
+                swarm = Swarm(
+                    n_particles=8,
+                    dims=2,
+                    c1=1.2,
+                    c2=1.2,
+                    w=0.5,
+                    epochs=3,
+                    obj_func=distance_to_target,
+                    velocity_clamp=(-1.0, 1.0),
+                    target_position=target,
+                    **kwargs,
+                )
+
+                swarm.optimize()
+                self.assertOutsideRespectBoundary(swarm, swarm.best_pos)
+
+                if name == "ppso":
+                    for particle in swarm.ppso.particles:
+                        self.assertOutsideRespectBoundary(swarm, particle.pos)
+                        self.assertOutsideRespectBoundary(swarm, particle.best_pos)
+                elif name == "hhoa":
+                    for horse in swarm.hhoa.horses:
+                        self.assertOutsideRespectBoundary(swarm, horse.pos)
+                        self.assertOutsideRespectBoundary(swarm, horse.best_pos)
+                elif name == "cpso":
+                    self.assertOutsideRespectBoundary(swarm, swarm.cpso.global_context)
+                    self.assertOutsideRespectBoundary(swarm, swarm.cpso.global_best_pos)
+
+    def test_respect_boundary_applies_to_multiobjective_optimizer(self):
+        target = np.array([0.0, 0.0])
+
+        def objectives(x):
+            return np.array([
+                np.linalg.norm(x - target),
+                np.sum((x - np.array([0.5, -0.5])) ** 2),
+            ])
+
+        np.random.seed(11)
+        swarm = Swarm(
+            n_particles=8,
+            dims=2,
+            c1=1.2,
+            c2=1.2,
+            w=0.5,
+            epochs=3,
+            obj_func=objectives,
+            velocity_clamp=(-1.0, 1.0),
+            target_position=target,
+            multiobjective=True,
+            archive_size=20,
+        )
+
+        swarm.optimize()
+        self.assertOutsideRespectBoundary(swarm, swarm.best_pos)
+        for particle in swarm.mo_optimizer.particles:
+            self.assertOutsideRespectBoundary(swarm, particle["pos"])
+            self.assertOutsideRespectBoundary(swarm, particle["best_pos"])
+        for solution in swarm.mo_optimizer.archive:
+            self.assertOutsideRespectBoundary(swarm, solution["pos"])
+            self.assertOutsideRespectBoundary(swarm, solution["best_pos"])
 
 if __name__ == "__main__":
     unittest.main()

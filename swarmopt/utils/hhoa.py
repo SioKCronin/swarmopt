@@ -24,7 +24,8 @@ class Horse:
     Represents a single horse in the herd
     """
     
-    def __init__(self, position: np.ndarray, obj_func: Callable, bounds: Tuple[float, float]):
+    def __init__(self, position: np.ndarray, obj_func: Callable, bounds: Tuple[float, float],
+                 position_constraint: Optional[Callable[[np.ndarray], np.ndarray]] = None):
         """
         Initialize a horse
         
@@ -37,7 +38,8 @@ class Horse:
         bounds : Tuple[float, float]
             Search space bounds
         """
-        self.pos = position.copy()
+        self.position_constraint = position_constraint
+        self.pos = self._apply_position_constraint(position)
         self.obj_func = obj_func
         self.bounds = bounds
         
@@ -51,6 +53,11 @@ class Horse:
         self.energy = 1.0  # Energy level (affects behavior)
         self.age = 0  # Iterations since last improvement
         self.velocity = np.zeros_like(position)
+
+    def _apply_position_constraint(self, position: np.ndarray) -> np.ndarray:
+        if self.position_constraint is None:
+            return position.copy()
+        return self.position_constraint(position).copy()
         
     def update_fitness(self):
         """Update fitness and personal best"""
@@ -79,7 +86,8 @@ class HHOA:
                  grazing_rate: float = 0.3,
                  leadership_rate: float = 0.4,
                  following_rate: float = 0.3,
-                 epochs: int = 100):
+                 epochs: int = 100,
+                 position_constraint: Optional[Callable[[np.ndarray], np.ndarray]] = None):
         """
         Initialize HHOA
         
@@ -109,6 +117,7 @@ class HHOA:
         self.obj_func = obj_func
         self.bounds = bounds
         self.epochs = epochs
+        self.position_constraint = position_constraint
         
         # Behavior rates (should sum to 1.0)
         total_rate = grazing_rate + leadership_rate + following_rate
@@ -139,7 +148,7 @@ class HHOA:
         """Initialize the horse herd"""
         for _ in range(self.n_horses):
             position = np.random.uniform(self.bounds[0], self.bounds[1], self.dims)
-            horse = Horse(position, self.obj_func, self.bounds)
+            horse = Horse(position, self.obj_func, self.bounds, self.position_constraint)
             self.horses.append(horse)
     
     def _update_global_best(self):
@@ -177,6 +186,7 @@ class HHOA:
         
         # Apply bounds
         new_pos = np.clip(new_pos, self.bounds[0], self.bounds[1])
+        new_pos = horse._apply_position_constraint(new_pos)
         horse.pos = new_pos
         horse.update_fitness()
     
@@ -199,6 +209,7 @@ class HHOA:
         
         # Apply bounds
         new_pos = np.clip(new_pos, self.bounds[0], self.bounds[1])
+        new_pos = horse._apply_position_constraint(new_pos)
         horse.pos = new_pos
         horse.update_fitness()
     
@@ -239,6 +250,7 @@ class HHOA:
         
         # Apply bounds
         new_pos = np.clip(new_pos, self.bounds[0], self.bounds[1])
+        new_pos = horse._apply_position_constraint(new_pos)
         horse.pos = new_pos
         horse.update_fitness()
     
