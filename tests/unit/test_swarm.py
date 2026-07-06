@@ -108,5 +108,55 @@ class TestSwarm(unittest.TestCase):
         self.assertFalse(np.isnan(s.best_cost))
         self.assertEqual(len(s.best_pos), 3)
 
+    def test_delegate_assignments_use_cpso_candidates(self):
+        s = Swarm(
+            n_particles=4,
+            dims=2,
+            c1=1.5,
+            c2=1.5,
+            w=0.5,
+            epochs=1,
+            obj_func=functions.sphere,
+            algo='cpso',
+            n_swarms=2,
+            velocity_clamp=self.v_clamp,
+            target_position=np.zeros(2),
+            n_delegates=1
+        )
+        s.optimize()
+
+        assignments = s.get_delegate_assignments()
+
+        self.assertIn(0, assignments)
+        self.assertEqual(len(assignments[0]['particle_pos']), 2)
+        self.assertFalse(np.isnan(assignments[0]['distance']))
+
+    def test_delegate_assignments_use_live_hhoa_agents(self):
+        s = Swarm(
+            n_particles=4,
+            dims=2,
+            c1=1.5,
+            c2=1.5,
+            w=0.5,
+            epochs=1,
+            obj_func=functions.sphere,
+            algo='hhoa',
+            velocity_clamp=self.v_clamp,
+            target_position=np.zeros(2),
+            n_delegates=1
+        )
+        s.optimize()
+        delegate_pos = s.delegate_positions[0]
+
+        for particle in s.swarm:
+            particle.pos = np.array([-5.0, -5.0])
+        s.hhoa.horses[0].pos = delegate_pos.copy()
+
+        assignments = s.get_delegate_assignments()
+
+        self.assertEqual(assignments[0]['particle_index'], 0)
+        self.assertTrue(np.allclose(assignments[0]['particle_pos'], delegate_pos))
+        self.assertAlmostEqual(assignments[0]['distance'], 0.0)
+
 if __name__ == "__main__":
     unittest.main()

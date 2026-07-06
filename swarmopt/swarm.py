@@ -322,6 +322,10 @@ class Swarm:
         """
         if len(self.delegate_positions) == 0:
             return {}
+
+        candidate_positions = self._get_delegate_candidate_positions()
+        if not candidate_positions:
+            return {}
         
         assignments = {}
         used_particles = set()
@@ -331,11 +335,11 @@ class Swarm:
             best_particle = None
             best_distance = float('inf')
             
-            for j, particle in enumerate(self.swarm):
+            for j, position in enumerate(candidate_positions):
                 if j in used_particles:
                     continue
                 
-                distance = np.linalg.norm(particle.pos - delegate_pos)
+                distance = np.linalg.norm(position - delegate_pos)
                 if distance < best_distance:
                     best_distance = distance
                     best_particle = j
@@ -343,13 +347,59 @@ class Swarm:
             if best_particle is not None:
                 assignments[i] = {
                     'particle_index': best_particle,
-                    'particle_pos': self.swarm[best_particle].pos,
+                    'particle_pos': candidate_positions[best_particle],
                     'target_pos': delegate_pos,
                     'distance': best_distance
                 }
                 used_particles.add(best_particle)
         
         return assignments
+
+    def _get_delegate_candidate_positions(self):
+        """Return live full-dimensional agent positions for delegate assignment."""
+        if self.algo == 'cpso' and self.cpso is not None:
+            return self._get_cpso_delegate_candidate_positions()
+
+        if self.ppso is not None:
+            return [p.pos for p in self.ppso.particles]
+
+        if self.hhoa is not None:
+            return [horse.pos for horse in self.hhoa.horses]
+
+        if self.mo_optimizer is not None:
+            return [particle['pos'] for particle in self.mo_optimizer.particles]
+
+        if hasattr(self, 'swarm'):
+            return [particle.pos for particle in self.swarm]
+
+        return []
+
+    def _get_cpso_delegate_candidate_positions(self):
+        """Build full-dimensional CPSO candidates from the cooperative swarms."""
+        if self.cpso is None:
+            return []
+
+        candidates = []
+        if self.cpso.global_best_pos is not None:
+            candidates.append(self.cpso.global_best_pos.copy())
+
+        if not self.cpso.swarms or any(len(swarm.particles) == 0 for swarm in self.cpso.swarms):
+            return candidates
+
+        base = self.cpso.global_context
+        if base is None:
+            base = self.cpso.global_best_pos
+        if base is None:
+            base = np.zeros(self.dims)
+
+        n_particles = min(len(swarm.particles) for swarm in self.cpso.swarms)
+        for particle_index in range(n_particles):
+            full_pos = np.array(base, copy=True)
+            for swarm in self.cpso.swarms:
+                full_pos[swarm.dimensions] = swarm.particles[particle_index].pos
+            candidates.append(full_pos)
+
+        return candidates
     
     def objective_with_respect_boundary(self, position):
         """
