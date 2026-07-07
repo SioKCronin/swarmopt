@@ -108,5 +108,34 @@ class TestSwarm(unittest.TestCase):
         self.assertFalse(np.isnan(s.best_cost))
         self.assertEqual(len(s.best_pos), 3)
 
+    def test_particle_best_position_survives_non_improving_move(self):
+        s = Swarm(
+            n_particles=1,
+            dims=2,
+            c1=0.0,
+            c2=0.0,
+            w=1.0,
+            epochs=1,
+            obj_func=functions.sphere,
+            algo='global',
+            inertia_func='constant',
+            velocity_clamp=(-5.0, 5.0)
+        )
+
+        particle = s.swarm[0]
+        particle.pos[:] = np.array([0.0, 0.0])
+        particle.best_pos[:] = np.array([0.0, 0.0])
+        particle.local_best_pos[:] = np.array([0.0, 0.0])
+        particle.best_cost = 0.0
+        particle.velocity = np.array([1.0, 1.0])
+        s.best_pos = np.array([0.0, 0.0])
+        s.best_cost = 0.0
+
+        particle.update(current_iter=0)
+
+        np.testing.assert_array_equal(particle.pos, np.array([1.0, 1.0]))
+        np.testing.assert_array_equal(particle.best_pos, np.array([0.0, 0.0]))
+        self.assertEqual(particle.best_cost, 0.0)
+
 if __name__ == "__main__":
     unittest.main()

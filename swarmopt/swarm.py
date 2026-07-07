@@ -611,9 +611,12 @@ class Particle:
     def __init__(self, swarm):
         self.swarm = swarm
         self.dims = swarm.dims
-        self.pos = self.best_pos = self.local_best_pos = np.random.uniform(
+        initial_pos = np.random.uniform(
             swarm.val_min, swarm.val_max, swarm.dims
         )
+        self.pos = initial_pos.copy()
+        self.best_pos = initial_pos.copy()
+        self.local_best_pos = initial_pos.copy()
         self.velocity = np.random.uniform(
             -swarm.velocity_bounds, swarm.velocity_bounds, swarm.dims
         )
