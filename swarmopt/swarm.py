@@ -19,6 +19,7 @@ try:
     from .utils.diversity import DiversityMonitor, calculate_swarm_diversity
     from .utils.ppso import PPSO
     from .utils.simple_multiobjective import SimpleMultiObjectivePSO
+    from .utils.multiobjective import NSGA2PSO, SPEA2PSO
     from .utils.hhoa import HHOA
 except ImportError:
     from utils.distance import euclideanDistance
@@ -37,6 +38,7 @@ except ImportError:
     from utils.diversity import DiversityMonitor, calculate_swarm_diversity
     from utils.ppso import PPSO
     from utils.simple_multiobjective import SimpleMultiObjectivePSO
+    from utils.multiobjective import NSGA2PSO, SPEA2PSO
     from utils.hhoa import HHOA
 
 
@@ -472,21 +474,18 @@ class Swarm:
             if not isinstance(test_result, np.ndarray) or len(test_result) < 2:
                 raise ValueError("Multiobjective optimization requires obj_func to return multiple objectives")
             
-            # Create multiobjective optimizer
-            self.mo_optimizer = SimpleMultiObjectivePSO(
-                n_particles=self.n_particles,
-                dims=self.dims,
-                obj_func=self.obj_func,
-                bounds=(self.val_min, self.val_max),
-                c1=self.c1, c2=self.c2, w=self.w,
-                epochs=self.epochs,
-                archive_size=self.archive_size
-            )
+            self.mo_optimizer = self._create_multiobjective_optimizer(len(test_result))
             
             # Run multiobjective optimization
             results = self.mo_optimizer.optimize()
-            self.best_cost = results['pareto_front'][0]['objectives'] if results['pareto_front'] else np.array([float('inf')])
-            self.best_pos = results['pareto_front'][0]['pos'] if results['pareto_front'] else None
+            pareto_front = results['pareto_front']
+            if pareto_front:
+                best_solution = pareto_front[0]
+                self.best_cost = best_solution['objectives']
+                self.best_pos = best_solution.get('pos', best_solution.get('position'))
+            else:
+                self.best_cost = np.array([float('inf')])
+                self.best_pos = None
             self.runtime = results['runtime']
             return
         
@@ -512,6 +511,41 @@ class Swarm:
                     self._apply_diversity_intervention(diversity_result, i)
         stop = timeit.default_timer()
         self.runtime = stop - start
+
+    def _create_multiobjective_optimizer(self, n_objectives):
+        algorithm = self.mo_algorithm.lower()
+        bounds = (self.val_min, self.val_max)
+        optimizer_kwargs = {
+            'n_particles': self.n_particles,
+            'dims': self.dims,
+            'bounds': bounds,
+            'c1': self.c1,
+            'c2': self.c2,
+            'w': self.w,
+            'epochs': self.epochs,
+            'archive_size': self.archive_size,
+        }
+
+        if algorithm in ('simple', 'mopso', 'simple_mopso'):
+            return SimpleMultiObjectivePSO(
+                obj_func=self.obj_func,
+                **optimizer_kwargs
+            )
+
+        objective_funcs = [
+            lambda position, objective_index=objective_index: self.obj_func(position)[objective_index]
+            for objective_index in range(n_objectives)
+        ]
+
+        if algorithm == 'nsga2':
+            return NSGA2PSO(obj_funcs=objective_funcs, **optimizer_kwargs)
+        if algorithm == 'spea2':
+            return SPEA2PSO(obj_funcs=objective_funcs, **optimizer_kwargs)
+
+        raise ValueError(
+            f"Unknown multiobjective algorithm '{self.mo_algorithm}'. "
+            "Supported algorithms are: nsga2, spea2, simple."
+        )
 
     def get_best_neighbor(self, particle):
         distances = []

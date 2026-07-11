@@ -18,6 +18,15 @@ class ParetoFront:
     def __init__(self):
         self.solutions = []  # List of (position, objectives, rank, crowding_distance)
         self.ranks = defaultdict(list)  # Solutions grouped by rank
+
+    def __len__(self):
+        return len(self.get_pareto_front())
+
+    def __iter__(self):
+        return iter(self.get_pareto_front())
+
+    def __getitem__(self, index):
+        return self.get_pareto_front()[index]
     
     def add_solution(self, position: np.ndarray, objectives: np.ndarray):
         """Add a solution to the Pareto front"""
@@ -531,7 +540,7 @@ class SPEA2PSO:
         for sol in solutions:
             distances = []
             for other_sol in solutions:
-                if other_sol != sol:
+                if other_sol is not sol:
                     dist = np.linalg.norm(sol['objectives'] - other_sol['objectives'])
                     distances.append(dist)
             

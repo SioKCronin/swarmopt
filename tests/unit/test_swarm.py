@@ -108,5 +108,58 @@ class TestSwarm(unittest.TestCase):
         self.assertFalse(np.isnan(s.best_cost))
         self.assertEqual(len(s.best_pos), 3)
 
+    def test_multiobjective_algorithm_dispatch(self):
+        def objective(position):
+            return np.array([position[0] ** 2, (position[0] - 1) ** 2])
+
+        expected_optimizers = {
+            'nsga2': 'NSGA2PSO',
+            'spea2': 'SPEA2PSO',
+        }
+
+        for algorithm, optimizer_name in expected_optimizers.items():
+            with self.subTest(algorithm=algorithm):
+                np.random.seed(7)
+                s = Swarm(
+                    n_particles=8,
+                    dims=2,
+                    c1=1.0,
+                    c2=1.0,
+                    w=0.5,
+                    epochs=3,
+                    obj_func=objective,
+                    velocity_clamp=(-2, 2),
+                    multiobjective=True,
+                    mo_algorithm=algorithm,
+                    archive_size=8
+                )
+
+                s.optimize()
+
+                self.assertEqual(type(s.mo_optimizer).__name__, optimizer_name)
+                self.assertIsNotNone(s.best_pos)
+                self.assertEqual(len(s.best_cost), 2)
+
+    def test_multiobjective_unknown_algorithm_raises(self):
+        def objective(position):
+            return np.array([position[0] ** 2, (position[0] - 1) ** 2])
+
+        s = Swarm(
+            n_particles=4,
+            dims=2,
+            c1=1.0,
+            c2=1.0,
+            w=0.5,
+            epochs=1,
+            obj_func=objective,
+            velocity_clamp=(-2, 2),
+            multiobjective=True,
+            mo_algorithm='not-real',
+            archive_size=4
+        )
+
+        with self.assertRaises(ValueError):
+            s.optimize()
+
 if __name__ == "__main__":
     unittest.main()
