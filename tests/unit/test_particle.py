@@ -54,6 +54,34 @@ class TestParticle(unittest.TestCase):
         self.assertNotEqual(self.particle.pos[0], pos[0])
         self.assertNotEqual(self.particle.pos[1], pos[1])
 
+    def test_update_clips_position_before_objective(self):
+        def bounded_objective(position):
+            if np.any(position < 0.0) or np.any(position > 1.0):
+                raise AssertionError("objective evaluated outside configured bounds")
+            return float(np.sum(position ** 2))
+
+        swarm = Swarm(
+            1,
+            2,
+            0.0,
+            0.0,
+            1.0,
+            1,
+            bounded_objective,
+            velocity_clamp=(0.0, 1.0),
+            velocity_clamp_func='none'
+        )
+        particle = swarm.swarm[0]
+        particle.pos = np.array([0.95, 0.05])
+        particle.best_pos = particle.pos.copy()
+        particle.local_best_pos = particle.pos.copy()
+        particle.velocity = np.array([0.2, -0.2])
+
+        particle.update()
+
+        self.assertTrue(np.all(particle.pos >= 0.0))
+        self.assertTrue(np.all(particle.pos <= 1.0))
+
     def tearDown(self):
         np.random.seed()
 

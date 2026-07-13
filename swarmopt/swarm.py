@@ -713,6 +713,9 @@ class Particle:
             # Enforce boundary after variation (variations might violate boundary)
             if self.swarm.use_respect_boundary:
                 self.pos = self._enforce_respect_boundary(self.pos)
+
+        # Keep standard PSO evaluations inside the configured search interval.
+        self.pos = np.clip(self.pos, self.swarm.val_min, self.swarm.val_max)
         
         # Enforce respect boundary: hard constraint to keep particles outside boundary
         # This ensures particles never enter the unsafe zone
