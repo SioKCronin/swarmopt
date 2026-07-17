@@ -1,5 +1,7 @@
 # Contributions are warmly welcome!
 
+This repo doesn't currently accept automated/agent-submitted PRs without a human contributor who can discuss the change.
+
 ## You can contribute in many ways:
 
 ### Report Bugs
