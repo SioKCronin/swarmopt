@@ -8,6 +8,17 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$REPO_ROOT"
 
+if [ -n "${PYTHON:-}" ]; then
+    PYTHON_BIN="$PYTHON"
+elif command -v python3 >/dev/null 2>&1; then
+    PYTHON_BIN="python3"
+elif command -v python >/dev/null 2>&1; then
+    PYTHON_BIN="python"
+else
+    echo "❌ Could not find a Python interpreter" >&2
+    exit 1
+fi
+
 echo "🚀 SwarmOpt Release Preparation"
 echo "================================"
 echo ""
@@ -32,7 +43,7 @@ if [ -f "infra/run_tests.py" ]; then
     read -p "Run tests now? (y/n): " RUN_TESTS
     if [ "$RUN_TESTS" = "y" ]; then
         echo "Running tests..."
-        python infra/run_tests.py || echo "⚠️  Tests failed, but continuing..."
+        "$PYTHON_BIN" infra/run_tests.py
     fi
 else
     echo "⚠️  No infra/run_tests.py found"
@@ -45,7 +56,7 @@ echo "✅ Cleaned"
 
 echo ""
 echo "📦 Building distribution packages..."
-python -m build
+"$PYTHON_BIN" -m build
 echo "✅ Built successfully"
 
 echo ""
@@ -54,11 +65,28 @@ ls -lh dist/
 
 echo ""
 echo "🧪 Testing installation locally..."
-python -m pip install --force-reinstall dist/swarmopt-${NEW_VERSION}-py3-none-any.whl > /dev/null 2>&1 || \
-python -m pip install --force-reinstall dist/swarmopt-${NEW_VERSION}*.whl > /dev/null 2>&1 || \
-echo "⚠️  Could not test installation automatically"
+shopt -s nullglob
+WHEEL_FILES=(dist/swarmopt-"${NEW_VERSION}"*.whl)
+shopt -u nullglob
 
-python -c "from swarmopt import Swarm; print('✅ Import test passed!')" || echo "⚠️  Import test failed"
+if [ ${#WHEEL_FILES[@]} -eq 0 ]; then
+    echo "❌ No wheel found for version ${NEW_VERSION}" >&2
+    exit 1
+fi
+
+if [ ${#WHEEL_FILES[@]} -gt 1 ]; then
+    echo "❌ Multiple wheels found for version ${NEW_VERSION}: ${WHEEL_FILES[*]}" >&2
+    exit 1
+fi
+
+INSTALL_TEST_DIR="$(mktemp -d)"
+trap 'rm -rf "$INSTALL_TEST_DIR"' EXIT
+
+"$PYTHON_BIN" -m pip install --force-reinstall "${WHEEL_FILES[0]}" > /dev/null
+(
+    cd "$INSTALL_TEST_DIR"
+    "$PYTHON_BIN" -c "from swarmopt import Swarm; print('✅ Import test passed!')"
+)
 
 echo ""
 echo "📋 Next Steps:"
