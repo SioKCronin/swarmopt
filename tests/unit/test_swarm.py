@@ -2,6 +2,7 @@ import unittest
 import numpy as np
 from context import Swarm
 from context import functions
+import swarmopt.swarm as swarm_module
 
 class TestSwarm(unittest.TestCase):
     def setUp(self):
@@ -107,6 +108,46 @@ class TestSwarm(unittest.TestCase):
         self.assertIsNotNone(s.best_cost)
         self.assertFalse(np.isnan(s.best_cost))
         self.assertEqual(len(s.best_pos), 3)
+
+    def test_diversity_monitoring_applies_intervention(self):
+        class FakeDiversityMonitor:
+            update_count = 0
+
+            def __init__(self, diversity_threshold):
+                self.diversity_threshold = diversity_threshold
+
+            def update(self, particles):
+                FakeDiversityMonitor.update_count += 1
+                return {
+                    'needs_intervention': True,
+                    'recommended_intervention': 'restart',
+                    'stats': {
+                        'convergence_metrics': {
+                            'is_converged': True,
+                        },
+                    },
+                }
+
+        original_monitor = swarm_module.DiversityMonitor
+        swarm_module.DiversityMonitor = FakeDiversityMonitor
+        try:
+            s = Swarm(
+                n_particles=5,
+                dims=2,
+                c1=0.5,
+                c2=0.3,
+                w=0.9,
+                epochs=1,
+                obj_func=functions.sphere,
+                velocity_clamp=self.v_clamp,
+                diversity_monitoring=True,
+            )
+            s.optimize()
+        finally:
+            swarm_module.DiversityMonitor = original_monitor
+
+        self.assertEqual(FakeDiversityMonitor.update_count, 1)
+        self.assertIsNotNone(s.best_cost)
 
 if __name__ == "__main__":
     unittest.main()
