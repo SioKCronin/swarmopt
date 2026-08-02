@@ -108,5 +108,29 @@ class TestSwarm(unittest.TestCase):
         self.assertFalse(np.isnan(s.best_cost))
         self.assertEqual(len(s.best_pos), 3)
 
+    def test_diversity_monitoring_applies_intervention_without_crashing(self):
+        # A zero-width search space forces all particles to converge immediately,
+        # exercising the diversity intervention dispatch path.
+        s = Swarm(
+            n_particles=10,
+            dims=2,
+            c1=2.0,
+            c2=2.0,
+            w=0.8,
+            epochs=1,
+            obj_func=functions.sphere,
+            velocity_clamp=(0.0, 0.0),
+            diversity_monitoring=True,
+        )
+        s.optimize()
+
+        self.assertEqual(len(s.diversity_history), 1)
+        self.assertEqual(
+            s.diversity_history[0]['recommended_intervention'],
+            'restart',
+        )
+        self.assertIsNotNone(s.best_cost)
+        self.assertFalse(np.isnan(s.best_cost))
+
 if __name__ == "__main__":
     unittest.main()
