@@ -108,5 +108,29 @@ class TestSwarm(unittest.TestCase):
         self.assertFalse(np.isnan(s.best_cost))
         self.assertEqual(len(s.best_pos), 3)
 
+    def test_multiswarm_initializes_flat_particle_view(self):
+        s = Swarm(
+            n_particles=4,
+            dims=2,
+            c1=1.5,
+            c2=1.5,
+            w=0.7,
+            epochs=2,
+            obj_func=functions.sphere,
+            algo='multiswarm',
+            velocity_clamp=self.v_clamp,
+            m_swarms=2,
+        )
+
+        self.assertEqual(len(s.multiswarm), 2)
+        self.assertEqual(len(s.swarm), 8)
+        self.assertIsNotNone(s.best_pos)
+
+        s.optimize()
+
+        self.assertIsNotNone(s.best_cost)
+        self.assertFalse(np.isnan(s.best_cost))
+        self.assertEqual(len(s.best_pos), 2)
+
 if __name__ == "__main__":
     unittest.main()

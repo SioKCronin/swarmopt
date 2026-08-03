@@ -206,6 +206,9 @@ class Swarm:
             )
         elif self.algo == 'multiswarm':
             self.multiswarm = self.initialize_multiswarm()
+            # Existing optimizer, best-neighbor, and Particle.update paths expect
+            # a flat particle view even when particles are grouped into sub-swarms.
+            self.swarm = [particle for sub_swarm in self.multiswarm for particle in sub_swarm]
         else:
             self.swarm = self.initialize_swarm()
 
