@@ -258,14 +258,17 @@ class Swarm:
             # 3D: Position delegates on sphere around target
             for i in range(self.n_delegates):
                 if self.delegate_spread == 'uniform':
-                    # Fibonacci sphere for uniform distribution
-                    phi = np.pi * (3. - np.sqrt(5.))  # Golden angle
-                    y = 1 - (i / float(self.n_delegates - 1)) * 2  # y from 1 to -1
-                    radius = np.sqrt(1 - y * y)
-                    theta = phi * i
-                    
-                    x = np.cos(theta) * radius
-                    z = np.sin(theta) * radius
+                    if self.n_delegates == 1:
+                        x, y, z = 1.0, 0.0, 0.0
+                    else:
+                        # Fibonacci sphere for uniform distribution
+                        phi = np.pi * (3. - np.sqrt(5.))  # Golden angle
+                        y = 1 - (i / float(self.n_delegates - 1)) * 2  # y from 1 to -1
+                        radius = np.sqrt(1 - y * y)
+                        theta = phi * i
+                        
+                        x = np.cos(theta) * radius
+                        z = np.sin(theta) * radius
                     
                 elif self.delegate_spread == 'random':
                     # Random positions on sphere
@@ -288,13 +291,16 @@ class Swarm:
                     z = np.cos(phi)
                 else:
                     # Default to uniform
-                    phi = np.pi * (3. - np.sqrt(5.))
-                    y = 1 - (i / float(self.n_delegates - 1)) * 2
-                    radius = np.sqrt(1 - y * y)
-                    theta = phi * i
-                    
-                    x = np.cos(theta) * radius
-                    z = np.sin(theta) * radius
+                    if self.n_delegates == 1:
+                        x, y, z = 1.0, 0.0, 0.0
+                    else:
+                        phi = np.pi * (3. - np.sqrt(5.))
+                        y = 1 - (i / float(self.n_delegates - 1)) * 2
+                        radius = np.sqrt(1 - y * y)
+                        theta = phi * i
+                        
+                        x = np.cos(theta) * radius
+                        z = np.sin(theta) * radius
                 
                 # Scale to respect boundary distance
                 offset = self.respect_boundary * np.array([x, y, z])

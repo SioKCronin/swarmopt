@@ -132,5 +132,26 @@ class TestSwarm(unittest.TestCase):
         self.assertFalse(np.isnan(s.best_cost))
         self.assertEqual(len(s.best_pos), 2)
 
+    def test_single_3d_delegate_initializes(self):
+        target_position = np.array([0.0, 0.0, 0.0])
+
+        with self.assertWarns(UserWarning):
+            s = Swarm(
+                n_particles=4,
+                dims=3,
+                c1=1.5,
+                c2=1.5,
+                w=0.7,
+                epochs=1,
+                obj_func=functions.sphere,
+                velocity_clamp=self.v_clamp,
+                target_position=target_position,
+                n_delegates=1,
+            )
+
+        self.assertEqual(len(s.delegate_positions), 1)
+        distance = np.linalg.norm(s.delegate_positions[0] - target_position)
+        self.assertAlmostEqual(distance, s.respect_boundary)
+
 if __name__ == "__main__":
     unittest.main()
