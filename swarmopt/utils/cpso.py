@@ -10,6 +10,26 @@ overall performance.
 import numpy as np
 from typing import List, Tuple, Callable, Optional
 
+def _as_dimension_array(value, total_dimensions: int, name: str) -> np.ndarray:
+    """Return scalar or per-dimension bounds as a 1-D array."""
+    array = np.asarray(value, dtype=float)
+    if array.ndim == 0:
+        return np.full(total_dimensions, float(array))
+    if array.shape != (total_dimensions,):
+        raise ValueError(
+            f"{name} must be a scalar or have shape ({total_dimensions},), "
+            f"got {array.shape}"
+        )
+    return array.copy()
+
+def _slice_bound_pair(bounds: Tuple, dimensions: List[int]) -> Tuple:
+    """Select the bound components that apply to a cooperative sub-swarm."""
+    sliced = []
+    for bound in bounds:
+        array = np.asarray(bound, dtype=float)
+        sliced.append(float(array) if array.ndim == 0 else array[dimensions])
+    return tuple(sliced)
+
 class CooperativeSwarm:
     """
     A single swarm in the cooperative PSO system
@@ -17,7 +37,8 @@ class CooperativeSwarm:
     
     def __init__(self, swarm_id: int, dimensions: List[int], n_particles: int, 
                  obj_func: Callable, c1: float = 2.0, c2: float = 2.0, 
-                 w: float = 0.9, velocity_clamp: Tuple[float, float] = (-5, 5)):
+                 w: float = 0.9, velocity_clamp: Tuple[float, float] = (-5, 5),
+                 bounds: Tuple[np.ndarray, np.ndarray] = None):
         """
         Initialize a cooperative swarm
         
@@ -37,6 +58,8 @@ class CooperativeSwarm:
             Inertia weight
         velocity_clamp : Tuple[float, float]
             Velocity bounds
+        bounds : Tuple[np.ndarray, np.ndarray]
+            Position bounds for the full optimization problem
         """
         self.swarm_id = swarm_id
         self.dimensions = dimensions
@@ -46,6 +69,7 @@ class CooperativeSwarm:
         self.c2 = c2
         self.w = w
         self.velocity_clamp = velocity_clamp
+        self.bounds = bounds
         
         # Initialize particles
         self.particles = []
@@ -59,14 +83,26 @@ class CooperativeSwarm:
     def initialize_particles(self, full_dim: int):
         """Initialize particles for this swarm's dimensions"""
         self.particles = []
+        if self.bounds is None:
+            lower_bounds = np.full(full_dim, -5.0)
+            upper_bounds = np.full(full_dim, 5.0)
+        else:
+            lower_bounds, upper_bounds = self.bounds
+        particle_bounds = (lower_bounds[self.dimensions], upper_bounds[self.dimensions])
+        particle_velocity_clamp = _slice_bound_pair(self.velocity_clamp, self.dimensions)
         for i in range(self.n_particles):
             # Initialize position for this swarm's dimensions
-            pos = np.random.uniform(-5, 5, len(self.dimensions))
-            particle = CooperativeParticle(pos, self.dimensions, self.velocity_clamp)
+            pos = np.random.uniform(particle_bounds[0], particle_bounds[1])
+            particle = CooperativeParticle(
+                pos,
+                self.dimensions,
+                particle_velocity_clamp,
+                particle_bounds
+            )
             particle.swarm_id = self.swarm_id
             
             # Initialize particle cost
-            full_pos = np.random.uniform(-5, 5, full_dim)
+            full_pos = np.random.uniform(lower_bounds, upper_bounds)
             full_pos[self.dimensions] = pos
             particle.best_cost = self.obj_func(full_pos)
             
@@ -98,7 +134,8 @@ class CooperativeParticle:
     """
     
     def __init__(self, pos: np.ndarray, dimensions: List[int], 
-                 velocity_clamp: Tuple[float, float]):
+                 velocity_clamp: Tuple[float, float],
+                 bounds: Tuple[np.ndarray, np.ndarray]):
         """
         Initialize a cooperative particle
         
@@ -110,11 +147,14 @@ class CooperativeParticle:
             Dimensions this particle is responsible for
         velocity_clamp : Tuple[float, float]
             Velocity bounds
+        bounds : Tuple[np.ndarray, np.ndarray]
+            Position bounds for this particle's dimensions
         """
         self.pos = pos.copy()
         self.velocity = np.random.uniform(-1, 1, len(dimensions))
         self.dimensions = dimensions
         self.velocity_clamp = velocity_clamp
+        self.bounds = bounds
         
         # Particle's best
         self.best_pos = self.pos.copy()
@@ -176,6 +216,7 @@ class CooperativeParticle:
         
         # Update position
         self.pos += self.velocity
+        self.pos = np.clip(self.pos, self.bounds[0], self.bounds[1])
 
 class CPSO:
     """
@@ -189,6 +230,7 @@ class CPSO:
                  total_dimensions: int, obj_func: Callable,
                  c1: float = 2.0, c2: float = 2.0, w: float = 0.9,
                  velocity_clamp: Tuple[float, float] = (-5, 5),
+                 bounds: Tuple[float, float] = (-5, 5),
                  communication_strategy: str = 'best'):
         """
         Initialize Cooperative PSO
@@ -209,6 +251,8 @@ class CPSO:
             Inertia weight
         velocity_clamp : Tuple[float, float]
             Velocity bounds
+        bounds : Tuple[float, float]
+            Position bounds for candidate solutions
         communication_strategy : str
             How swarms communicate ('best', 'random', 'tournament')
         """
@@ -220,6 +264,12 @@ class CPSO:
         self.c2 = c2
         self.w = w
         self.velocity_clamp = velocity_clamp
+        self.bounds = (
+            _as_dimension_array(bounds[0], total_dimensions, "lower bound"),
+            _as_dimension_array(bounds[1], total_dimensions, "upper bound")
+        )
+        if np.any(self.bounds[0] > self.bounds[1]):
+            raise ValueError("lower bounds must be less than or equal to upper bounds")
         self.communication_strategy = communication_strategy
         
         # Initialize swarms
@@ -233,14 +283,15 @@ class CPSO:
                 n_particles=n_particles_per_swarm,
                 obj_func=obj_func,
                 c1=c1, c2=c2, w=w,
-                velocity_clamp=velocity_clamp
+                velocity_clamp=velocity_clamp,
+                bounds=self.bounds
             )
             self.swarms.append(swarm)
         
         # Global best tracking
-        self.global_best_pos = np.random.uniform(-5, 5, total_dimensions)
+        self.global_best_pos = np.random.uniform(self.bounds[0], self.bounds[1])
         self.global_best_cost = float('inf')
-        self.global_context = np.random.uniform(-5, 5, total_dimensions)
+        self.global_context = np.random.uniform(self.bounds[0], self.bounds[1])
         
         # Communication history
         self.communication_history = []

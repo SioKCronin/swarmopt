@@ -201,7 +201,8 @@ class Swarm:
                 total_dimensions=self.dims,
                 obj_func=self.obj_func,
                 c1=self.c1, c2=self.c2, w=self.w,
-                velocity_clamp=(self.val_min, self.val_max),
+                velocity_clamp=(-self.velocity_bounds, self.velocity_bounds),
+                bounds=(self.val_min, self.val_max),
                 communication_strategy=self.communication_strategy
             )
         elif self.algo == 'multiswarm':
