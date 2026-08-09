@@ -1,12 +1,13 @@
 REPO_ROOT := $(abspath ..)
+PYTHON ?= python3
 
 .PHONY: init test release docker-gpu
 
 init:
-	pip install -r requirements.txt -r requirements-dev.txt
+	$(PYTHON) -m pip install -r requirements.txt -r requirements-dev.txt
 
 test:
-	cd $(REPO_ROOT) && python infra/run_tests.py
+	cd $(REPO_ROOT) && $(PYTHON) infra/run_tests.py
 
 release:
 	cd $(REPO_ROOT) && ./infra/prepare_release.sh

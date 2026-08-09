@@ -6,6 +6,7 @@ set -e  # Exit on error
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PYTHON_BIN="${PYTHON:-python3}"
 cd "$REPO_ROOT"
 
 echo "🚀 SwarmOpt Release Preparation"
@@ -32,7 +33,7 @@ if [ -f "infra/run_tests.py" ]; then
     read -p "Run tests now? (y/n): " RUN_TESTS
     if [ "$RUN_TESTS" = "y" ]; then
         echo "Running tests..."
-        python infra/run_tests.py || echo "⚠️  Tests failed, but continuing..."
+        "$PYTHON_BIN" infra/run_tests.py || echo "⚠️  Tests failed, but continuing..."
     fi
 else
     echo "⚠️  No infra/run_tests.py found"
@@ -45,7 +46,7 @@ echo "✅ Cleaned"
 
 echo ""
 echo "📦 Building distribution packages..."
-python -m build
+"$PYTHON_BIN" -m build
 echo "✅ Built successfully"
 
 echo ""
@@ -54,11 +55,11 @@ ls -lh dist/
 
 echo ""
 echo "🧪 Testing installation locally..."
-python -m pip install --force-reinstall dist/swarmopt-${NEW_VERSION}-py3-none-any.whl > /dev/null 2>&1 || \
-python -m pip install --force-reinstall dist/swarmopt-${NEW_VERSION}*.whl > /dev/null 2>&1 || \
+"$PYTHON_BIN" -m pip install --force-reinstall dist/swarmopt-${NEW_VERSION}-py3-none-any.whl > /dev/null 2>&1 || \
+"$PYTHON_BIN" -m pip install --force-reinstall dist/swarmopt-${NEW_VERSION}*.whl > /dev/null 2>&1 || \
 echo "⚠️  Could not test installation automatically"
 
-python -c "from swarmopt import Swarm; print('✅ Import test passed!')" || echo "⚠️  Import test failed"
+"$PYTHON_BIN" -c "from swarmopt import Swarm; print('✅ Import test passed!')" || echo "⚠️  Import test failed"
 
 echo ""
 echo "📋 Next Steps:"

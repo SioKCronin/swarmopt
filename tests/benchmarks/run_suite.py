@@ -196,7 +196,6 @@ def run_benchmark_suite(config, output_dir=None, verbose=True):
     n_particles = int(config.get("n_particles", 30))
     epochs = int(config.get("epochs", 50))
     runs_per_cell = int(config.get("runs_per_cell", 3))
-    velocity_clamp = tuple(config.get("velocity_clamp", [-5, 5]))
     base_seed = int(config.get("seed", 42))
 
     results = []
@@ -210,6 +209,7 @@ def run_benchmark_suite(config, output_dir=None, verbose=True):
                 if verbose:
                     print(f"  Skip unknown function: {func_name}")
                 continue
+            function_bounds = get_bounds_for_function(func_name, dims)
             for r in range(runs_per_cell):
                 seed = base_seed + r + run_idx * 1000
                 run_idx += 1
@@ -217,7 +217,7 @@ def run_benchmark_suite(config, output_dir=None, verbose=True):
                     print(f"  [{run_idx}/{total}] {algo_id} × {func_name} run {r+1}/{runs_per_cell} (seed={seed})")
                 row = run_single(
                     algo_id, preset, func_name, obj_func,
-                    dims, n_particles, epochs, velocity_clamp, seed,
+                    dims, n_particles, epochs, function_bounds, seed,
                 )
                 results.append(row)
     if output_dir:
