@@ -157,7 +157,7 @@ def run_unit_tests(verbose=True, with_timing=True):
         print("=" * 80)
     os.chdir(TESTS_DIR)
     t0 = time.perf_counter()
-    result = subprocess.run(['pytest', 'unit/', '-v'], capture_output=False)
+    result = subprocess.run([sys.executable, '-m', 'pytest', 'unit/', '-v'], capture_output=False)
     elapsed = time.perf_counter() - t0
     success = result.returncode == 0
     if verbose and with_timing:
