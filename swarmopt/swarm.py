@@ -51,7 +51,8 @@ class Swarm:
                  ppso_enabled=False, proactive_ratio=0.25, knowledge_method='gaussian',
                  exploration_weight=0.5,
                  multiobjective=False, mo_algorithm='nsga2', archive_size=100,
-                 target_position=None, n_delegates=0, delegate_spread='uniform'):
+                 target_position=None, respect_boundary=None,
+                 n_delegates=0, delegate_spread='uniform'):
         """Intialize the swarm
 
         Attributes
@@ -153,16 +154,42 @@ class Swarm:
         self.mo_optimizer = None
         
         # Respect boundary parameters (mandatory for safety-critical applications)
-        self.target_position = np.array(target_position) if target_position is not None else None
+        self.target_position = np.array(target_position, dtype=float) if target_position is not None else None
         self.n_delegates = n_delegates
         self.delegate_spread = delegate_spread
         self.delegate_positions = []
         
         # If target_position is provided, ALWAYS enforce respect boundary
         if target_position is not None:
-            # Automatically calculate safe respect boundary (10% of search space diagonal)
-            search_space_diagonal = np.sqrt(self.dims * (self.val_max - self.val_min)**2)
-            self.respect_boundary = 0.1 * search_space_diagonal
+            if self.target_position.shape != (self.dims,):
+                raise ValueError(
+                    f"target_position must contain exactly {self.dims} values; "
+                    f"got shape {self.target_position.shape}"
+                )
+
+            unsupported_boundary_modes = []
+            if self.algo not in ('global', 'local', 'unified', 'sa'):
+                unsupported_boundary_modes.append(f"algo={self.algo!r}")
+            if self.ppso_enabled:
+                unsupported_boundary_modes.append("ppso_enabled=True")
+            if self.multiobjective:
+                unsupported_boundary_modes.append("multiobjective=True")
+            if unsupported_boundary_modes:
+                raise ValueError(
+                    "Respect boundary is only supported by standard PSO modes "
+                    "(global, local, unified, sa); unsupported combination: "
+                    + ", ".join(unsupported_boundary_modes)
+                )
+
+            # Use explicit boundary when supplied; otherwise calculate a safe
+            # default (10% of the search-space diagonal).
+            if respect_boundary is None:
+                search_space_diagonal = np.sqrt(self.dims * (self.val_max - self.val_min)**2)
+                self.respect_boundary = 0.1 * search_space_diagonal
+            else:
+                self.respect_boundary = float(respect_boundary)
+                if self.respect_boundary <= 0:
+                    raise ValueError("respect_boundary must be a positive number")
             self.use_respect_boundary = True
             
             # Generate delegate positions if requested
@@ -173,7 +200,7 @@ class Swarm:
             import warnings
             delegate_info = f" with {n_delegates} delegate positions" if n_delegates > 0 else ""
             warnings.warn(
-                f"Respect boundary automatically enabled for safety: {self.respect_boundary:.4f}. "
+                f"Respect boundary enabled for safety: {self.respect_boundary:.4f}. "
                 f"Particles will maintain minimum distance from target at {target_position}"
                 f"{delegate_info}. "
                 f"This is mandatory for safety-critical applications and cannot be disabled.",
@@ -386,8 +413,9 @@ class Swarm:
         violation = self.respect_boundary - distance_to_target
         penalty_factor = (violation / self.respect_boundary) ** 2
         
-        # Scale penalty by base cost magnitude to be relative
-        penalty = base_cost * (1.0 + 10.0 * penalty_factor)
+        # Add a sign-independent penalty so negative-valued objectives are not
+        # rewarded for entering the forbidden region.
+        penalty = base_cost + max(abs(base_cost), 1.0) * 10.0 * penalty_factor
         
         return penalty
 

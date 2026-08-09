@@ -108,5 +108,83 @@ class TestSwarm(unittest.TestCase):
         self.assertFalse(np.isnan(s.best_cost))
         self.assertEqual(len(s.best_pos), 3)
 
+    def test_respect_boundary_accepts_explicit_distance(self):
+        s = Swarm(
+            n_particles=10,
+            dims=2,
+            c1=2.0,
+            c2=2.0,
+            w=0.8,
+            epochs=2,
+            obj_func=functions.sphere,
+            velocity_clamp=self.v_clamp,
+            target_position=[0.0, 0.0],
+            respect_boundary=1.25,
+        )
+
+        self.assertTrue(s.use_respect_boundary)
+        self.assertEqual(s.respect_boundary, 1.25)
+
+    def test_respect_boundary_validates_target_dimensions(self):
+        with self.assertRaisesRegex(ValueError, "target_position must contain exactly 3 values"):
+            Swarm(
+                n_particles=10,
+                dims=3,
+                c1=2.0,
+                c2=2.0,
+                w=0.8,
+                epochs=2,
+                obj_func=functions.sphere,
+                velocity_clamp=self.v_clamp,
+                target_position=[0.0, 0.0],
+            )
+
+    def test_respect_boundary_rejects_unsupported_optimizer_handoffs(self):
+        cases = [
+            {"algo": "cpso"},
+            {"algo": "hhoa"},
+            {"ppso_enabled": True},
+            {"multiobjective": True},
+        ]
+
+        for kwargs in cases:
+            with self.subTest(kwargs=kwargs):
+                with self.assertRaisesRegex(ValueError, "Respect boundary is only supported"):
+                    Swarm(
+                        n_particles=10,
+                        dims=2,
+                        c1=2.0,
+                        c2=2.0,
+                        w=0.8,
+                        epochs=2,
+                        obj_func=functions.sphere,
+                        velocity_clamp=self.v_clamp,
+                        target_position=[0.0, 0.0],
+                        **kwargs,
+                    )
+
+    def test_respect_boundary_penalty_does_not_reward_negative_objectives(self):
+        def negative_objective(_):
+            return -100.0
+
+        s = Swarm(
+            n_particles=10,
+            dims=2,
+            c1=2.0,
+            c2=2.0,
+            w=0.8,
+            epochs=2,
+            obj_func=negative_objective,
+            velocity_clamp=self.v_clamp,
+            target_position=[0.0, 0.0],
+            respect_boundary=1.0,
+        )
+
+        outside_cost = s.objective_with_respect_boundary(np.array([2.0, 0.0]))
+        inside_cost = s.objective_with_respect_boundary(np.array([0.0, 0.0]))
+
+        self.assertEqual(outside_cost, -100.0)
+        self.assertGreater(inside_cost, outside_cost)
+
 if __name__ == "__main__":
     unittest.main()
