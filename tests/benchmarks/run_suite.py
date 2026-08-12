@@ -300,10 +300,7 @@ def main():
         return 1
     if args.runs is not None:
         config["runs_per_cell"] = args.runs
-    if args.output is None and not args.quiet:
-        config["_output_dir"] = Path.cwd() / "benchmark_results"
-    else:
-        config["_output_dir"] = Path(args.output) if args.output else None
+    config["_output_dir"] = Path(args.output) if args.output else Path.cwd() / "benchmark_results"
 
     print("SwarmOpt benchmark suite")
     print(f"  Config: {args.config}  |  Output: {config.get('_output_dir', 'none')}")

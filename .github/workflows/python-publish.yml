@@ -32,6 +32,19 @@ jobs:
           python -m pip install build
           python -m build
 
+      - name: Smoke test built wheel
+        run: |
+          python -m venv /tmp/swarmopt-wheel-smoke
+          /tmp/swarmopt-wheel-smoke/bin/python -m pip install --upgrade pip
+          /tmp/swarmopt-wheel-smoke/bin/python -m pip install dist/*.whl
+          cd /tmp
+          /tmp/swarmopt-wheel-smoke/bin/python - <<'PY'
+          from swarmopt import Swarm
+          import swarmopt.utils
+
+          print("Wheel import smoke test passed")
+          PY
+
       - name: Upload distributions
         uses: actions/upload-artifact@v4
         with:

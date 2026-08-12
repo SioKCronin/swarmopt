@@ -7,6 +7,7 @@ benchmark functions using different PSO algorithms.
 """
 
 import numpy as np
+from pathlib import Path
 from swarmopt import Swarm
 from swarmopt.functions import sphere, rosenbrock, ackley, griewank, rastrigin
 
@@ -168,8 +169,11 @@ def visualize_optimization():
         ax.set_ylim(-5, 5)
         
         plt.tight_layout()
-        plt.savefig('/Users/siobhan/code/swarmopt/optimization_visualization.png', dpi=150, bbox_inches='tight')
-        print("Visualization saved as 'optimization_visualization.png'")
+        output_dir = Path(__file__).resolve().parents[2] / "examples_output"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        output_path = output_dir / "optimization_visualization.png"
+        plt.savefig(output_path, dpi=150, bbox_inches='tight')
+        print(f"Visualization saved as '{output_path}'")
         
     else:
         print("Matplotlib not available - skipping visualization")
