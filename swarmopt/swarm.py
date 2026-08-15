@@ -535,6 +535,27 @@ class Swarm:
                 if self.use_respect_boundary:
                     best_pos = particle._enforce_respect_boundary(best_pos)
                 self.best_pos = best_pos
+        self._ensure_global_best_pos()
+
+    def _ensure_global_best_pos(self):
+        """Ensure global PSO has a position guide even if all initial costs are invalid."""
+        if self.best_pos is not None:
+            return
+        if not hasattr(self, 'swarm') or not self.swarm:
+            return
+
+        def particle_sort_key(particle):
+            cost = particle.best_cost
+            if np.isfinite(cost):
+                return (0, float(cost))
+            if cost == float('inf'):
+                return (1, 0.0)
+            return (2, 0.0)
+
+        fallback = min(self.swarm, key=particle_sort_key)
+        self.best_pos = fallback.best_pos.copy()
+        if np.isfinite(fallback.best_cost):
+            self.best_cost = fallback.best_cost
 
     def update_local_best_pos(self):
         for particle in self.swarm:
@@ -629,6 +650,10 @@ class Particle:
         )
 
     def global_weight(self):
+        if self.swarm.best_pos is None:
+            self.swarm._ensure_global_best_pos()
+        if self.swarm.best_pos is None:
+            return np.zeros(self.dims)
         return (self.swarm.c2 * np.random.uniform(0, 1, self.dims)) * (
             self.swarm.best_pos - self.pos
         )

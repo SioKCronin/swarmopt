@@ -108,5 +108,28 @@ class TestSwarm(unittest.TestCase):
         self.assertFalse(np.isnan(s.best_cost))
         self.assertEqual(len(s.best_pos), 3)
 
+    def test_inf_initial_costs_still_have_global_guide(self):
+        def bounded_objective(x):
+            if np.any(np.abs(x) > 1):
+                return float('inf')
+            return float(np.sum(np.asarray(x) ** 2))
+
+        np.random.seed(42)
+        s = Swarm(
+            n_particles=10,
+            dims=5,
+            c1=2.0,
+            c2=2.0,
+            w=0.9,
+            epochs=5,
+            obj_func=bounded_objective,
+            algo='global',
+            velocity_clamp=(-5, 5),
+        )
+
+        self.assertIsNotNone(s.best_pos)
+        s.optimize()
+        self.assertIsNotNone(s.best_pos)
+
 if __name__ == "__main__":
     unittest.main()
