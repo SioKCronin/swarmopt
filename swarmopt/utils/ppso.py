@@ -39,6 +39,20 @@ except ImportError:
                 k += 1
         return matrix
 
+
+def _cost_sort_key(cost: float):
+    """Order finite objective values ahead of invalid/non-finite evaluations."""
+    if np.isfinite(cost):
+        return (0, float(cost))
+    if cost == float('inf'):
+        return (1, 0.0)
+    return (2, 0.0)
+
+
+def _is_better_cost(candidate: float, incumbent: float) -> bool:
+    return _cost_sort_key(candidate) < _cost_sort_key(incumbent)
+
+
 class KnowledgeGainCalculator:
     """
     Calculate knowledge gain metrics for proactive particles
@@ -230,7 +244,7 @@ class ProactiveParticle:
         self.cost = self.obj_func(self.pos)
         
         # Update personal best
-        if self.cost < self.best_cost:
+        if _is_better_cost(self.cost, self.best_cost):
             self.best_cost = self.cost
             self.best_pos = self.pos.copy()
         
@@ -303,7 +317,7 @@ class ReactiveParticle:
         
         self.cost = self.obj_func(self.pos)
         
-        if self.cost < self.best_cost:
+        if _is_better_cost(self.cost, self.best_cost):
             self.best_cost = self.cost
             self.best_pos = self.pos.copy()
 
@@ -447,7 +461,7 @@ class PPSO:
     def _update_global_best(self):
         """Update global best solution"""
         for i, particle in enumerate(self.particles):
-            if particle.best_cost < self.global_best_cost:
+            if self.global_best_pos is None or _is_better_cost(particle.best_cost, self.global_best_cost):
                 self.global_best_cost = particle.best_cost
                 self.global_best_pos = particle.best_pos.copy()
                 self.best_particle_type = 'proactive' if i < self.n_proactive else 'reactive'

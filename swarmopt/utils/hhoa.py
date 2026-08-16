@@ -19,6 +19,19 @@ from typing import List, Tuple, Optional, Dict, Callable
 import time
 
 
+def _fitness_sort_key(fitness: float):
+    """Order finite objective values ahead of invalid/non-finite evaluations."""
+    if np.isfinite(fitness):
+        return (0, float(fitness))
+    if fitness == float('inf'):
+        return (1, 0.0)
+    return (2, 0.0)
+
+
+def _is_better_fitness(candidate: float, incumbent: float) -> bool:
+    return _fitness_sort_key(candidate) < _fitness_sort_key(incumbent)
+
+
 class Horse:
     """
     Represents a single horse in the herd
@@ -55,7 +68,7 @@ class Horse:
     def update_fitness(self):
         """Update fitness and personal best"""
         self.fitness = self.obj_func(self.pos)
-        if self.fitness < self.best_fitness:
+        if _is_better_fitness(self.fitness, self.best_fitness):
             self.best_fitness = self.fitness
             self.best_pos = self.pos.copy()
             self.age = 0
@@ -145,14 +158,14 @@ class HHOA:
     def _update_global_best(self):
         """Update global best solution"""
         for horse in self.horses:
-            if horse.best_fitness < self.global_best_fitness:
+            if self.global_best_pos is None or _is_better_fitness(horse.best_fitness, self.global_best_fitness):
                 self.global_best_fitness = horse.best_fitness
                 self.global_best_pos = horse.best_pos.copy()
     
     def _select_leaders(self) -> List[Horse]:
         """Select leader horses based on fitness"""
         # Sort horses by fitness
-        sorted_horses = sorted(self.horses, key=lambda h: h.best_fitness)
+        sorted_horses = sorted(self.horses, key=lambda h: _fitness_sort_key(h.best_fitness))
         return sorted_horses[:self.n_leaders]
     
     def _grazing_behavior(self, horse: Horse, current_iter: int, max_iter: int):
@@ -214,14 +227,22 @@ class HHOA:
             target = self.global_best_pos
         else:
             # Weighted selection: better leaders more likely to be followed
-            leader_fitnesses = [l.best_fitness for l in leaders]
-            # Convert to probabilities (lower fitness = higher probability)
-            max_fitness = max(leader_fitnesses)
-            probabilities = [max_fitness - f + 1e-10 for f in leader_fitnesses]
-            probabilities = np.array(probabilities)
-            probabilities /= probabilities.sum()
-            
-            selected_leader = np.random.choice(len(leaders), p=probabilities)
+            leader_fitnesses = np.array([l.best_fitness for l in leaders], dtype=float)
+            finite_mask = np.isfinite(leader_fitnesses)
+            probabilities = None
+            if np.any(finite_mask):
+                # Convert finite costs to probabilities (lower fitness = higher probability).
+                max_fitness = np.max(leader_fitnesses[finite_mask])
+                weights = np.zeros(len(leaders), dtype=float)
+                weights[finite_mask] = max_fitness - leader_fitnesses[finite_mask] + 1e-10
+                total_weight = np.sum(weights)
+                if np.isfinite(total_weight) and total_weight > 0:
+                    probabilities = weights / total_weight
+
+            if probabilities is None:
+                selected_leader = np.random.choice(len(leaders))
+            else:
+                selected_leader = np.random.choice(len(leaders), p=probabilities)
             target = leaders[selected_leader].best_pos
         
         # Follow the target with adaptive step size

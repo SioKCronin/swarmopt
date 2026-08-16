@@ -108,5 +108,51 @@ class TestSwarm(unittest.TestCase):
         self.assertFalse(np.isnan(s.best_cost))
         self.assertEqual(len(s.best_pos), 3)
 
+    def test_ppso_handles_all_invalid_initial_costs(self):
+        def invalid_objective(_):
+            return float('inf')
+
+        np.random.seed(0)
+        s = Swarm(
+            n_particles=8,
+            dims=2,
+            c1=2.0,
+            c2=2.0,
+            w=0.9,
+            epochs=2,
+            obj_func=invalid_objective,
+            velocity_clamp=(-5, 5),
+            ppso_enabled=True,
+        )
+
+        s.optimize()
+
+        self.assertEqual(s.best_cost, float('inf'))
+        self.assertIsNotNone(s.best_pos)
+        self.assertEqual(len(s.best_pos), 2)
+
+    def test_hhoa_handles_all_invalid_initial_costs(self):
+        def invalid_objective(_):
+            return float('inf')
+
+        np.random.seed(0)
+        s = Swarm(
+            n_particles=8,
+            dims=2,
+            c1=2.0,
+            c2=2.0,
+            w=0.9,
+            epochs=2,
+            obj_func=invalid_objective,
+            algo='hhoa',
+            velocity_clamp=(-5, 5),
+        )
+
+        s.optimize()
+
+        self.assertEqual(s.best_cost, float('inf'))
+        self.assertIsNotNone(s.best_pos)
+        self.assertEqual(len(s.best_pos), 2)
+
 if __name__ == "__main__":
     unittest.main()
