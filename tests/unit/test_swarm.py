@@ -108,5 +108,62 @@ class TestSwarm(unittest.TestCase):
         self.assertFalse(np.isnan(s.best_cost))
         self.assertEqual(len(s.best_pos), 3)
 
+    def test_explicit_respect_boundary_keyword(self):
+        target = np.array([0.0, 0.0])
+
+        def distance_to_target(pos):
+            return np.linalg.norm(pos - target)
+
+        with self.assertWarns(UserWarning):
+            s = Swarm(
+                n_particles=10,
+                dims=2,
+                c1=1.5,
+                c2=1.5,
+                w=0.7,
+                epochs=3,
+                obj_func=distance_to_target,
+                velocity_clamp=(-5.0, 5.0),
+                target_position=target,
+                respect_boundary=2.0,
+            )
+
+        self.assertTrue(s.use_respect_boundary)
+        self.assertEqual(s.respect_boundary, 2.0)
+        s.optimize()
+        self.assertGreaterEqual(np.linalg.norm(s.best_pos - target), 2.0)
+
+    def test_automatic_respect_boundary_still_defaults_from_search_space(self):
+        target = np.array([0.0, 0.0])
+
+        with self.assertWarns(UserWarning):
+            s = Swarm(
+                n_particles=5,
+                dims=2,
+                c1=1.0,
+                c2=1.0,
+                w=0.5,
+                epochs=1,
+                obj_func=functions.sphere,
+                velocity_clamp=(-10.0, 10.0),
+                target_position=target,
+            )
+
+        expected = 0.1 * np.sqrt(2 * (20.0 ** 2))
+        self.assertAlmostEqual(s.respect_boundary, expected)
+
+    def test_respect_boundary_requires_target_position(self):
+        with self.assertRaises(ValueError):
+            Swarm(
+                n_particles=5,
+                dims=2,
+                c1=1.0,
+                c2=1.0,
+                w=0.5,
+                epochs=1,
+                obj_func=functions.sphere,
+                respect_boundary=2.0,
+            )
+
 if __name__ == "__main__":
     unittest.main()
