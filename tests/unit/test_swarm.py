@@ -108,5 +108,31 @@ class TestSwarm(unittest.TestCase):
         self.assertFalse(np.isnan(s.best_cost))
         self.assertEqual(len(s.best_pos), 3)
 
+    def test_local_best_uses_neighbor_best_position(self):
+        s = Swarm(
+            n_particles=2,
+            dims=2,
+            c1=2.0,
+            c2=2.0,
+            w=0.8,
+            epochs=3,
+            obj_func=functions.sphere,
+            algo='local',
+            velocity_clamp=self.v_clamp,
+            k=1
+        )
+        particle, neighbor = s.swarm
+        particle.pos = np.array([0.0, 0.0])
+        particle.best_pos = np.array([0.0, 0.0])
+        particle.best_cost = 100.0
+        neighbor.pos = np.array([4.0, 4.0])
+        neighbor.best_pos = np.array([1.0, 1.0])
+        neighbor.best_cost = 1.0
+
+        s.update_local_best_pos()
+
+        np.testing.assert_array_equal(particle.local_best_pos, neighbor.best_pos)
+        self.assertEqual(particle.local_best_cost, neighbor.best_cost)
+
 if __name__ == "__main__":
     unittest.main()

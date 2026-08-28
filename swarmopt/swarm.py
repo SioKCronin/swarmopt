@@ -516,7 +516,7 @@ class Swarm:
     def get_best_neighbor(self, particle):
         distances = []
         for other in self.swarm:
-            distances.append((other.pos, other.best_cost, euclideanDistance(other.pos, particle.pos)))
+            distances.append((other.best_pos.copy(), other.best_cost, euclideanDistance(other.pos, particle.pos)))
         sorted_distances = sorted(distances, key=lambda x: x[2])
         return sorted(sorted_distances[:self.k+1], key=lambda x: x[1])
 
