@@ -108,5 +108,34 @@ class TestSwarm(unittest.TestCase):
         self.assertFalse(np.isnan(s.best_cost))
         self.assertEqual(len(s.best_pos), 3)
 
+    def test_diversity_intervention_runs_on_low_diversity_swarm(self):
+        s = Swarm(
+            n_particles=5,
+            dims=2,
+            c1=0.0,
+            c2=0.0,
+            w=0.0,
+            epochs=1,
+            obj_func=functions.sphere,
+            velocity_clamp=(-5, 5),
+            diversity_monitoring=True,
+        )
+        collapsed_position = np.array([1.0, 1.0])
+        for particle in s.swarm:
+            particle.pos = collapsed_position.copy()
+            particle.best_pos = collapsed_position.copy()
+            particle.best_cost = functions.sphere(particle.pos)
+            particle.velocity = np.zeros(2)
+        s.best_pos = collapsed_position.copy()
+        s.best_cost = functions.sphere(collapsed_position)
+
+        s.optimize()
+
+        self.assertEqual(len(s.diversity_history), 1)
+        self.assertTrue(s.diversity_history[0]['needs_intervention'])
+        self.assertTrue(
+            any(not np.array_equal(particle.pos, collapsed_position) for particle in s.swarm)
+        )
+
 if __name__ == "__main__":
     unittest.main()
