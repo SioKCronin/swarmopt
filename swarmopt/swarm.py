@@ -206,6 +206,7 @@ class Swarm:
             )
         elif self.algo == 'multiswarm':
             self.multiswarm = self.initialize_multiswarm()
+            self._refresh_multiswarm_particles()
         else:
             self.swarm = self.initialize_swarm()
 
@@ -253,6 +254,12 @@ class Swarm:
         
         elif self.dims == 3:
             # 3D: Position delegates on sphere around target
+            if self.n_delegates == 1:
+                delegate_positions.append(
+                    self.target_position + self.respect_boundary * np.array([1.0, 0.0, 0.0])
+                )
+                return delegate_positions
+
             for i in range(self.n_delegates):
                 if self.delegate_spread == 'uniform':
                     # Fibonacci sphere for uniform distribution
@@ -409,6 +416,17 @@ class Swarm:
         for _ in range(self.m_swarms):
             multiswarm.append(self.initialize_swarm())
         return multiswarm
+
+    def _refresh_multiswarm_particles(self):
+        self.swarm = [particle for swarm in self.multiswarm for particle in swarm]
+
+    def _regroup_multiswarm(self):
+        particles = [particle for swarm in self.multiswarm for particle in swarm]
+        shuffle(particles)
+        m = len(particles) // self.m_swarms
+        self.multiswarm = [particles[i:i+m] for i in range(0, len(particles), m)]
+        self._refresh_multiswarm_particles()
+        self.regroup = False
 
     def optimize(self):
         start = timeit.default_timer()
@@ -685,10 +703,7 @@ class Particle:
         if self.swarm.algo == 'multiswarm':
             """Reshuffling"""
             if hasattr(self.swarm, 'regroup') and self.swarm.regroup:
-                particles = [particle for swarm in self.swarm.multiswarm for particle in swarm]
-                shuffle(particles)
-                m = len(particles) // self.swarm.m_swarms
-                self.swarm.multiswarm = [particles[i:i+m] for i in range(0, len(particles), m)]
+                self.swarm._regroup_multiswarm()
 
             """Starting heuristic"""
             if not self.swarm.end: 
