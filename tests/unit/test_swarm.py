@@ -108,5 +108,41 @@ class TestSwarm(unittest.TestCase):
         self.assertFalse(np.isnan(s.best_cost))
         self.assertEqual(len(s.best_pos), 3)
 
+    def test_multiswarm_initializes_and_optimizes(self):
+        s = Swarm(
+            n_particles=5,
+            dims=2,
+            c1=1.5,
+            c2=1.5,
+            w=0.7,
+            epochs=2,
+            obj_func=functions.sphere,
+            algo='multiswarm',
+            m_swarms=2,
+            velocity_clamp=self.v_clamp
+        )
+        self.assertEqual(len(s.multiswarm), 2)
+        self.assertEqual(len(s.swarm), 10)
+        s.optimize()
+        self.assertIsNotNone(s.best_pos)
+        self.assertFalse(np.isnan(s.best_cost))
+
+    def test_single_3d_delegate_position(self):
+        s = Swarm(
+            n_particles=10,
+            dims=3,
+            c1=1.5,
+            c2=1.5,
+            w=0.7,
+            epochs=1,
+            obj_func=functions.sphere,
+            target_position=[0.0, 0.0, 0.0],
+            n_delegates=1,
+            velocity_clamp=self.v_clamp
+        )
+        self.assertEqual(len(s.delegate_positions), 1)
+        distance = np.linalg.norm(s.delegate_positions[0] - s.target_position)
+        self.assertAlmostEqual(distance, s.respect_boundary)
+
 if __name__ == "__main__":
     unittest.main()
