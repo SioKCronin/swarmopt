@@ -108,5 +108,34 @@ class TestSwarm(unittest.TestCase):
         self.assertFalse(np.isnan(s.best_cost))
         self.assertEqual(len(s.best_pos), 3)
 
+    def test_cpso_respects_configured_bounds(self):
+        evaluations = []
+
+        def bounded_objective(pos):
+            arr = np.asarray(pos)
+            evaluations.append(arr.copy())
+            if np.any(arr < 0.0) or np.any(arr > 1.0):
+                raise AssertionError("CPSO evaluated objective outside configured bounds")
+            return float(np.sum(arr))
+
+        np.random.seed(0)
+        s = Swarm(
+            n_particles=6,
+            dims=4,
+            c1=1.0,
+            c2=1.0,
+            w=0.5,
+            epochs=3,
+            obj_func=bounded_objective,
+            algo='cpso',
+            n_swarms=2,
+            velocity_clamp=(0.0, 1.0),
+        )
+        s.optimize()
+
+        self.assertTrue(evaluations)
+        self.assertTrue(np.all(s.best_pos >= 0.0))
+        self.assertTrue(np.all(s.best_pos <= 1.0))
+
 if __name__ == "__main__":
     unittest.main()

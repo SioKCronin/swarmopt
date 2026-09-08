@@ -10,6 +10,24 @@ overall performance.
 import numpy as np
 from typing import List, Tuple, Callable, Optional
 
+
+def _full_bounds(bounds: Tuple[float, float], dims: int) -> Tuple[np.ndarray, np.ndarray]:
+    """Return lower and upper bounds broadcast to the full search dimension."""
+    lower = np.asarray(bounds[0], dtype=float)
+    upper = np.asarray(bounds[1], dtype=float)
+    if lower.ndim == 0:
+        lower = np.full(dims, float(lower))
+    if upper.ndim == 0:
+        upper = np.full(dims, float(upper))
+    return lower, upper
+
+
+def _dimension_bounds(bounds: Tuple[float, float], dimensions: List[int]) -> Tuple[np.ndarray, np.ndarray]:
+    """Return lower and upper bounds for a cooperative sub-swarm."""
+    full_lower, full_upper = _full_bounds(bounds, max(dimensions) + 1 if dimensions else 0)
+    return full_lower[dimensions], full_upper[dimensions]
+
+
 class CooperativeSwarm:
     """
     A single swarm in the cooperative PSO system
@@ -17,7 +35,8 @@ class CooperativeSwarm:
     
     def __init__(self, swarm_id: int, dimensions: List[int], n_particles: int, 
                  obj_func: Callable, c1: float = 2.0, c2: float = 2.0, 
-                 w: float = 0.9, velocity_clamp: Tuple[float, float] = (-5, 5)):
+                 w: float = 0.9, velocity_clamp: Tuple[float, float] = (-5, 5),
+                 bounds: Tuple[float, float] = (-5, 5)):
         """
         Initialize a cooperative swarm
         
@@ -46,6 +65,7 @@ class CooperativeSwarm:
         self.c2 = c2
         self.w = w
         self.velocity_clamp = velocity_clamp
+        self.bounds = bounds
         
         # Initialize particles
         self.particles = []
@@ -59,14 +79,19 @@ class CooperativeSwarm:
     def initialize_particles(self, full_dim: int):
         """Initialize particles for this swarm's dimensions"""
         self.particles = []
+        lower, upper = _dimension_bounds(self.bounds, self.dimensions)
+        velocity_lower, velocity_upper = _dimension_bounds(self.velocity_clamp, self.dimensions)
+        full_lower, full_upper = _full_bounds(self.bounds, full_dim)
         for i in range(self.n_particles):
             # Initialize position for this swarm's dimensions
-            pos = np.random.uniform(-5, 5, len(self.dimensions))
-            particle = CooperativeParticle(pos, self.dimensions, self.velocity_clamp)
+            pos = np.random.uniform(lower, upper, len(self.dimensions))
+            particle = CooperativeParticle(
+                pos, self.dimensions, (velocity_lower, velocity_upper), (lower, upper)
+            )
             particle.swarm_id = self.swarm_id
             
             # Initialize particle cost
-            full_pos = np.random.uniform(-5, 5, full_dim)
+            full_pos = np.random.uniform(full_lower, full_upper, full_dim)
             full_pos[self.dimensions] = pos
             particle.best_cost = self.obj_func(full_pos)
             
@@ -98,7 +123,8 @@ class CooperativeParticle:
     """
     
     def __init__(self, pos: np.ndarray, dimensions: List[int], 
-                 velocity_clamp: Tuple[float, float]):
+                 velocity_clamp: Tuple[float, float],
+                 bounds: Tuple[float, float]):
         """
         Initialize a cooperative particle
         
@@ -115,6 +141,7 @@ class CooperativeParticle:
         self.velocity = np.random.uniform(-1, 1, len(dimensions))
         self.dimensions = dimensions
         self.velocity_clamp = velocity_clamp
+        self.bounds = bounds
         
         # Particle's best
         self.best_pos = self.pos.copy()
@@ -176,6 +203,7 @@ class CooperativeParticle:
         
         # Update position
         self.pos += self.velocity
+        self.pos = np.clip(self.pos, self.bounds[0], self.bounds[1])
 
 class CPSO:
     """
@@ -189,6 +217,7 @@ class CPSO:
                  total_dimensions: int, obj_func: Callable,
                  c1: float = 2.0, c2: float = 2.0, w: float = 0.9,
                  velocity_clamp: Tuple[float, float] = (-5, 5),
+                 bounds: Tuple[float, float] = (-5, 5),
                  communication_strategy: str = 'best'):
         """
         Initialize Cooperative PSO
@@ -220,6 +249,7 @@ class CPSO:
         self.c2 = c2
         self.w = w
         self.velocity_clamp = velocity_clamp
+        self.bounds = bounds
         self.communication_strategy = communication_strategy
         
         # Initialize swarms
@@ -233,14 +263,16 @@ class CPSO:
                 n_particles=n_particles_per_swarm,
                 obj_func=obj_func,
                 c1=c1, c2=c2, w=w,
-                velocity_clamp=velocity_clamp
+                velocity_clamp=velocity_clamp,
+                bounds=bounds
             )
             self.swarms.append(swarm)
         
         # Global best tracking
-        self.global_best_pos = np.random.uniform(-5, 5, total_dimensions)
+        lower, upper = _full_bounds(self.bounds, total_dimensions)
+        self.global_best_pos = np.random.uniform(lower, upper, total_dimensions)
         self.global_best_cost = float('inf')
-        self.global_context = np.random.uniform(-5, 5, total_dimensions)
+        self.global_context = np.random.uniform(lower, upper, total_dimensions)
         
         # Communication history
         self.communication_history = []
