@@ -47,7 +47,7 @@ class TestSwarm(unittest.TestCase):
 
     def test_swarm_with_velocity_clamping(self):
         # Test with different velocity clamping functions
-        clamping_types = ['none', 'basic', 'adaptive']
+        clamping_types = ['none', 'basic', 'adaptive', 'dimension_wise']
         for clamp_type in clamping_types:
             with self.subTest(clamp_type=clamp_type):
                 s = Swarm(
