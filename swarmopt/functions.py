@@ -104,7 +104,7 @@ FUNCTION_METADATA = {
     },
     'perm': {
         'optimal_value': 0.0,
-        'optimal_position': 'special',  # [1, 1/2, 1/3, ..., 1/n]
+        'optimal_position': 'special',  # [1, 2, 3, ..., n]
         'bounds': 'dimension_dependent',  # [-n, n]
         'dimensions': 'any',
         'type': 'multimodal'
@@ -246,10 +246,10 @@ def get_optimal_position(func_name, n_dims=None):
             return None
         if func_name == 'dixon_price':
             # x_i* = 2^(-(2^i-2)/(2^i))
-            return [2**(-(2**i - 2) / (2**i)) for i in range(n_dims)]
+            return [2**(-((2**i - 2) / (2**i))) for i in range(1, n_dims + 1)]
         elif func_name == 'perm':
-            # x_i* = 1/(i+1)
-            return [1.0 / (i + 1) for i in range(n_dims)]
+            # x_i* = i for the implemented Perm variant.
+            return [float(i) for i in range(1, n_dims + 1)]
         elif func_name == 'trid':
             # x_i* = i(n+1-i)
             return [(i + 1) * (n_dims - i) for i in range(n_dims)]
