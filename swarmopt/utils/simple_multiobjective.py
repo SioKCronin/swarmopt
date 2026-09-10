@@ -17,7 +17,8 @@ class SimpleMultiObjectivePSO:
     def __init__(self, n_particles: int, dims: int, obj_func: Callable,
                  bounds: Tuple[float, float] = (-5, 5),
                  c1: float = 2.0, c2: float = 2.0, w: float = 0.9,
-                 epochs: int = 100, archive_size: int = 100):
+                 epochs: int = 100, archive_size: int = 100,
+                 position_repair: Optional[Callable[[np.ndarray], np.ndarray]] = None):
         """
         Initialize Simple Multiobjective PSO
         
@@ -47,6 +48,7 @@ class SimpleMultiObjectivePSO:
         self.w = w
         self.epochs = epochs
         self.archive_size = archive_size
+        self.position_repair = position_repair
         
         # Initialize particles
         self.particles = []
@@ -62,6 +64,8 @@ class SimpleMultiObjectivePSO:
         """Initialize particle swarm"""
         for _ in range(self.n_particles):
             position = np.random.uniform(self.bounds[0], self.bounds[1], self.dims)
+            if self.position_repair is not None:
+                position = self.position_repair(position)
             velocity = np.random.uniform(-abs(self.bounds[1] - self.bounds[0]), 
                                        abs(self.bounds[1] - self.bounds[0]), self.dims)
             
@@ -94,6 +98,8 @@ class SimpleMultiObjectivePSO:
             
             # Apply bounds
             particle['pos'] = np.clip(particle['pos'], self.bounds[0], self.bounds[1])
+            if self.position_repair is not None:
+                particle['pos'] = self.position_repair(particle['pos'])
             
             # Evaluate new objectives
             particle['objectives'] = self.obj_func(particle['pos'])

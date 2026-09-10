@@ -17,7 +17,8 @@ class CooperativeSwarm:
     
     def __init__(self, swarm_id: int, dimensions: List[int], n_particles: int, 
                  obj_func: Callable, c1: float = 2.0, c2: float = 2.0, 
-                 w: float = 0.9, velocity_clamp: Tuple[float, float] = (-5, 5)):
+                 w: float = 0.9, velocity_clamp: Tuple[float, float] = (-5, 5),
+                 position_repair: Optional[Callable[[np.ndarray], np.ndarray]] = None):
         """
         Initialize a cooperative swarm
         
@@ -46,6 +47,7 @@ class CooperativeSwarm:
         self.c2 = c2
         self.w = w
         self.velocity_clamp = velocity_clamp
+        self.position_repair = position_repair
         
         # Initialize particles
         self.particles = []
@@ -62,12 +64,14 @@ class CooperativeSwarm:
         for i in range(self.n_particles):
             # Initialize position for this swarm's dimensions
             pos = np.random.uniform(-5, 5, len(self.dimensions))
-            particle = CooperativeParticle(pos, self.dimensions, self.velocity_clamp)
-            particle.swarm_id = self.swarm_id
-            
             # Initialize particle cost
             full_pos = np.random.uniform(-5, 5, full_dim)
             full_pos[self.dimensions] = pos
+            if self.position_repair is not None:
+                full_pos = self.position_repair(full_pos)
+                pos = full_pos[self.dimensions]
+            particle = CooperativeParticle(pos, self.dimensions, self.velocity_clamp)
+            particle.swarm_id = self.swarm_id
             particle.best_cost = self.obj_func(full_pos)
             
             self.particles.append(particle)
@@ -84,7 +88,7 @@ class CooperativeSwarm:
             # Use particle's own best if swarm best is not available
             swarm_best = self.best_pos if self.best_pos is not None else particle.best_pos
             particle.update(global_context, swarm_best, self.c1, self.c2, 
-                           self.w, current_iter, self.obj_func)
+                           self.w, current_iter, self.obj_func, self.position_repair)
             
             # Update swarm best
             if particle.best_cost < self.best_cost:
@@ -124,7 +128,8 @@ class CooperativeParticle:
         self.swarm_id = None
         
     def update(self, global_context: np.ndarray, swarm_best: np.ndarray,
-               c1: float, c2: float, w: float, current_iter: int = 0, obj_func=None):
+               c1: float, c2: float, w: float, current_iter: int = 0, obj_func=None,
+               position_repair: Optional[Callable[[np.ndarray], np.ndarray]] = None):
         """
         Update particle position and velocity
         
@@ -146,6 +151,9 @@ class CooperativeParticle:
         # Create full-dimensional position for evaluation
         full_pos = global_context.copy()
         full_pos[self.dimensions] = self.pos
+        if position_repair is not None:
+            full_pos = position_repair(full_pos)
+            self.pos = full_pos[self.dimensions]
         
         # Evaluate current position
         current_cost = obj_func(full_pos)
@@ -176,6 +184,11 @@ class CooperativeParticle:
         
         # Update position
         self.pos += self.velocity
+        full_pos = global_context.copy()
+        full_pos[self.dimensions] = self.pos
+        if position_repair is not None:
+            full_pos = position_repair(full_pos)
+            self.pos = full_pos[self.dimensions]
 
 class CPSO:
     """
@@ -189,7 +202,8 @@ class CPSO:
                  total_dimensions: int, obj_func: Callable,
                  c1: float = 2.0, c2: float = 2.0, w: float = 0.9,
                  velocity_clamp: Tuple[float, float] = (-5, 5),
-                 communication_strategy: str = 'best'):
+                 communication_strategy: str = 'best',
+                 position_repair: Optional[Callable[[np.ndarray], np.ndarray]] = None):
         """
         Initialize Cooperative PSO
         
@@ -221,6 +235,7 @@ class CPSO:
         self.w = w
         self.velocity_clamp = velocity_clamp
         self.communication_strategy = communication_strategy
+        self.position_repair = position_repair
         
         # Initialize swarms
         self.swarms = []
@@ -233,7 +248,8 @@ class CPSO:
                 n_particles=n_particles_per_swarm,
                 obj_func=obj_func,
                 c1=c1, c2=c2, w=w,
-                velocity_clamp=velocity_clamp
+                velocity_clamp=velocity_clamp,
+                position_repair=position_repair
             )
             self.swarms.append(swarm)
         
@@ -241,6 +257,9 @@ class CPSO:
         self.global_best_pos = np.random.uniform(-5, 5, total_dimensions)
         self.global_best_cost = float('inf')
         self.global_context = np.random.uniform(-5, 5, total_dimensions)
+        if self.position_repair is not None:
+            self.global_best_pos = self.position_repair(self.global_best_pos)
+            self.global_context = self.position_repair(self.global_context)
         
         # Communication history
         self.communication_history = []
@@ -289,6 +308,8 @@ class CPSO:
                     self.global_context[swarm.dimensions] = winner.pos
                 elif swarm.particles:
                     self.global_context[swarm.dimensions] = swarm.particles[0].pos
+        if self.position_repair is not None:
+            self.global_context = self.position_repair(self.global_context)
     
     def _evaluate_global_solution(self):
         """Evaluate the current global solution"""

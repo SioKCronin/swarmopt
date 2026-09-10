@@ -108,5 +108,72 @@ class TestSwarm(unittest.TestCase):
         self.assertFalse(np.isnan(s.best_cost))
         self.assertEqual(len(s.best_pos), 3)
 
+    def test_delegated_optimizers_respect_target_boundary(self):
+        target = np.zeros(2)
+        cases = [
+            ("hhoa", {"algo": "hhoa"}),
+            ("ppso", {"algo": "global", "ppso_enabled": True}),
+            ("cpso", {"algo": "cpso", "n_swarms": 2}),
+        ]
+
+        for seed, (name, extra) in enumerate(cases):
+            with self.subTest(name=name):
+                np.random.seed(seed)
+                kwargs = {
+                    "n_particles": 12,
+                    "dims": 2,
+                    "c1": 1.5,
+                    "c2": 1.5,
+                    "w": 0.5,
+                    "epochs": 10,
+                    "obj_func": functions.sphere,
+                    "velocity_clamp": (-5.0, 5.0),
+                    "target_position": target,
+                }
+                kwargs.update(extra)
+                s = Swarm(**kwargs)
+                s.optimize()
+
+                self.assertIsNotNone(s.best_pos)
+                self.assertGreaterEqual(
+                    np.linalg.norm(s.best_pos - target),
+                    s.respect_boundary,
+                )
+
+                if name == "hhoa":
+                    positions = [horse.pos for horse in s.hhoa.horses]
+                elif name == "ppso":
+                    positions = [particle.pos for particle in s.ppso.particles]
+                else:
+                    positions = [s.cpso.global_context, s.cpso.global_best_pos]
+
+                for pos in positions:
+                    self.assertGreaterEqual(np.linalg.norm(pos - target), s.respect_boundary)
+
+    def test_multiobjective_respects_target_boundary(self):
+        def objectives(x):
+            return np.array([np.sum(x ** 2), np.sum((x - 1.0) ** 2)])
+
+        np.random.seed(7)
+        target = np.zeros(2)
+        s = Swarm(
+            n_particles=12,
+            dims=2,
+            c1=1.5,
+            c2=1.5,
+            w=0.5,
+            epochs=5,
+            obj_func=objectives,
+            velocity_clamp=(-5.0, 5.0),
+            target_position=target,
+            multiobjective=True,
+        )
+        s.optimize()
+
+        self.assertIsNotNone(s.best_pos)
+        self.assertGreaterEqual(np.linalg.norm(s.best_pos - target), s.respect_boundary)
+        for solution in s.mo_optimizer.archive:
+            self.assertGreaterEqual(np.linalg.norm(solution["pos"] - target), s.respect_boundary)
+
 if __name__ == "__main__":
     unittest.main()

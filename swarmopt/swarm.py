@@ -199,10 +199,11 @@ class Swarm:
                 n_swarms=self.n_swarms,
                 n_particles_per_swarm=self.n_particles,
                 total_dimensions=self.dims,
-                obj_func=self.obj_func,
+                obj_func=self._respect_boundary_objective if self.use_respect_boundary else self.obj_func,
                 c1=self.c1, c2=self.c2, w=self.w,
                 velocity_clamp=(self.val_min, self.val_max),
-                communication_strategy=self.communication_strategy
+                communication_strategy=self.communication_strategy,
+                position_repair=self._respect_boundary_repair if self.use_respect_boundary else None
             )
         elif self.algo == 'multiswarm':
             self.multiswarm = self.initialize_multiswarm()
@@ -214,6 +215,48 @@ class Swarm:
 
     def shape(self):
         return [self.n_particles, self.dims]
+
+    def _violates_respect_boundary(self, position):
+        if not self.use_respect_boundary:
+            return False
+        return np.linalg.norm(np.asarray(position) - self.target_position) < self.respect_boundary
+
+    def _respect_boundary_repair(self, position):
+        """Project a position to just outside the mandatory respect boundary."""
+        if not self.use_respect_boundary:
+            return np.asarray(position)
+
+        position = np.asarray(position, dtype=float).copy()
+        safety_margin = 1e-6
+        safe_boundary = self.respect_boundary + safety_margin
+        direction = position - self.target_position
+        distance_to_target = np.linalg.norm(direction)
+
+        if distance_to_target > safe_boundary:
+            return position
+
+        if distance_to_target < 1e-10:
+            direction = np.random.randn(self.dims)
+            direction /= np.linalg.norm(direction)
+        else:
+            direction = direction / distance_to_target
+
+        return self.target_position + safe_boundary * direction
+
+    def _respect_boundary_objective(self, position):
+        if self._violates_respect_boundary(position):
+            return float('inf')
+        return self.obj_func(position)
+
+    def _make_respect_boundary_multiobjective(self, template):
+        template = np.asarray(template, dtype=float)
+
+        def objective(position):
+            if self._violates_respect_boundary(position):
+                return np.full(template.shape, float('inf'))
+            return self.obj_func(position)
+
+        return objective
     
     def _generate_delegate_positions(self):
         """
@@ -355,8 +398,8 @@ class Swarm:
         """
         Evaluate objective function with respect boundary enforcement
         
-        If respect_boundary is enabled, particles are penalized for getting
-        closer than the respect distance to the target position.
+        If respect_boundary is enabled, particles inside the forbidden radius
+        are rejected so they cannot become an optimizer best.
         
         Parameters:
         -----------
@@ -367,29 +410,10 @@ class Swarm:
         --------
         float : Modified objective value
         """
-        # Calculate base objective
-        base_cost = self.obj_func(position)
-        
-        # If no respect boundary, return base cost
         if not self.use_respect_boundary:
-            return base_cost
-        
-        # Calculate distance to target
-        distance_to_target = np.linalg.norm(position - self.target_position)
-        
-        # If outside respect boundary, use base cost
-        if distance_to_target >= self.respect_boundary:
-            return base_cost
-        
-        # If inside respect boundary, add penalty
-        # Penalty increases as particle gets closer to target
-        violation = self.respect_boundary - distance_to_target
-        penalty_factor = (violation / self.respect_boundary) ** 2
-        
-        # Scale penalty by base cost magnitude to be relative
-        penalty = base_cost * (1.0 + 10.0 * penalty_factor)
-        
-        return penalty
+            return self.obj_func(position)
+
+        return self._respect_boundary_objective(position)
 
     def initialize_swarm(self):
         swarm = []
@@ -432,13 +456,14 @@ class Swarm:
             self.ppso = PPSO(
                 n_particles=self.n_particles,
                 dims=self.dims,
-                obj_func=self.obj_func,
+                obj_func=self._respect_boundary_objective if self.use_respect_boundary else self.obj_func,
                 bounds=(self.val_min, self.val_max),
                 proactive_ratio=self.proactive_ratio,
                 knowledge_method=self.knowledge_method,
                 exploration_weight=self.exploration_weight,
                 c1=self.c1, c2=self.c2, w=self.w,
-                epochs=self.epochs
+                epochs=self.epochs,
+                position_repair=self._respect_boundary_repair if self.use_respect_boundary else None
             )
             
             # Run PPSO optimization
@@ -453,9 +478,10 @@ class Swarm:
             self.hhoa = HHOA(
                 n_horses=self.n_particles,
                 dims=self.dims,
-                obj_func=self.obj_func,
+                obj_func=self._respect_boundary_objective if self.use_respect_boundary else self.obj_func,
                 bounds=(self.val_min, self.val_max),
-                epochs=self.epochs
+                epochs=self.epochs,
+                position_repair=self._respect_boundary_repair if self.use_respect_boundary else None
             )
             
             # Run HHOA optimization
@@ -468,19 +494,27 @@ class Swarm:
         # Initialize multiobjective optimization if enabled
         if self.multiobjective:
             # Check if obj_func returns multiple objectives
-            test_result = self.obj_func(np.random.uniform(self.val_min, self.val_max, self.dims))
+            test_position = np.random.uniform(self.val_min, self.val_max, self.dims)
+            if self.use_respect_boundary:
+                test_position = self._respect_boundary_repair(test_position)
+            test_result = self.obj_func(test_position)
             if not isinstance(test_result, np.ndarray) or len(test_result) < 2:
                 raise ValueError("Multiobjective optimization requires obj_func to return multiple objectives")
+            objective = (
+                self._make_respect_boundary_multiobjective(test_result)
+                if self.use_respect_boundary else self.obj_func
+            )
             
             # Create multiobjective optimizer
             self.mo_optimizer = SimpleMultiObjectivePSO(
                 n_particles=self.n_particles,
                 dims=self.dims,
-                obj_func=self.obj_func,
+                obj_func=objective,
                 bounds=(self.val_min, self.val_max),
                 c1=self.c1, c2=self.c2, w=self.w,
                 epochs=self.epochs,
-                archive_size=self.archive_size
+                archive_size=self.archive_size,
+                position_repair=self._respect_boundary_repair if self.use_respect_boundary else None
             )
             
             # Run multiobjective optimization
@@ -789,50 +823,7 @@ class Particle:
         Returns:
             Position adjusted to be outside respect boundary (with safety margin)
         """
-        # Safety margin to ensure particles are truly outside, not just on boundary
-        # Use a larger margin (1e-6) to account for floating point precision errors
-        # in subsequent calculations (velocity updates, etc.)
-        SAFETY_MARGIN = 1e-6
-        safe_boundary = self.swarm.respect_boundary + SAFETY_MARGIN
-        
-        distance_to_target = np.linalg.norm(position - self.swarm.target_position)
-        
-        # If clearly outside boundary (with margin), no adjustment needed
-        if distance_to_target > safe_boundary:
-            return position
-        
-        # If inside boundary (or close to it), push to safe distance outside boundary
-        if distance_to_target < 1e-10:
-            # Particle is at or very close to target position - move to random position outside boundary
-            # Generate random unit vector
-            random_direction = np.random.randn(self.swarm.dims)
-            random_direction /= np.linalg.norm(random_direction)
-            # Position at safe distance outside boundary
-            adjusted_position = self.swarm.target_position + safe_boundary * random_direction
-        else:
-            # Particle is inside or on boundary - push to safe distance outside boundary
-            # Direction from target to particle
-            direction = position - self.swarm.target_position
-            direction_unit = direction / distance_to_target
-            # Position at safe distance outside boundary along same direction
-            adjusted_position = self.swarm.target_position + safe_boundary * direction_unit
-        
-        # Verify the adjusted position is actually outside the boundary
-        # (due to floating point precision, recalculate distance)
-        final_distance = np.linalg.norm(adjusted_position - self.swarm.target_position)
-        if final_distance < self.swarm.respect_boundary:
-            # If still inside (shouldn't happen, but safety check), push out further
-            # Normalize direction vector from target to adjusted position
-            correction_direction = adjusted_position - self.swarm.target_position
-            if np.linalg.norm(correction_direction) > 1e-10:
-                correction_direction /= np.linalg.norm(correction_direction)
-            else:
-                # If direction is degenerate, use random direction
-                correction_direction = np.random.randn(self.swarm.dims)
-                correction_direction /= np.linalg.norm(correction_direction)
-            adjusted_position = self.swarm.target_position + safe_boundary * correction_direction
-        
-        return adjusted_position
+        return self.swarm._respect_boundary_repair(position)
     
     def apply_variation(self, current_iter: int):
         """Apply variation to particle position"""

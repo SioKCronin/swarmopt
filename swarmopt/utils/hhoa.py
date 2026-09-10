@@ -79,7 +79,8 @@ class HHOA:
                  grazing_rate: float = 0.3,
                  leadership_rate: float = 0.4,
                  following_rate: float = 0.3,
-                 epochs: int = 100):
+                 epochs: int = 100,
+                 position_repair: Optional[Callable[[np.ndarray], np.ndarray]] = None):
         """
         Initialize HHOA
         
@@ -109,6 +110,7 @@ class HHOA:
         self.obj_func = obj_func
         self.bounds = bounds
         self.epochs = epochs
+        self.position_repair = position_repair
         
         # Behavior rates (should sum to 1.0)
         total_rate = grazing_rate + leadership_rate + following_rate
@@ -139,6 +141,8 @@ class HHOA:
         """Initialize the horse herd"""
         for _ in range(self.n_horses):
             position = np.random.uniform(self.bounds[0], self.bounds[1], self.dims)
+            if self.position_repair is not None:
+                position = self.position_repair(position)
             horse = Horse(position, self.obj_func, self.bounds)
             self.horses.append(horse)
     
@@ -177,6 +181,8 @@ class HHOA:
         
         # Apply bounds
         new_pos = np.clip(new_pos, self.bounds[0], self.bounds[1])
+        if self.position_repair is not None:
+            new_pos = self.position_repair(new_pos)
         horse.pos = new_pos
         horse.update_fitness()
     
@@ -199,6 +205,8 @@ class HHOA:
         
         # Apply bounds
         new_pos = np.clip(new_pos, self.bounds[0], self.bounds[1])
+        if self.position_repair is not None:
+            new_pos = self.position_repair(new_pos)
         horse.pos = new_pos
         horse.update_fitness()
     
@@ -239,6 +247,8 @@ class HHOA:
         
         # Apply bounds
         new_pos = np.clip(new_pos, self.bounds[0], self.bounds[1])
+        if self.position_repair is not None:
+            new_pos = self.position_repair(new_pos)
         horse.pos = new_pos
         horse.update_fitness()
     
