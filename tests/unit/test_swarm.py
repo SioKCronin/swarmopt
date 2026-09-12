@@ -45,6 +45,49 @@ class TestSwarm(unittest.TestCase):
         #self.assertLess(s.best_cost, 1)
         #self.assertEqual(s.best_pos, [1,1])
 
+    def test_sa_initializes_global_worst_position(self):
+        s = Swarm(
+            n_particles=5,
+            dims=self.dims,
+            c1=self.c1,
+            c2=self.c2,
+            w=self.w,
+            epochs=self.epochs,
+            obj_func=self.obj_func,
+            algo='sa',
+            velocity_clamp=self.v_clamp,
+        )
+        worst_particle = max(s.swarm, key=lambda particle: particle.best_cost)
+
+        self.assertEqual(s.worst_cost, worst_particle.best_cost)
+        np.testing.assert_allclose(s.worst_pos, worst_particle.best_pos)
+
+    def test_global_worst_position_is_recomputed(self):
+        s = Swarm(
+            n_particles=2,
+            dims=self.dims,
+            c1=self.c1,
+            c2=self.c2,
+            w=self.w,
+            epochs=self.epochs,
+            obj_func=self.obj_func,
+            algo='sa',
+            velocity_clamp=self.v_clamp,
+        )
+        s.swarm[0].best_cost = 10.0
+        s.swarm[0].best_pos = np.array([10.0, 10.0])
+        s.swarm[1].best_cost = 5.0
+        s.swarm[1].best_pos = np.array([5.0, 5.0])
+        s.update_global_worst_pos()
+        self.assertEqual(s.worst_cost, 10.0)
+
+        s.swarm[0].best_cost = 1.0
+        s.swarm[0].best_pos = np.array([1.0, 1.0])
+        s.update_global_worst_pos()
+
+        self.assertEqual(s.worst_cost, 5.0)
+        np.testing.assert_allclose(s.worst_pos, np.array([5.0, 5.0]))
+
     def test_swarm_with_velocity_clamping(self):
         # Test with different velocity clamping functions
         clamping_types = ['none', 'basic', 'adaptive']

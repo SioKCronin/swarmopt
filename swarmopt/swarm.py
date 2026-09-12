@@ -186,7 +186,7 @@ class Swarm:
         self.obj_func = obj_func
         self.best_cost = float('inf')
         self.best_pos = None
-        self.worst_cost = float('inf')
+        self.worst_cost = -float('inf')
         self.worst_pos = None
         self.local_best_cost = float('inf')
         self.local_best_pos = None
@@ -211,6 +211,7 @@ class Swarm:
 
         if self.algo != 'cpso' and not self.multiobjective:
             self.update_global_best_pos()
+            self.update_global_worst_pos()
 
     def shape(self):
         return [self.n_particles, self.dims]
@@ -547,10 +548,14 @@ class Swarm:
             particle.local_best_pos = local_best_pos
 
     def update_global_worst_pos(self):
+        worst_cost = -float('inf')
+        worst_pos = None
         for particle in self.swarm:
-            if particle.best_cost > self.worst_cost:
-                self.worst_cost = particle.best_cost
-                self.worst_pos = particle.best_pos
+            if particle.best_cost > worst_cost:
+                worst_cost = particle.best_cost
+                worst_pos = particle.best_pos.copy()
+        self.worst_cost = worst_cost
+        self.worst_pos = worst_pos
 
     def get_inertia_weight(self, current_iter):
         """Calculate current inertia weight based on the selected function"""
