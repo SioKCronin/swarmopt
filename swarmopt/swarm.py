@@ -19,6 +19,7 @@ try:
     from .utils.diversity import DiversityMonitor, calculate_swarm_diversity
     from .utils.ppso import PPSO
     from .utils.simple_multiobjective import SimpleMultiObjectivePSO
+    from .utils.multiobjective import NSGA2PSO, SPEA2PSO
     from .utils.hhoa import HHOA
 except ImportError:
     from utils.distance import euclideanDistance
@@ -37,6 +38,7 @@ except ImportError:
     from utils.diversity import DiversityMonitor, calculate_swarm_diversity
     from utils.ppso import PPSO
     from utils.simple_multiobjective import SimpleMultiObjectivePSO
+    from utils.multiobjective import NSGA2PSO, SPEA2PSO
     from utils.hhoa import HHOA
 
 
@@ -469,24 +471,49 @@ class Swarm:
         if self.multiobjective:
             # Check if obj_func returns multiple objectives
             test_result = self.obj_func(np.random.uniform(self.val_min, self.val_max, self.dims))
-            if not isinstance(test_result, np.ndarray) or len(test_result) < 2:
+            test_objectives = np.asarray(test_result)
+            if test_objectives.ndim == 0 or len(test_objectives) < 2:
                 raise ValueError("Multiobjective optimization requires obj_func to return multiple objectives")
-            
-            # Create multiobjective optimizer
-            self.mo_optimizer = SimpleMultiObjectivePSO(
-                n_particles=self.n_particles,
-                dims=self.dims,
-                obj_func=self.obj_func,
-                bounds=(self.val_min, self.val_max),
-                c1=self.c1, c2=self.c2, w=self.w,
-                epochs=self.epochs,
-                archive_size=self.archive_size
-            )
+
+            mo_algorithm = (self.mo_algorithm or 'nsga2').lower()
+            if mo_algorithm == 'simple':
+                self.mo_optimizer = SimpleMultiObjectivePSO(
+                    n_particles=self.n_particles,
+                    dims=self.dims,
+                    obj_func=self.obj_func,
+                    bounds=(self.val_min, self.val_max),
+                    c1=self.c1, c2=self.c2, w=self.w,
+                    epochs=self.epochs,
+                    archive_size=self.archive_size
+                )
+            elif mo_algorithm in ('nsga2', 'spea2'):
+                objective_components = [
+                    (lambda position, idx=idx: float(np.asarray(self.obj_func(position))[idx]))
+                    for idx in range(len(test_objectives))
+                ]
+                optimizer_class = NSGA2PSO if mo_algorithm == 'nsga2' else SPEA2PSO
+                self.mo_optimizer = optimizer_class(
+                    n_particles=self.n_particles,
+                    dims=self.dims,
+                    obj_funcs=objective_components,
+                    bounds=(self.val_min, self.val_max),
+                    c1=self.c1, c2=self.c2, w=self.w,
+                    epochs=self.epochs,
+                    archive_size=self.archive_size
+                )
+            else:
+                raise ValueError("Unknown multiobjective algorithm: %s" % self.mo_algorithm)
             
             # Run multiobjective optimization
             results = self.mo_optimizer.optimize()
-            self.best_cost = results['pareto_front'][0]['objectives'] if results['pareto_front'] else np.array([float('inf')])
-            self.best_pos = results['pareto_front'][0]['pos'] if results['pareto_front'] else None
+            pareto_front = results['pareto_front']
+            if pareto_front:
+                first_solution = pareto_front[0]
+                self.best_cost = first_solution['objectives']
+                self.best_pos = first_solution.get('pos', first_solution.get('position'))
+            else:
+                self.best_cost = np.array([float('inf')])
+                self.best_pos = None
             self.runtime = results['runtime']
             return
         
