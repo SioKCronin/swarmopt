@@ -386,10 +386,11 @@ class Swarm:
         violation = self.respect_boundary - distance_to_target
         penalty_factor = (violation / self.respect_boundary) ** 2
         
-        # Scale penalty by base cost magnitude to be relative
-        penalty = base_cost * (1.0 + 10.0 * penalty_factor)
+        # Add a positive penalty for minimization. Multiplying by base_cost would
+        # reward violations for negative objectives and vanish for zero-cost ones.
+        penalty = 10.0 * (abs(base_cost) + 1.0) * penalty_factor
         
-        return penalty
+        return base_cost + penalty
 
     def initialize_swarm(self):
         swarm = []
