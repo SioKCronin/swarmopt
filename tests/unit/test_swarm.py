@@ -108,5 +108,26 @@ class TestSwarm(unittest.TestCase):
         self.assertFalse(np.isnan(s.best_cost))
         self.assertEqual(len(s.best_pos), 3)
 
+    def test_swarm_accepts_explicit_respect_boundary(self):
+        target = np.array([5.0, 5.0])
+        respect_distance = 2.0
+
+        s = Swarm(
+            n_particles=10,
+            dims=2,
+            c1=2.0,
+            c2=2.0,
+            w=0.9,
+            epochs=3,
+            obj_func=lambda x: np.linalg.norm(x - target),
+            algo='global',
+            velocity_clamp=(0, 10),
+            target_position=target,
+            respect_boundary=respect_distance,
+        )
+
+        self.assertTrue(s.use_respect_boundary)
+        self.assertEqual(s.respect_boundary, respect_distance)
+
 if __name__ == "__main__":
     unittest.main()
