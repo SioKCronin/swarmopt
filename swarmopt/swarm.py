@@ -51,7 +51,8 @@ class Swarm:
                  ppso_enabled=False, proactive_ratio=0.25, knowledge_method='gaussian',
                  exploration_weight=0.5,
                  multiobjective=False, mo_algorithm='nsga2', archive_size=100,
-                 target_position=None, n_delegates=0, delegate_spread='uniform'):
+                 target_position=None, n_delegates=0, delegate_spread='uniform',
+                 respect_boundary=None):
         """Intialize the swarm
 
         Attributes
@@ -160,9 +161,16 @@ class Swarm:
         
         # If target_position is provided, ALWAYS enforce respect boundary
         if target_position is not None:
-            # Automatically calculate safe respect boundary (10% of search space diagonal)
-            search_space_diagonal = np.sqrt(self.dims * (self.val_max - self.val_min)**2)
-            self.respect_boundary = 0.1 * search_space_diagonal
+            if respect_boundary is None:
+                # Automatically calculate safe respect boundary (10% of search space diagonal)
+                search_space_diagonal = np.sqrt(self.dims * (self.val_max - self.val_min)**2)
+                self.respect_boundary = 0.1 * search_space_diagonal
+                boundary_source = "automatically enabled"
+            else:
+                self.respect_boundary = float(respect_boundary)
+                if self.respect_boundary <= 0:
+                    raise ValueError("respect_boundary must be positive")
+                boundary_source = "enabled"
             self.use_respect_boundary = True
             
             # Generate delegate positions if requested
@@ -173,7 +181,7 @@ class Swarm:
             import warnings
             delegate_info = f" with {n_delegates} delegate positions" if n_delegates > 0 else ""
             warnings.warn(
-                f"Respect boundary automatically enabled for safety: {self.respect_boundary:.4f}. "
+                f"Respect boundary {boundary_source} for safety: {self.respect_boundary:.4f}. "
                 f"Particles will maintain minimum distance from target at {target_position}"
                 f"{delegate_info}. "
                 f"This is mandatory for safety-critical applications and cannot be disabled.",
@@ -182,6 +190,12 @@ class Swarm:
         else:
             self.respect_boundary = None
             self.use_respect_boundary = False
+            if respect_boundary is not None:
+                import warnings
+                warnings.warn(
+                    "respect_boundary was provided without target_position and will be ignored.",
+                    UserWarning
+                )
 
         self.obj_func = obj_func
         self.best_cost = float('inf')
