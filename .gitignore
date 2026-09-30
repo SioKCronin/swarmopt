@@ -21,3 +21,6 @@ build/
 
 # Generated example reports (regenerate with tests/examples/satellite_repair_swarm.py)
 examples_output/
+
+# Plots written by the integration scripts
+/*.png
