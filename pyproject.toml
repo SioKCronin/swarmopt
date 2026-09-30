@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "swarmopt"
+dynamic = ["version"]
+description = "Reproducible particle swarm optimization, including multiobjective, cooperative, and safety-bounded swarms"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE.md"]
+authors = [{ name = "Siobhan K Cronin", email = "siobhankcronin@gmail.com" }]
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.23",
+    "scipy>=1.9",
+]
+keywords = [
+    "particle swarm optimization", "PSO", "swarm intelligence", "optimization",
+    "multiobjective", "cooperative PSO", "reproducibility",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.optional-dependencies]
+viz = ["matplotlib>=3.5"]
+tda = ["giotto-tda>=0.5.0"]
+examples = ["matplotlib>=3.5"]
+dev = ["pytest>=7", "build", "twine"]
+
+[project.urls]
+Homepage = "https://github.com/SioKCronin/swarmopt"
+Source = "https://github.com/SioKCronin/swarmopt"
+Issues = "https://github.com/SioKCronin/swarmopt/issues"
+Changelog = "https://github.com/SioKCronin/swarmopt/blob/master/CHANGELOG.md"
+Documentation = "https://github.com/SioKCronin/swarmopt/tree/master/docs"
+
+[tool.setuptools.dynamic]
+version = { attr = "swarmopt.__version__" }
+
+[tool.setuptools.packages.find]
+include = ["swarmopt*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests/unit"]
