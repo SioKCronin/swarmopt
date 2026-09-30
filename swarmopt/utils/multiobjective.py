@@ -6,6 +6,7 @@ including NSGA-II inspired approaches, Pareto dominance, and crowding distance.
 """
 
 import numpy as np
+from .._random import get_rng
 from typing import List, Tuple, Optional, Dict, Callable
 import warnings
 from collections import defaultdict
@@ -125,8 +126,8 @@ class MultiObjectiveParticle:
                c1: float, c2: float, w: float, current_iter: int, max_iter: int):
         """Update particle position and velocity"""
         # Standard PSO update
-        cognitive_component = c1 * np.random.random() * (self.best_pos - self.pos)
-        social_component = c2 * np.random.random() * (global_best_pos - self.pos)
+        cognitive_component = c1 * get_rng().random() * (self.best_pos - self.pos)
+        social_component = c2 * get_rng().random() * (global_best_pos - self.pos)
         
         self.velocity = w * self.velocity + cognitive_component + social_component
         self.pos += self.velocity
@@ -143,7 +144,7 @@ class MultiObjectiveParticle:
             self.best_objectives = self.objectives.copy()
         elif not self._dominates(self.best_objectives, self.objectives):
             # Non-dominated, keep both or use crowding distance
-            if np.random.random() < 0.5:
+            if get_rng().random() < 0.5:
                 self.best_pos = self.pos.copy()
                 self.best_objectives = self.objectives.copy()
     
@@ -206,8 +207,8 @@ class NSGA2PSO:
     def _initialize_particles(self):
         """Initialize particle swarm"""
         for _ in range(self.n_particles):
-            position = np.random.uniform(self.bounds[0], self.bounds[1], self.dims)
-            velocity = np.random.uniform(-abs(self.bounds[1] - self.bounds[0]), 
+            position = get_rng().uniform(self.bounds[0], self.bounds[1], self.dims)
+            velocity = get_rng().uniform(-abs(self.bounds[1] - self.bounds[0]), 
                                        abs(self.bounds[1] - self.bounds[0]), self.dims)
             
             particle = MultiObjectiveParticle(position, velocity, self.obj_funcs, self.bounds)
@@ -268,14 +269,14 @@ class NSGA2PSO:
         
         if tournament_size == 0:
             # No solutions in archive, use random particle
-            random_particle = np.random.choice(self.particles)
+            random_particle = get_rng().choice(self.particles)
             return {
                 'position': random_particle.best_pos,
                 'objectives': random_particle.best_objectives
             }
         
         # Select tournament participants
-        tournament_indices = np.random.choice(len(self.archive.solutions), 
+        tournament_indices = get_rng().choice(len(self.archive.solutions), 
                                             tournament_size, replace=False)
         tournament_solutions = [self.archive.solutions[i] for i in tournament_indices]
         
@@ -422,8 +423,8 @@ class SPEA2PSO:
     def _initialize_particles(self):
         """Initialize particle swarm"""
         for _ in range(self.n_particles):
-            position = np.random.uniform(self.bounds[0], self.bounds[1], self.dims)
-            velocity = np.random.uniform(-abs(self.bounds[1] - self.bounds[0]), 
+            position = get_rng().uniform(self.bounds[0], self.bounds[1], self.dims)
+            velocity = get_rng().uniform(-abs(self.bounds[1] - self.bounds[0]), 
                                        abs(self.bounds[1] - self.bounds[0]), self.dims)
             
             particle = MultiObjectiveParticle(position, velocity, self.obj_funcs, self.bounds)
@@ -470,7 +471,7 @@ class SPEA2PSO:
         """Select global best using fitness-based selection"""
         if len(self.archive) == 0:
             # No solutions in archive, use random particle
-            random_particle = np.random.choice(self.particles)
+            random_particle = get_rng().choice(self.particles)
             return {
                 'position': random_particle.best_pos,
                 'objectives': random_particle.best_objectives
@@ -483,7 +484,7 @@ class SPEA2PSO:
         
         # Tournament selection
         tournament_size = min(3, len(valid_solutions))
-        tournament = np.random.choice(valid_solutions, tournament_size, replace=False)
+        tournament = get_rng().choice(valid_solutions, tournament_size, replace=False)
         best_solution = min(tournament, key=lambda x: x['fitness'])
         
         return best_solution

@@ -1,5 +1,6 @@
 """Velocity Clamping Functions"""
 import numpy as np
+from .._random import get_rng
 
 def no_clamping(velocity, velocity_bounds):
     """No velocity clamping - particles can move freely"""
@@ -28,7 +29,7 @@ def sigmoid_clamping(velocity, velocity_bounds, current_iter, max_iter):
 
 def random_clamping(velocity, velocity_bounds):
     """Random velocity clamping with random bounds"""
-    random_bounds = velocity_bounds * np.random.uniform(0.5, 1.5, len(velocity))
+    random_bounds = velocity_bounds * get_rng().uniform(0.5, 1.5, len(velocity))
     return np.clip(velocity, -random_bounds, random_bounds)
 
 def chaotic_clamping(velocity, velocity_bounds, z):

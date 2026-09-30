@@ -6,6 +6,7 @@ to PSO particles to improve exploration and escape local optima.
 """
 
 import numpy as np
+from .._random import get_rng
 import inspect
 from typing import Tuple, Optional, Callable
 
@@ -31,8 +32,8 @@ def gaussian_variation(particle_pos: np.ndarray, variation_rate: float = 0.1,
     
     # Apply variation to each dimension with given probability
     for i in range(len(particle_pos)):
-        if np.random.random() < variation_rate:
-            noise = np.random.normal(0, variation_strength)
+        if get_rng().random() < variation_rate:
+            noise = get_rng().normal(0, variation_strength)
             mutated_pos[i] += noise
     
     return mutated_pos
@@ -58,8 +59,8 @@ def uniform_variation(particle_pos: np.ndarray, variation_rate: float = 0.1,
     mutated_pos = particle_pos.copy()
     
     for i in range(len(particle_pos)):
-        if np.random.random() < variation_rate:
-            variation_value = np.random.uniform(variation_range[0], variation_range[1])
+        if get_rng().random() < variation_rate:
+            variation_value = get_rng().uniform(variation_range[0], variation_range[1])
             mutated_pos[i] += variation_value
     
     return mutated_pos
@@ -88,8 +89,8 @@ def polynomial_variation(particle_pos: np.ndarray, variation_rate: float = 0.1,
     x_min, x_max = bounds
     
     for i in range(len(particle_pos)):
-        if np.random.random() < variation_rate:
-            u = np.random.random()
+        if get_rng().random() < variation_rate:
+            u = get_rng().random()
             if u < 0.5:
                 delta = (2 * u) ** (1 / (eta + 1)) - 1
             else:
@@ -121,8 +122,8 @@ def cauchy_variation(particle_pos: np.ndarray, variation_rate: float = 0.1,
     mutated_pos = particle_pos.copy()
     
     for i in range(len(particle_pos)):
-        if np.random.random() < variation_rate:
-            noise = np.random.standard_cauchy() * scale
+        if get_rng().random() < variation_rate:
+            noise = get_rng().standard_cauchy() * scale
             mutated_pos[i] += noise
     
     return mutated_pos
@@ -150,10 +151,10 @@ def levy_variation(particle_pos: np.ndarray, variation_rate: float = 0.1,
     mutated_pos = particle_pos.copy()
     
     for i in range(len(particle_pos)):
-        if np.random.random() < variation_rate:
+        if get_rng().random() < variation_rate:
             # Generate Levy random number
-            u = np.random.normal(0, 1)
-            v = np.random.normal(0, 1)
+            u = get_rng().normal(0, 1)
+            v = get_rng().normal(0, 1)
             s = u / (abs(v) ** (1 / alpha))
             levy_noise = beta * s
             mutated_pos[i] += levy_noise
@@ -210,9 +211,9 @@ def chaotic_variation(particle_pos: np.ndarray, variation_rate: float = 0.1,
     mutated_pos = particle_pos.copy()
     
     for i in range(len(particle_pos)):
-        if np.random.random() < variation_rate:
+        if get_rng().random() < variation_rate:
             # Generate chaotic sequence
-            x = np.random.random()
+            x = get_rng().random()
             for _ in range(10):  # Iterate logistic map
                 x = chaos_param * x * (1 - x)
             
@@ -247,11 +248,11 @@ def differential_variation(particle_pos: np.ndarray, population: list,
     
     mutated_pos = particle_pos.copy()
     
-    if np.random.random() < variation_rate:
+    if get_rng().random() < variation_rate:
         # Select three random particles
         candidates = [p for p in population if not np.array_equal(p, particle_pos)]
         if len(candidates) >= 3:
-            x1, x2, x3 = np.random.choice(len(candidates), 3, replace=False)
+            x1, x2, x3 = get_rng().choice(len(candidates), 3, replace=False)
             x1, x2, x3 = candidates[x1], candidates[x2], candidates[x3]
             
             # Differential variation: x1 + f * (x2 - x3)
@@ -281,8 +282,8 @@ def boundary_variation(particle_pos: np.ndarray, bounds: Tuple[float, float],
     x_min, x_max = bounds
     
     for i in range(len(particle_pos)):
-        if np.random.random() < variation_rate:
-            mutated_pos[i] = np.random.uniform(x_min, x_max)
+        if get_rng().random() < variation_rate:
+            mutated_pos[i] = get_rng().uniform(x_min, x_max)
     
     return mutated_pos
 
@@ -315,9 +316,9 @@ def non_uniform_variation(particle_pos: np.ndarray, current_iter: int, max_iter:
     x_min, x_max = bounds
     
     for i in range(len(particle_pos)):
-        if np.random.random() < variation_rate:
-            r1 = np.random.random()
-            r2 = np.random.random()
+        if get_rng().random() < variation_rate:
+            r1 = get_rng().random()
+            r2 = get_rng().random()
             
             if r1 < 0.5:
                 delta = (2 * r2) ** (1 / (b + 1)) - 1
@@ -451,7 +452,7 @@ def escape_local_optima_variation(particle_pos: np.ndarray, bounds: Tuple[float,
     
     # Strong random displacement
     for i in range(len(particle_pos)):
-        displacement = np.random.uniform(-escape_strength, escape_strength)
+        displacement = get_rng().uniform(-escape_strength, escape_strength)
         mutated_pos[i] += displacement
         mutated_pos[i] = np.clip(mutated_pos[i], x_min, x_max)
     
@@ -480,7 +481,7 @@ def diversity_preserving_variation(particle_pos: np.ndarray, population: list,
     
     mutated_pos = particle_pos.copy()
     
-    if np.random.random() < variation_rate:
+    if get_rng().random() < variation_rate:
         # Find the most different particle
         max_distance = 0
         most_different = None
@@ -515,7 +516,7 @@ def restart_variation(particle_pos: np.ndarray, bounds: Tuple[float, float]) -> 
     np.ndarray : Completely new random position
     """
     x_min, x_max = bounds
-    return np.random.uniform(x_min, x_max, len(particle_pos))
+    return get_rng().uniform(x_min, x_max, len(particle_pos))
 
 def adaptive_variation_strength(particle_pos: np.ndarray, current_iter: int, max_iter: int,
                               base_strength: float = 0.1, bounds: Tuple[float, float] = (-5, 5)) -> np.ndarray:
@@ -566,7 +567,7 @@ def opposition_based_variation(particle_pos: np.ndarray, bounds: Tuple[float, fl
     x_min, x_max = bounds
     mutated_pos = particle_pos.copy()
     
-    if np.random.random() < variation_rate:
+    if get_rng().random() < variation_rate:
         # Calculate opposite position
         opposite_pos = x_min + x_max - particle_pos
         mutated_pos = 0.5 * (particle_pos + opposite_pos)

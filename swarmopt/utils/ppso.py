@@ -7,6 +7,7 @@ inspired by Gaussian Process acquisition functions.
 """
 
 import numpy as np
+from .._random import get_rng
 from typing import List, Tuple, Optional, Dict, Callable
 import warnings
 
@@ -210,8 +211,8 @@ class ProactiveParticle:
         adaptive_exploration = self._calculate_adaptive_exploration_weight(current_iter, max_iter)
         
         # Combine traditional PSO with proactive exploration
-        cognitive_component = c1 * np.random.random() * (self.best_pos - self.pos)
-        social_component = c2 * np.random.random() * (global_best_pos - self.pos)
+        cognitive_component = c1 * get_rng().random() * (self.best_pos - self.pos)
+        social_component = c2 * get_rng().random() * (global_best_pos - self.pos)
         exploration_component = adaptive_exploration * self.exploration_direction
         
         # Update velocity
@@ -241,7 +242,7 @@ class ProactiveParticle:
         """Update exploration direction based on knowledge gain"""
         # Sample random directions
         n_directions = 10
-        directions = np.random.randn(n_directions, len(self.pos))
+        directions = get_rng().standard_normal((n_directions, len(self.pos)))
         directions = directions / (np.linalg.norm(directions, axis=1, keepdims=True) + 1e-10)
         
         # Calculate knowledge gain for each direction
@@ -294,8 +295,8 @@ class ReactiveParticle:
     def update(self, global_best_pos: np.ndarray, global_best_cost: float,
                c1: float, c2: float, w: float, current_iter: int, max_iter: int):
         """Traditional PSO update"""
-        cognitive_component = c1 * np.random.random() * (self.best_pos - self.pos)
-        social_component = c2 * np.random.random() * (global_best_pos - self.pos)
+        cognitive_component = c1 * get_rng().random() * (self.best_pos - self.pos)
+        social_component = c2 * get_rng().random() * (global_best_pos - self.pos)
         
         self.velocity = w * self.velocity + cognitive_component + social_component
         self.pos += self.velocity
@@ -376,13 +377,13 @@ class PPSO:
     def _initialize_particles(self):
         """Initialize mixed swarm of proactive and reactive particles"""
         # Initialize positions randomly
-        positions = np.random.uniform(
+        positions = get_rng().uniform(
             self.bounds[0], self.bounds[1], 
             (self.n_particles, self.dims)
         )
         
         # Initialize velocities
-        velocities = np.random.uniform(
+        velocities = get_rng().uniform(
             -abs(self.bounds[1] - self.bounds[0]), 
             abs(self.bounds[1] - self.bounds[0]), 
             (self.n_particles, self.dims)

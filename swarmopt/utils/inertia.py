@@ -1,6 +1,7 @@
 """Inertia Weight Functions"""
-import random
 import numpy as np
+
+from .._random import get_rng
 
 def constant_inertia_weight(w):
     """Constant inertia weight"""
@@ -16,10 +17,13 @@ def chaotic_inertia_weight(z, max_iter, current_iter):
     return 0.9 * z + 0.1
 
 def random_inertia_weight(s=None):
-    """Random inertia weight between 0.5 and 1.0"""
-    if s is not None:
-        random.seed(s)
-    return 0.5 + random.random() / 2
+    """Random inertia weight between 0.5 and 1.0.
+
+    ``s`` optionally seeds a private generator for this single draw; it no
+    longer reseeds Python's global ``random`` module.
+    """
+    rng = np.random.default_rng(s) if s is not None else get_rng()
+    return 0.5 + rng.random() / 2
 
 def adaptive_inertia_weight(w_start, w_end, max_iter, current_iter, 
                            best_cost, initial_cost, current_cost):
@@ -36,10 +40,9 @@ def adaptive_inertia_weight(w_start, w_end, max_iter, current_iter,
 
 def chaotic_random_inertia_weight(z, s=None):
     """Combination of chaotic and random inertia weight"""
-    if s is not None:
-        random.seed(s)
+    rng = np.random.default_rng(s) if s is not None else get_rng()
     z = 4 * z * (1 - z)  # Logistic map
-    return 0.5 * random.random() + 0.5 * z
+    return 0.5 * rng.random() + 0.5 * z
 
 def exponential_inertia_weight(w_start, w_end, max_iter, current_iter):
     """Exponential decreasing inertia weight"""

@@ -1,8 +1,8 @@
 import numpy as np
 import timeit
-from random import shuffle
 
 try:
+    from ._random import make_rng, using_rng
     from .utils.distance import euclideanDistance
     from .utils.inertia import (
         constant_inertia_weight, linear_inertia_weight, chaotic_inertia_weight,
@@ -21,6 +21,7 @@ try:
     from .utils.simple_multiobjective import SimpleMultiObjectivePSO
     from .utils.hhoa import HHOA
 except ImportError:
+    from _random import make_rng, using_rng
     from utils.distance import euclideanDistance
     from utils.inertia import (
         constant_inertia_weight, linear_inertia_weight, chaotic_inertia_weight,
@@ -52,7 +53,7 @@ class Swarm:
                  exploration_weight=0.5,
                  multiobjective=False, mo_algorithm='nsga2', archive_size=100,
                  target_position=None, respect_boundary=None, n_delegates=0,
-                 delegate_spread='uniform'):
+                 delegate_spread='uniform', seed=None):
         """Intialize the swarm
 
         Attributes
@@ -92,7 +93,18 @@ class Swarm:
         respect_boundary: float, optional
             minimum distance to keep from target_position; defaults to
             10% of the search-space diagonal when target_position is set
+        seed: int, numpy.random.SeedSequence, numpy.random.Generator, optional
+            source of randomness; the same seed gives the same run
         """
+
+        if algo == 'multiswarm':
+            raise NotImplementedError(
+                "Dynamic Multi-Swarm PSO (algo='multiswarm') is being reworked and is "
+                "not available in this release. Use algo='cpso' for a multi-swarm approach."
+            )
+
+        self.seed = seed
+        self.rng = make_rng(seed)
 
         self.algo = algo
         self.epochs = epochs
@@ -204,23 +216,24 @@ class Swarm:
         self.local_best_cost = float('inf')
         self.local_best_pos = None
 
-        if self.algo == 'cpso':
-            # Initialize Cooperative PSO
-            if self.n_swarms is None:
-                self.n_swarms = max(2, self.dims // 2)  # Default to 2 or dims/2
-            self.cpso = CPSO(
-                n_swarms=self.n_swarms,
-                n_particles_per_swarm=self.n_particles,
-                total_dimensions=self.dims,
-                obj_func=self.obj_func,
-                c1=self.c1, c2=self.c2, w=self.w,
-                velocity_clamp=(self.val_min, self.val_max),
-                communication_strategy=self.communication_strategy
-            )
-        elif self.algo == 'multiswarm':
-            self.multiswarm = self.initialize_multiswarm()
-        else:
-            self.swarm = self.initialize_swarm()
+        with using_rng(self.rng):
+            if self.algo == 'cpso':
+                # Initialize Cooperative PSO
+                if self.n_swarms is None:
+                    self.n_swarms = max(2, self.dims // 2)  # Default to 2 or dims/2
+                self.cpso = CPSO(
+                    n_swarms=self.n_swarms,
+                    n_particles_per_swarm=self.n_particles,
+                    total_dimensions=self.dims,
+                    obj_func=self.obj_func,
+                    c1=self.c1, c2=self.c2, w=self.w,
+                    velocity_clamp=(self.val_min, self.val_max),
+                    communication_strategy=self.communication_strategy
+                )
+            elif self.algo == 'multiswarm':
+                self.multiswarm = self.initialize_multiswarm()
+            else:
+                self.swarm = self.initialize_swarm()
 
         if self.algo != 'cpso' and not self.multiobjective:
             self.update_global_best_pos()
@@ -249,7 +262,7 @@ class Swarm:
                     angle = 2 * np.pi * i / self.n_delegates
                 elif self.delegate_spread == 'random':
                     # Random angles
-                    angle = 2 * np.pi * np.random.random()
+                    angle = 2 * np.pi * self.rng.random()
                 elif self.delegate_spread == 'opposite':
                     # Position delegates opposite each other (for redundancy)
                     angle = np.pi * i
@@ -279,8 +292,8 @@ class Swarm:
                     
                 elif self.delegate_spread == 'random':
                     # Random positions on sphere
-                    theta = 2 * np.pi * np.random.random()
-                    phi = np.arccos(2 * np.random.random() - 1)
+                    theta = 2 * np.pi * self.rng.random()
+                    phi = np.arccos(2 * self.rng.random() - 1)
                     
                     x = np.sin(phi) * np.cos(theta)
                     y = np.sin(phi) * np.sin(theta)
@@ -315,7 +328,7 @@ class Swarm:
             # Higher dimensions: Use hypersphere sampling
             for i in range(self.n_delegates):
                 # Random point on unit hypersphere
-                random_point = np.random.randn(self.dims)
+                random_point = self.rng.standard_normal((self.dims,))
                 random_point /= np.linalg.norm(random_point)
                 
                 # Scale to respect boundary
@@ -424,6 +437,11 @@ class Swarm:
         return multiswarm
 
     def optimize(self):
+        """Run the optimization, drawing all randomness from ``self.rng``."""
+        with using_rng(self.rng):
+            return self._optimize()
+
+    def _optimize(self):
         start = timeit.default_timer()
         
         # Handle Cooperative PSO
@@ -481,7 +499,7 @@ class Swarm:
         # Initialize multiobjective optimization if enabled
         if self.multiobjective:
             # Check if obj_func returns multiple objectives
-            test_result = self.obj_func(np.random.uniform(self.val_min, self.val_max, self.dims))
+            test_result = self.obj_func(self.rng.uniform(self.val_min, self.val_max, self.dims))
             if not isinstance(test_result, np.ndarray) or len(test_result) < 2:
                 raise ValueError("Multiobjective optimization requires obj_func to return multiple objectives")
             
@@ -658,7 +676,7 @@ class Swarm:
         for i in range(n_to_restart):
             particle = particles_with_costs[i][0]
             # Reinitialize position
-            particle.pos = np.random.uniform(self.val_min, self.val_max, self.dims)
+            particle.pos = self.rng.uniform(self.val_min, self.val_max, self.dims)
             # Enforce respect boundary if enabled
             if self.use_respect_boundary:
                 particle.pos = particle._enforce_respect_boundary(particle.pos)
@@ -667,7 +685,7 @@ class Swarm:
                 particle.best_cost = self.objective_with_respect_boundary(particle.pos)
             else:
                 particle.best_cost = self.obj_func(particle.pos)
-            particle.velocity = np.random.uniform(-self.velocity_bounds, self.velocity_bounds, self.dims)
+            particle.velocity = self.rng.uniform(-self.velocity_bounds, self.velocity_bounds, self.dims)
             particle.stagnation_count = 0
     
     def _apply_escape_variations(self, stats: dict):
@@ -724,10 +742,10 @@ class Particle:
     def __init__(self, swarm):
         self.swarm = swarm
         self.dims = swarm.dims
-        self.pos = self.best_pos = self.local_best_pos = np.random.uniform(
+        self.pos = self.best_pos = self.local_best_pos = self.swarm.rng.uniform(
             swarm.val_min, swarm.val_max, swarm.dims
         )
-        self.velocity = np.random.uniform(
+        self.velocity = self.swarm.rng.uniform(
             -swarm.velocity_bounds, swarm.velocity_bounds, swarm.dims
         )
         # Use respect boundary aware objective if enabled
@@ -737,22 +755,22 @@ class Particle:
             self.best_cost = swarm.obj_func(self.best_pos)
 
     def cognitive_weight(self):
-        return (self.swarm.c1 * np.random.uniform(0, 1, self.dims)) * (
+        return (self.swarm.c1 * self.swarm.rng.uniform(0, 1, self.dims)) * (
             self.best_pos - self.pos
         )
 
     def global_weight(self):
-        return (self.swarm.c2 * np.random.uniform(0, 1, self.dims)) * (
+        return (self.swarm.c2 * self.swarm.rng.uniform(0, 1, self.dims)) * (
             self.swarm.best_pos - self.pos
         )
 
     def local_weight(self):
-        return (self.swarm.c2 * np.random.uniform(0, 1, self.dims)) * (
+        return (self.swarm.c2 * self.swarm.rng.uniform(0, 1, self.dims)) * (
             self.local_best_pos - self.pos
         )
 
     def social_weight(self):
-        return (self.swarm.c2 * np.random.uniform(0, 1, self.dims)) * (
+        return (self.swarm.c2 * self.swarm.rng.uniform(0, 1, self.dims)) * (
             self.local_best_pos - self.pos
         )
 
@@ -775,7 +793,7 @@ class Particle:
 
         if self.swarm.algo == 'sa':
             if np.array_equal(self.pos, self.swarm.worst_pos):
-                new_pos = np.random.uniform(self.swarm.val_min, self.swarm.val_max, self.swarm.dims)
+                new_pos = self.swarm.rng.uniform(self.swarm.val_min, self.swarm.val_max, self.swarm.dims)
                 # Enforce respect boundary if enabled
                 if self.swarm.use_respect_boundary:
                     new_pos = self._enforce_respect_boundary(new_pos)
@@ -799,7 +817,7 @@ class Particle:
             """Reshuffling"""
             if hasattr(self.swarm, 'regroup') and self.swarm.regroup:
                 particles = [particle for swarm in self.swarm.multiswarm for particle in swarm]
-                shuffle(particles)
+                self.swarm.rng.shuffle(particles)
                 m = len(particles) // self.swarm.m_swarms
                 self.swarm.multiswarm = [particles[i:i+m] for i in range(0, len(particles), m)]
 
@@ -918,7 +936,7 @@ class Particle:
         if distance_to_target < 1e-10:
             # Particle is at or very close to target position - move to random position outside boundary
             # Generate random unit vector
-            random_direction = np.random.randn(self.swarm.dims)
+            random_direction = self.swarm.rng.standard_normal((self.swarm.dims,))
             random_direction /= np.linalg.norm(random_direction)
             # Position at safe distance outside boundary
             adjusted_position = self.swarm.target_position + safe_boundary * random_direction
@@ -941,7 +959,7 @@ class Particle:
                 correction_direction /= np.linalg.norm(correction_direction)
             else:
                 # If direction is degenerate, use random direction
-                correction_direction = np.random.randn(self.swarm.dims)
+                correction_direction = self.swarm.rng.standard_normal((self.swarm.dims,))
                 correction_direction /= np.linalg.norm(correction_direction)
             adjusted_position = self.swarm.target_position + safe_boundary * correction_direction
         
