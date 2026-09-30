@@ -104,7 +104,7 @@ FUNCTION_METADATA = {
     },
     'perm': {
         'optimal_value': 0.0,
-        'optimal_position': 'special',  # [1, 1/2, 1/3, ..., 1/n]
+        'optimal_position': 'special',  # [1, 2, 3, ..., n]
         'bounds': 'dimension_dependent',  # [-n, n]
         'dimensions': 'any',
         'type': 'multimodal'
@@ -245,11 +245,11 @@ def get_optimal_position(func_name, n_dims=None):
         if not n_dims:
             return None
         if func_name == 'dixon_price':
-            # x_i* = 2^(-(2^i-2)/(2^i))
-            return [2**(-(2**i - 2) / (2**i)) for i in range(n_dims)]
+            # x_i* = 2^(-(2^i-2)/(2^i)) with 1-based i
+            return [2**(-(2**i - 2) / (2**i)) for i in range(1, n_dims + 1)]
         elif func_name == 'perm':
-            # x_i* = 1/(i+1)
-            return [1.0 / (i + 1) for i in range(n_dims)]
+            # This is the Perm d,beta form; x_i* = i with 1-based i
+            return [float(i + 1) for i in range(n_dims)]
         elif func_name == 'trid':
             # x_i* = i(n+1-i)
             return [(i + 1) * (n_dims - i) for i in range(n_dims)]
@@ -302,7 +302,7 @@ def zakharov(x):
 
 def dixon_price(x):
     """Dixon-Price function
-    Global minimum: f(x*) = 0, where x_i* = 2^(-(2^i-2)/(2^i))
+    Global minimum: f(x*) = 0, where x_i* = 2^(-(2^i-2)/(2^i)) for i = 1..n
     Search domain: [-10, 10]^n
     """
     term1 = (x[0] - 1)**2
@@ -391,8 +391,8 @@ def michalewicz(x, m=10):
                  for i, y in enumerate(x)])
 
 def perm(x, beta=10):
-    """Perm function
-    Global minimum: f(1, 1/2, 1/3, ..., 1/n) = 0
+    """Perm d,beta function
+    Global minimum: f(1, 2, 3, ..., n) = 0
     Search domain: [-n, n]^n
     """
     n = len(x)
