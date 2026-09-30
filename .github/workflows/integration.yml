@@ -1,0 +1,43 @@
+name: Integration
+
+# The integration scripts are slow, so they run weekly and on demand
+# rather than on every pull request.
+on:
+  schedule:
+    - cron: "17 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        script:
+          - test_cpso
+          - test_diversity_system
+          - test_inertia_variations
+          - test_installation
+          - test_multiobjective
+          - test_multiobjective_challenges
+          - test_ppso
+          - test_respect_boundary
+          - test_respect_simple
+          - test_variation_operators
+          - test_velocity_clamping
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -e ".[viz]"
+      - name: Run ${{ matrix.script }}
+        env:
+          MPLBACKEND: Agg
+        run: python tests/integration/${{ matrix.script }}.py

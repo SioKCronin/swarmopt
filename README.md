@@ -54,7 +54,10 @@ swarm = Swarm(n_particles=30, dims=2, c1=2.0, c2=2.0, w=0.9,
 Run the comprehensive test suite:
 
 ```bash
-# Run all tests
+# Unit tests (what CI runs on every pull request)
+python -m pytest
+
+# Run all tests, including the slower integration scripts
 python infra/run_tests.py
 
 # Or run specific test categories
@@ -68,7 +71,7 @@ Build, release, Docker, and dependency pin files live under [`infra/`](infra/).
 For local development from a clone:
 
 ```bash
-pip install -e .
+pip install -e ".[dev]"
 make -C infra init   # optional extras (matplotlib, TDA examples, etc.)
 ```
 
@@ -133,6 +136,11 @@ Stratified empirical comparisons (repeated trials, spread, ranks per function cl
 * Neural network number of layers and weight optimization
 * Routing in communication networks
 * Satellite repair helper-swarm standoff positioning
+
+## Security
+
+See [SECURITY.md](SECURITY.md) to report a vulnerability privately or to
+verify a release's build provenance.
 
 ## Citation
 
