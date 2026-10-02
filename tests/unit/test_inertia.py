@@ -9,7 +9,20 @@ class TestInertia(unittest.TestCase):
         self.assertRaises(TypeError, inertia.constant_inertia_weight)
 
     def test_random_inertia_weight(self):
-        self.assertEqual(inertia.random_inertia_weight(2), 0.9780171359446247)
+        # Same seed, same value; always within [0.5, 1.0]
+        self.assertEqual(inertia.random_inertia_weight(2), inertia.random_inertia_weight(2))
+        for s in range(20):
+            w = inertia.random_inertia_weight(s)
+            self.assertGreaterEqual(w, 0.5)
+            self.assertLessEqual(w, 1.0)
+
+    def test_random_inertia_does_not_touch_global_state(self):
+        import random
+        random.seed(123)
+        expected = random.random()
+        random.seed(123)
+        inertia.random_inertia_weight(2)
+        self.assertEqual(random.random(), expected)
 
     def test_chaotic_inertia_weight(self):
         # Test chaotic inertia weight with new signature

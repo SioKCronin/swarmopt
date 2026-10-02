@@ -237,10 +237,11 @@ class TestLowDimensionalFunctions(unittest.TestCase):
     
     def test_shubert(self):
         """Test shubert function (2D)"""
-        # Known to have multiple global minima
-        result = functions.shubert([0, 0])
-        self.assertIsInstance(result, (int, float))
-        self.assertLess(result, 0)
+        # Known to have 18 global minima; check two of them
+        for x in ([-7.0835, 4.8580], [5.4829, 4.8580]):
+            self.assertAlmostEqual(functions.shubert(x), -186.7309, places=2)
+        # The origin is not a minimum: f(0, 0) = (sum i*cos(i))^2 >= 0
+        self.assertGreater(functions.shubert([0, 0]), 0)
     
     def test_hartmann_3d(self):
         """Test hartmann 3D function"""

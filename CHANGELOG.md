@@ -5,6 +5,42 @@ All notable changes to SwarmOpt will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - Unreleased
+
+Foundation release: correctness, reproducibility, and supply-chain hygiene.
+
+### Added
+- `Swarm(seed=...)` makes runs reproducible. All randomness comes from a
+  `numpy.random.Generator`; SwarmOpt no longer reads or changes NumPy's or
+  Python's global random state.
+- `Swarm(respect_boundary=...)` sets the standoff distance explicitly
+  (default remains 10% of the search-space diagonal when `target_position`
+  is given). Invalid distances raise `ValueError`.
+- CI: unit tests on Python 3.10–3.13 (plus macOS and Windows), a build and
+  wheel smoke test, and a weekly integration run.
+- Supply chain: OpenSSF Scorecard, Dependabot, pinned action SHAs,
+  `SECURITY.md` with private reporting, and build-provenance attestations
+  on releases.
+
+### Fixed
+- `get_optimal_position` returned wrong optima for Dixon-Price (0-based
+  index) and Perm (this is the Perm d,β form, optimum `(1, 2, ..., n)`).
+- `dimension_wise_clamping` crashed on scalar bounds.
+- `diversity_monitoring=True` crashed when an intervention fired (the
+  intervention methods were defined on `Particle` instead of `Swarm`).
+
+### Changed
+- Requires Python 3.10+. Packaging moved to `pyproject.toml`; the version
+  lives in `swarmopt.__version__`.
+- `inertia.random_inertia_weight(s)` uses a private generator, so seeded
+  values differ from 0.2.0.
+- `algo='multiswarm'` (DMS-PSO) raises `NotImplementedError`. It crashed on
+  construction in 0.2.0 and is being reworked.
+
+### Removed
+- The optional ETDA hook that modified `sys.path` on import, and the
+  unused `etda` submodule entry.
+
 ## [0.2.0] - 2024-12-14
 
 ### 🎯 Major Features Added

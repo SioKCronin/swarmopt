@@ -8,6 +8,7 @@ overall performance.
 """
 
 import numpy as np
+from .._random import get_rng
 from typing import List, Tuple, Callable, Optional
 
 class CooperativeSwarm:
@@ -61,12 +62,12 @@ class CooperativeSwarm:
         self.particles = []
         for i in range(self.n_particles):
             # Initialize position for this swarm's dimensions
-            pos = np.random.uniform(-5, 5, len(self.dimensions))
+            pos = get_rng().uniform(-5, 5, len(self.dimensions))
             particle = CooperativeParticle(pos, self.dimensions, self.velocity_clamp)
             particle.swarm_id = self.swarm_id
             
             # Initialize particle cost
-            full_pos = np.random.uniform(-5, 5, full_dim)
+            full_pos = get_rng().uniform(-5, 5, full_dim)
             full_pos[self.dimensions] = pos
             particle.best_cost = self.obj_func(full_pos)
             
@@ -112,7 +113,7 @@ class CooperativeParticle:
             Velocity bounds
         """
         self.pos = pos.copy()
-        self.velocity = np.random.uniform(-1, 1, len(dimensions))
+        self.velocity = get_rng().uniform(-1, 1, len(dimensions))
         self.dimensions = dimensions
         self.velocity_clamp = velocity_clamp
         
@@ -156,7 +157,7 @@ class CooperativeParticle:
             self.best_pos = self.pos.copy()
         
         # Update velocity
-        r1, r2 = np.random.random(2)
+        r1, r2 = get_rng().random(2)
         
         # Cognitive component (particle's best)
         cognitive = c1 * r1 * (self.best_pos - self.pos)
@@ -238,9 +239,9 @@ class CPSO:
             self.swarms.append(swarm)
         
         # Global best tracking
-        self.global_best_pos = np.random.uniform(-5, 5, total_dimensions)
+        self.global_best_pos = get_rng().uniform(-5, 5, total_dimensions)
         self.global_best_cost = float('inf')
-        self.global_context = np.random.uniform(-5, 5, total_dimensions)
+        self.global_context = get_rng().uniform(-5, 5, total_dimensions)
         
         # Communication history
         self.communication_history = []
@@ -276,7 +277,7 @@ class CPSO:
             # Use random particles from each swarm
             for swarm in self.swarms:
                 if swarm.particles:
-                    random_particle = np.random.choice(swarm.particles)
+                    random_particle = get_rng().choice(swarm.particles)
                     self.global_context[swarm.dimensions] = random_particle.pos
                     
         elif self.communication_strategy == 'tournament':
@@ -284,7 +285,7 @@ class CPSO:
             for swarm in self.swarms:
                 if len(swarm.particles) >= 2:
                     # Tournament between two random particles
-                    p1, p2 = np.random.choice(swarm.particles, 2, replace=False)
+                    p1, p2 = get_rng().choice(swarm.particles, 2, replace=False)
                     winner = p1 if p1.best_cost < p2.best_cost else p2
                     self.global_context[swarm.dimensions] = winner.pos
                 elif swarm.particles:

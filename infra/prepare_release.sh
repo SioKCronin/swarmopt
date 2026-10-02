@@ -12,14 +12,18 @@ echo "🚀 SwarmOpt Release Preparation"
 echo "================================"
 echo ""
 
-# Get current version from setup.py
-CURRENT_VERSION=$(grep "version=" setup.py | sed "s/.*version='\(.*\)'.*/\1/")
+# Get current version from swarmopt/__init__.py (single source of truth)
+CURRENT_VERSION=$(sed -n 's/^__version__ = "\(.*\)"/\1/p' swarmopt/__init__.py)
 echo "📦 Current version: $CURRENT_VERSION"
 echo ""
 
 # Ask for new version
 read -p "Enter new version (or press Enter to keep $CURRENT_VERSION): " NEW_VERSION
 NEW_VERSION=${NEW_VERSION:-$CURRENT_VERSION}
+if [ "$NEW_VERSION" != "$CURRENT_VERSION" ]; then
+    sed -i.bak "s/^__version__ = \".*\"/__version__ = \"$NEW_VERSION\"/" swarmopt/__init__.py && rm -f swarmopt/__init__.py.bak
+    echo "✏️  Updated swarmopt/__init__.py to $NEW_VERSION"
+fi
 
 echo ""
 echo "📋 Pre-release Checklist:"
@@ -32,7 +36,7 @@ if [ -f "infra/run_tests.py" ]; then
     read -p "Run tests now? (y/n): " RUN_TESTS
     if [ "$RUN_TESTS" = "y" ]; then
         echo "Running tests..."
-        python infra/run_tests.py || echo "⚠️  Tests failed, but continuing..."
+        python infra/run_tests.py || { echo "❌ Tests failed; fix them before releasing."; exit 1; }
     fi
 else
     echo "⚠️  No infra/run_tests.py found"

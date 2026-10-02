@@ -3,9 +3,9 @@
 ## Pre-Release Steps
 
 ### 1. ✅ Version Check
-- [x] Current version in `setup.py`: **0.2.0**
-- [ ] Decide if bumping version or releasing 0.2.0
-- [ ] Update version in `setup.py` if needed
+- [ ] Version in `swarmopt/__init__.py` (`__version__`) matches the release
+- [ ] CHANGELOG entry dated
+- [ ] CI green on the release commit
 - [ ] Update `CHANGELOG.md` with actual release date
 
 ### 2. ✅ Code Quality
@@ -135,7 +135,7 @@ git push origin v0.2.0
 ## Troubleshooting
 
 ### "Package already exists" error
-- Version 0.2.0 already published? Bump version in setup.py
+- Version 0.2.0 already published? Bump `__version__` in swarmopt/__init__.py
 - Check: https://pypi.org/project/swarmopt/
 
 ### "Invalid credentials" error
@@ -144,14 +144,14 @@ git push origin v0.2.0
 - Use `__token__` as username
 
 ### Import errors after installation
-- Check `packages` in setup.py includes all modules
+- Check `[tool.setuptools.packages.find]` in pyproject.toml includes all modules
 - Verify `__init__.py` exists in all packages
 - Check `install_requires` lists all dependencies
 
 ## Current Status
 
 - ✅ Version: 0.2.0
-- ✅ setup.py configured
+- ✅ pyproject.toml configured
 - ✅ README.md ready
 - ✅ CHANGELOG.md updated
 - ✅ Distribution files exist in dist/

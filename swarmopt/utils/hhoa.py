@@ -15,6 +15,7 @@ The algorithm models three main behaviors:
 """
 
 import numpy as np
+from .._random import get_rng
 from typing import List, Tuple, Optional, Dict, Callable
 import time
 
@@ -138,7 +139,7 @@ class HHOA:
     def _initialize_herd(self):
         """Initialize the horse herd"""
         for _ in range(self.n_horses):
-            position = np.random.uniform(self.bounds[0], self.bounds[1], self.dims)
+            position = get_rng().uniform(self.bounds[0], self.bounds[1], self.dims)
             horse = Horse(position, self.obj_func, self.bounds)
             self.horses.append(horse)
     
@@ -166,7 +167,7 @@ class HHOA:
         exploration_factor = max(0.1, exploration_factor)  # Minimum 10% exploration
         
         # Random grazing direction
-        grazing_direction = np.random.randn(self.dims)
+        grazing_direction = get_rng().standard_normal((self.dims,))
         grazing_direction /= np.linalg.norm(grazing_direction) + 1e-10
         
         # Grazing step size (decreases over time)
@@ -194,7 +195,7 @@ class HHOA:
         search_radius = (1.0 - exploitation_factor) * (self.bounds[1] - self.bounds[0]) * 0.05
         
         # Random perturbation around best position
-        perturbation = np.random.randn(self.dims) * search_radius
+        perturbation = get_rng().standard_normal((self.dims,)) * search_radius
         new_pos = horse.best_pos + perturbation
         
         # Apply bounds
@@ -221,7 +222,7 @@ class HHOA:
             probabilities = np.array(probabilities)
             probabilities /= probabilities.sum()
             
-            selected_leader = np.random.choice(len(leaders), p=probabilities)
+            selected_leader = get_rng().choice(len(leaders), p=probabilities)
             target = leaders[selected_leader].best_pos
         
         # Follow the target with adaptive step size
@@ -235,7 +236,7 @@ class HHOA:
             new_pos = horse.pos + step_size * direction
         else:
             # Already at target, add small random movement
-            new_pos = horse.pos + np.random.randn(self.dims) * (self.bounds[1] - self.bounds[0]) * 0.01
+            new_pos = horse.pos + get_rng().standard_normal((self.dims,)) * (self.bounds[1] - self.bounds[0]) * 0.01
         
         # Apply bounds
         new_pos = np.clip(new_pos, self.bounds[0], self.bounds[1])
@@ -263,7 +264,7 @@ class HHOA:
         time_factor = current_iter / max_iter
         
         for horse in remaining_horses:
-            rand = np.random.random()
+            rand = get_rng().random()
             
             # Adjust rates based on iteration
             adjusted_grazing = self.grazing_rate * (1.0 - time_factor)

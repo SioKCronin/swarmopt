@@ -38,12 +38,26 @@ swarm.optimize()
 print(f"Best cost: {swarm.best_cost}")
 ```
 
+### Reproducible runs
+
+Pass `seed` to get the same result every time. SwarmOpt draws all randomness
+from its own `numpy.random.Generator` and never touches NumPy's or Python's
+global random state.
+
+```python
+swarm = Swarm(n_particles=30, dims=2, c1=2.0, c2=2.0, w=0.9,
+              epochs=100, obj_func=sphere, seed=42)
+```
+
 ## Testing
 
 Run the comprehensive test suite:
 
 ```bash
-# Run all tests
+# Unit tests (what CI runs on every pull request)
+python -m pytest
+
+# Run all tests, including the slower integration scripts
 python infra/run_tests.py
 
 # Or run specific test categories
@@ -57,7 +71,7 @@ Build, release, Docker, and dependency pin files live under [`infra/`](infra/).
 For local development from a clone:
 
 ```bash
-pip install -e .
+pip install -e ".[dev]"
 make -C infra init   # optional extras (matplotlib, TDA examples, etc.)
 ```
 
@@ -71,7 +85,7 @@ Stratified empirical comparisons (repeated trials, spread, ranks per function cl
 * Global Best PSO - Kennedy & Eberhart 1995
 * Local Best PSO - Kennedy & Eberhart 1995
 * Unified PSO - Parsopoulos &  Vrahatis 2004
-* Dynamic Multi-Swarm PSO - Liang & Suganthan 2005
+* Dynamic Multi-Swarm PSO - Liang & Suganthan 2005 *(being reworked; not available in 0.3)*
 * Simulated Annealing PSO - Mu, Cao, & Wang 2009
 * Cooperative PSO (CPSO) - Van den Bergh & Engelbrecht 2004
 * Horse Herd Optimization Algorithm (HHOA) - Ibrahim et al. 2025
@@ -122,6 +136,11 @@ Stratified empirical comparisons (repeated trials, spread, ranks per function cl
 * Neural network number of layers and weight optimization
 * Routing in communication networks
 * Satellite repair helper-swarm standoff positioning
+
+## Security
+
+See [SECURITY.md](SECURITY.md) to report a vulnerability privately or to
+verify a release's build provenance.
 
 ## Citation
 

@@ -6,6 +6,7 @@ complex indexing issues while providing core functionality.
 """
 
 import numpy as np
+from .._random import get_rng
 from typing import List, Tuple, Optional, Dict, Callable
 import warnings
 
@@ -61,8 +62,8 @@ class SimpleMultiObjectivePSO:
     def _initialize_particles(self):
         """Initialize particle swarm"""
         for _ in range(self.n_particles):
-            position = np.random.uniform(self.bounds[0], self.bounds[1], self.dims)
-            velocity = np.random.uniform(-abs(self.bounds[1] - self.bounds[0]), 
+            position = get_rng().uniform(self.bounds[0], self.bounds[1], self.dims)
+            velocity = get_rng().uniform(-abs(self.bounds[1] - self.bounds[0]), 
                                        abs(self.bounds[1] - self.bounds[0]), self.dims)
             
             particle = {
@@ -85,8 +86,8 @@ class SimpleMultiObjectivePSO:
             global_best = self._select_global_best()
             
             # Standard PSO update
-            cognitive_component = self.c1 * np.random.random() * (particle['best_pos'] - particle['pos'])
-            social_component = self.c2 * np.random.random() * (global_best['best_pos'] - particle['pos'])
+            cognitive_component = self.c1 * get_rng().random() * (particle['best_pos'] - particle['pos'])
+            social_component = self.c2 * get_rng().random() * (global_best['best_pos'] - particle['pos'])
             
             particle['velocity'] = (self.w * particle['velocity'] + 
                                   cognitive_component + social_component)
@@ -104,7 +105,7 @@ class SimpleMultiObjectivePSO:
                 particle['best_objectives'] = particle['objectives'].copy()
             elif not self._dominates(particle['best_objectives'], particle['objectives']):
                 # Non-dominated, randomly choose
-                if np.random.random() < 0.5:
+                if get_rng().random() < 0.5:
                     particle['best_pos'] = particle['pos'].copy()
                     particle['best_objectives'] = particle['objectives'].copy()
     
@@ -112,14 +113,14 @@ class SimpleMultiObjectivePSO:
         """Select global best using tournament selection"""
         if len(self.archive) == 0:
             # No solutions in archive, use random particle
-            return np.random.choice(self.particles)
+            return get_rng().choice(self.particles)
         
         # Tournament selection
         tournament_size = min(3, len(self.archive))
-        tournament = np.random.choice(self.archive, tournament_size, replace=False)
+        tournament = get_rng().choice(self.archive, tournament_size, replace=False)
         
         # Select best from tournament (random for simplicity)
-        return np.random.choice(tournament)
+        return get_rng().choice(tournament)
     
     def _update_archive(self):
         """Update external archive"""
@@ -160,7 +161,7 @@ class SimpleMultiObjectivePSO:
         """Maintain archive size by random selection"""
         if len(self.archive) > self.archive_size:
             # Randomly select solutions to keep
-            indices = np.random.choice(len(self.archive), self.archive_size, replace=False)
+            indices = get_rng().choice(len(self.archive), self.archive_size, replace=False)
             self.archive = [self.archive[i] for i in indices]
     
     def _calculate_hypervolume(self) -> float:
