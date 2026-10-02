@@ -38,7 +38,7 @@ classifiers = [
 viz = ["matplotlib>=3.5"]
 tda = ["giotto-tda>=0.5.0"]
 examples = ["matplotlib>=3.5"]
-dev = ["pytest>=7", "build", "twine"]
+dev = ["pytest>=9.1.1", "build", "twine"]
 
 [project.urls]
 Homepage = "https://github.com/SioKCronin/swarmopt"
