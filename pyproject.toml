@@ -35,9 +35,9 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-viz = ["matplotlib>=3.5"]
+viz = ["matplotlib>=3.10.9"]
 tda = ["giotto-tda>=0.5.0"]
-examples = ["matplotlib>=3.5"]
+examples = ["matplotlib>=3.10.9"]
 dev = ["pytest>=7", "build", "twine"]
 
 [project.urls]
