@@ -64,7 +64,6 @@ Example custom config (JSON):
   "n_particles": 30,
   "epochs": 50,
   "runs_per_cell": 5,
-  "velocity_clamp": [-5, 5],
   "seed": 42
 }
 ```
@@ -81,6 +80,11 @@ python tests/benchmarks/run_suite.py --config configs/my_experiment.json --outpu
 - **JSON:** same rows as a list of objects.
 
 Use the CSV in R, Python (pandas), or Excel for further analysis and figures.
+
+By default each function runs on the bounds declared in
+`swarmopt.functions.FUNCTION_METADATA`. For deliberate shared-domain experiments,
+set `"search_bounds": [low, high]`; for per-function overrides, set
+`"function_bounds": {"ackley": [-32.768, 32.768]}`.
 
 ## Extending the suite
 

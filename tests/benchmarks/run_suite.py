@@ -95,7 +95,21 @@ def get_bounds_for_function(name, dims=10):
     return (-10.0, 10.0)
 
 
-def run_single(algorithm_id, preset, function_name, obj_func, dims, n_particles, epochs, velocity_clamp, seed):
+def get_search_bounds(config, function_name, dims):
+    """Resolve the search box for one function."""
+    function_bounds = config.get("function_bounds", {})
+    if function_name in function_bounds:
+        bounds = function_bounds[function_name]
+        return (float(bounds[0]), float(bounds[1]))
+
+    if "search_bounds" in config:
+        bounds = config["search_bounds"]
+        return (float(bounds[0]), float(bounds[1]))
+
+    return get_bounds_for_function(function_name, dims)
+
+
+def run_single(algorithm_id, preset, function_name, obj_func, dims, n_particles, epochs, search_bounds, seed):
     """Run one optimization and return best_cost, runtime, seed."""
     np.random.seed(seed)
     t0 = time.perf_counter()
@@ -107,7 +121,7 @@ def run_single(algorithm_id, preset, function_name, obj_func, dims, n_particles,
         w=0.9,
         epochs=epochs,
         obj_func=obj_func,
-        velocity_clamp=velocity_clamp,
+        velocity_clamp=search_bounds,
         w_start=0.9,
         w_end=0.4,
         **preset,
@@ -136,7 +150,6 @@ def load_config(path_or_name):
             "n_particles": 20,
             "epochs": 30,
             "runs_per_cell": 2,
-            "velocity_clamp": (-5, 5),
         },
         "medium": {
             "algorithms": ["global_linear", "global_adaptive", "local_linear", "cpso_best", "ppso"],
@@ -145,7 +158,6 @@ def load_config(path_or_name):
             "n_particles": 30,
             "epochs": 50,
             "runs_per_cell": 3,
-            "velocity_clamp": (-5, 5),
         },
         "full": {
             "algorithms": list(ALGORITHM_PRESETS.keys()),
@@ -154,7 +166,6 @@ def load_config(path_or_name):
             "n_particles": 30,
             "epochs": 80,
             "runs_per_cell": 5,
-            "velocity_clamp": (-5, 5),
         },
         "unimodal": {
             "algorithms": ["global_linear", "global_adaptive", "cpso_best"],
@@ -163,7 +174,6 @@ def load_config(path_or_name):
             "n_particles": 25,
             "epochs": 50,
             "runs_per_cell": 4,
-            "velocity_clamp": (-5, 5),
         },
         "multimodal": {
             "algorithms": ["global_linear", "global_adaptive", "local_linear", "cpso_best", "ppso"],
@@ -172,7 +182,6 @@ def load_config(path_or_name):
             "n_particles": 30,
             "epochs": 80,
             "runs_per_cell": 4,
-            "velocity_clamp": (-5, 5),
         },
     }
     if path_or_name in builtin:
@@ -196,8 +205,11 @@ def run_benchmark_suite(config, output_dir=None, verbose=True):
     n_particles = int(config.get("n_particles", 30))
     epochs = int(config.get("epochs", 50))
     runs_per_cell = int(config.get("runs_per_cell", 3))
-    velocity_clamp = tuple(config.get("velocity_clamp", [-5, 5]))
     base_seed = int(config.get("seed", 42))
+
+    if "velocity_clamp" in config and verbose:
+        print("  Ignoring deprecated benchmark config key 'velocity_clamp'; "
+              "using per-function metadata bounds. Use 'search_bounds' to override.")
 
     results = []
     total = len(algorithms) * len(functions) * runs_per_cell
@@ -210,14 +222,16 @@ def run_benchmark_suite(config, output_dir=None, verbose=True):
                 if verbose:
                     print(f"  Skip unknown function: {func_name}")
                 continue
+            search_bounds = get_search_bounds(config, func_name, dims)
             for r in range(runs_per_cell):
                 seed = base_seed + r + run_idx * 1000
                 run_idx += 1
                 if verbose:
-                    print(f"  [{run_idx}/{total}] {algo_id} × {func_name} run {r+1}/{runs_per_cell} (seed={seed})")
+                    print(f"  [{run_idx}/{total}] {algo_id} × {func_name} run {r+1}/{runs_per_cell} "
+                          f"(seed={seed}, bounds={search_bounds})")
                 row = run_single(
                     algo_id, preset, func_name, obj_func,
-                    dims, n_particles, epochs, velocity_clamp, seed,
+                    dims, n_particles, epochs, search_bounds, seed,
                 )
                 results.append(row)
     if output_dir:
