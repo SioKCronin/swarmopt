@@ -108,5 +108,29 @@ class TestSwarm(unittest.TestCase):
         self.assertFalse(np.isnan(s.best_cost))
         self.assertEqual(len(s.best_pos), 3)
 
+    def test_respect_boundary_penalty_worsens_non_positive_objectives(self):
+        target = np.zeros(2)
+
+        for objective in (lambda _x: 0.0, lambda _x: -1.0):
+            with self.subTest(objective=objective(None)):
+                s = Swarm(
+                    n_particles=3,
+                    dims=2,
+                    c1=2.0,
+                    c2=2.0,
+                    w=0.9,
+                    epochs=1,
+                    obj_func=objective,
+                    velocity_clamp=(-5.0, 5.0),
+                    target_position=target,
+                )
+
+                unsafe_cost = s.objective_with_respect_boundary(target)
+                safe_cost = s.objective_with_respect_boundary(
+                    np.array([s.respect_boundary * 2.0, 0.0])
+                )
+
+                self.assertGreater(unsafe_cost, safe_cost)
+
 if __name__ == "__main__":
     unittest.main()
