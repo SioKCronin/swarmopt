@@ -1,4 +1,5 @@
 import unittest
+import warnings
 import numpy as np
 from context import Swarm
 from context import functions
@@ -107,6 +108,29 @@ class TestSwarm(unittest.TestCase):
         self.assertIsNotNone(s.best_cost)
         self.assertFalse(np.isnan(s.best_cost))
         self.assertEqual(len(s.best_pos), 3)
+
+    def test_3d_single_uniform_delegate_initializes_on_boundary(self):
+        target = np.zeros(3)
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            s = Swarm(
+                n_particles=5,
+                dims=3,
+                c1=2.0,
+                c2=2.0,
+                w=0.8,
+                epochs=1,
+                obj_func=functions.sphere,
+                velocity_clamp=self.v_clamp,
+                target_position=target,
+                respect_boundary=2.0,
+                n_delegates=1,
+                delegate_spread='uniform'
+            )
+
+        self.assertEqual(len(s.delegate_positions), 1)
+        self.assertAlmostEqual(np.linalg.norm(s.delegate_positions[0] - target), 2.0)
 
 if __name__ == "__main__":
     unittest.main()
