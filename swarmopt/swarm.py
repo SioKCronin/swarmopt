@@ -565,7 +565,7 @@ class Swarm:
                 # (though particle.best_pos should already be enforced)
                 if self.use_respect_boundary:
                     best_pos = particle._enforce_respect_boundary(best_pos)
-                self.best_pos = best_pos
+                self.best_pos = best_pos.copy()
 
     def update_local_best_pos(self):
         for particle in self.swarm:
@@ -575,7 +575,7 @@ class Swarm:
             # Enforce respect boundary on local best position if enabled
             if self.use_respect_boundary:
                 local_best_pos = particle._enforce_respect_boundary(local_best_pos)
-            particle.local_best_pos = local_best_pos
+            particle.local_best_pos = local_best_pos.copy()
 
     def update_global_worst_pos(self):
         for particle in self.swarm:
@@ -742,9 +742,11 @@ class Particle:
     def __init__(self, swarm):
         self.swarm = swarm
         self.dims = swarm.dims
-        self.pos = self.best_pos = self.local_best_pos = self.swarm.rng.uniform(
+        self.pos = self.swarm.rng.uniform(
             swarm.val_min, swarm.val_max, swarm.dims
         )
+        self.best_pos = self.pos.copy()
+        self.local_best_pos = self.pos.copy()
         self.velocity = self.swarm.rng.uniform(
             -swarm.velocity_bounds, swarm.velocity_bounds, swarm.dims
         )
