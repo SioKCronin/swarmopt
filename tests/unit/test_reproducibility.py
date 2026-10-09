@@ -95,5 +95,49 @@ class TestRespectBoundary(unittest.TestCase):
             run(0, respect_boundary=1.0)
 
 
+class TestParticleBestSnapshots(unittest.TestCase):
+
+    def test_personal_best_position_does_not_alias_current_position(self):
+        swarm = Swarm(
+            n_particles=1,
+            dims=2,
+            c1=0.0,
+            c2=0.0,
+            w=1.0,
+            epochs=1,
+            obj_func=sphere,
+            seed=0,
+        )
+        particle = swarm.swarm[0]
+        initial_best_pos = particle.best_pos.copy()
+        initial_best_cost = particle.best_cost
+
+        particle.velocity = np.array([10.0, 10.0])
+        particle.update(0)
+
+        self.assertFalse(np.array_equal(particle.pos, initial_best_pos))
+        np.testing.assert_array_equal(particle.best_pos, initial_best_pos)
+        self.assertEqual(particle.best_cost, initial_best_cost)
+        self.assertEqual(particle.best_cost, sphere(particle.best_pos))
+
+    def test_local_best_position_is_a_snapshot(self):
+        swarm = Swarm(
+            n_particles=3,
+            dims=2,
+            c1=0.0,
+            c2=0.0,
+            w=1.0,
+            epochs=1,
+            obj_func=sphere,
+            seed=1,
+        )
+
+        swarm.update_local_best_pos()
+
+        for particle in swarm.swarm:
+            for other in swarm.swarm:
+                self.assertFalse(np.shares_memory(particle.local_best_pos, other.pos))
+
+
 if __name__ == "__main__":
     unittest.main()
