@@ -86,6 +86,7 @@ def _run_trial(
         "epochs": epochs,
         "obj_func": problem["func"],
         "velocity_clamp": (lo, hi),
+        "seed": seed,
     }
     kwargs.update(extra)
     s = Swarm(**kwargs)
