@@ -228,7 +228,11 @@ class Swarm:
                     obj_func=self.obj_func,
                     c1=self.c1, c2=self.c2, w=self.w,
                     velocity_clamp=(self.val_min, self.val_max),
-                    communication_strategy=self.communication_strategy
+                    communication_strategy=self.communication_strategy,
+                    position_repair=(
+                        self._enforce_respect_boundary_position
+                        if self.use_respect_boundary else None
+                    ),
                 )
             elif self.algo == 'multiswarm':
                 self.multiswarm = self.initialize_multiswarm()
@@ -376,6 +380,69 @@ class Swarm:
                 used_particles.add(best_particle)
         
         return assignments
+
+    def _enforce_respect_boundary_position(self, position: np.ndarray) -> np.ndarray:
+        """
+        Return a position outside the respect boundary.
+
+        Standalone optimizer modes (CPSO/PPSO/HHOA/MOPSO) do not use Particle,
+        so the hard safety repair lives on Swarm and Particle delegates to it.
+        """
+        position = np.asarray(position, dtype=float)
+
+        if not self.use_respect_boundary:
+            return position.copy()
+
+        # Safety margin ensures follow-up floating point calculations remain
+        # outside the protected radius rather than exactly on it.
+        safe_boundary = self.respect_boundary + 1e-6
+        distance_to_target = np.linalg.norm(position - self.target_position)
+
+        if distance_to_target > safe_boundary:
+            return position.copy()
+
+        if distance_to_target < 1e-10:
+            direction = self.rng.standard_normal((self.dims,))
+            direction_norm = np.linalg.norm(direction)
+            if direction_norm < 1e-10:
+                direction = np.ones(self.dims)
+                direction_norm = np.linalg.norm(direction)
+            direction_unit = direction / direction_norm
+        else:
+            direction_unit = (position - self.target_position) / distance_to_target
+
+        adjusted_position = self.target_position + safe_boundary * direction_unit
+
+        # One final correction protects against degenerate directions or
+        # precision loss in callers that pass views with unusual dtypes.
+        final_distance = np.linalg.norm(adjusted_position - self.target_position)
+        if final_distance < self.respect_boundary:
+            correction_direction = adjusted_position - self.target_position
+            correction_norm = np.linalg.norm(correction_direction)
+            if correction_norm < 1e-10:
+                correction_direction = np.ones(self.dims)
+                correction_norm = np.linalg.norm(correction_direction)
+            adjusted_position = (
+                self.target_position
+                + safe_boundary * correction_direction / correction_norm
+            )
+
+        return adjusted_position
+
+    def _store_single_objective_results(self, results: dict):
+        """Store results from standalone single-objective optimizers safely."""
+        best_pos = results['best_pos']
+        if best_pos is not None:
+            best_pos = np.asarray(best_pos, dtype=float)
+            if self.use_respect_boundary:
+                best_pos = self._enforce_respect_boundary_position(best_pos)
+                self.best_cost = self.objective_with_respect_boundary(best_pos)
+            else:
+                self.best_cost = results['best_cost']
+        else:
+            self.best_cost = results['best_cost']
+        self.best_pos = best_pos
+        self.runtime = results['runtime']
     
     def objective_with_respect_boundary(self, position):
         """
@@ -447,9 +514,7 @@ class Swarm:
         # Handle Cooperative PSO
         if self.algo == 'cpso':
             results = self.cpso.optimize(self.epochs, verbose=False)
-            self.best_cost = results['best_cost']
-            self.best_pos = results['best_pos']
-            self.runtime = results['runtime']
+            self._store_single_objective_results(results)
             return
         
         # Initialize diversity monitoring if enabled
@@ -469,14 +534,16 @@ class Swarm:
                 knowledge_method=self.knowledge_method,
                 exploration_weight=self.exploration_weight,
                 c1=self.c1, c2=self.c2, w=self.w,
-                epochs=self.epochs
+                epochs=self.epochs,
+                position_repair=(
+                    self._enforce_respect_boundary_position
+                    if self.use_respect_boundary else None
+                ),
             )
             
             # Run PPSO optimization
             results = self.ppso.optimize()
-            self.best_cost = results['best_cost']
-            self.best_pos = results['best_pos']
-            self.runtime = results['runtime']
+            self._store_single_objective_results(results)
             return
         
         # Initialize HHOA if enabled
@@ -486,14 +553,16 @@ class Swarm:
                 dims=self.dims,
                 obj_func=self.obj_func,
                 bounds=(self.val_min, self.val_max),
-                epochs=self.epochs
+                epochs=self.epochs,
+                position_repair=(
+                    self._enforce_respect_boundary_position
+                    if self.use_respect_boundary else None
+                ),
             )
             
             # Run HHOA optimization
             results = self.hhoa.optimize()
-            self.best_cost = results['best_cost']
-            self.best_pos = results['best_pos']
-            self.runtime = results['runtime']
+            self._store_single_objective_results(results)
             return
         
         # Initialize multiobjective optimization if enabled
@@ -511,13 +580,20 @@ class Swarm:
                 bounds=(self.val_min, self.val_max),
                 c1=self.c1, c2=self.c2, w=self.w,
                 epochs=self.epochs,
-                archive_size=self.archive_size
+                archive_size=self.archive_size,
+                position_repair=(
+                    self._enforce_respect_boundary_position
+                    if self.use_respect_boundary else None
+                ),
             )
             
             # Run multiobjective optimization
             results = self.mo_optimizer.optimize()
             self.best_cost = results['pareto_front'][0]['objectives'] if results['pareto_front'] else np.array([float('inf')])
             self.best_pos = results['pareto_front'][0]['pos'] if results['pareto_front'] else None
+            if self.use_respect_boundary and self.best_pos is not None:
+                self.best_pos = self._enforce_respect_boundary_position(self.best_pos)
+                self.best_cost = self.obj_func(self.best_pos)
             self.runtime = results['runtime']
             return
         
@@ -920,50 +996,7 @@ class Particle:
         Returns:
             Position adjusted to be outside respect boundary (with safety margin)
         """
-        # Safety margin to ensure particles are truly outside, not just on boundary
-        # Use a larger margin (1e-6) to account for floating point precision errors
-        # in subsequent calculations (velocity updates, etc.)
-        SAFETY_MARGIN = 1e-6
-        safe_boundary = self.swarm.respect_boundary + SAFETY_MARGIN
-        
-        distance_to_target = np.linalg.norm(position - self.swarm.target_position)
-        
-        # If clearly outside boundary (with margin), no adjustment needed
-        if distance_to_target > safe_boundary:
-            return position
-        
-        # If inside boundary (or close to it), push to safe distance outside boundary
-        if distance_to_target < 1e-10:
-            # Particle is at or very close to target position - move to random position outside boundary
-            # Generate random unit vector
-            random_direction = self.swarm.rng.standard_normal((self.swarm.dims,))
-            random_direction /= np.linalg.norm(random_direction)
-            # Position at safe distance outside boundary
-            adjusted_position = self.swarm.target_position + safe_boundary * random_direction
-        else:
-            # Particle is inside or on boundary - push to safe distance outside boundary
-            # Direction from target to particle
-            direction = position - self.swarm.target_position
-            direction_unit = direction / distance_to_target
-            # Position at safe distance outside boundary along same direction
-            adjusted_position = self.swarm.target_position + safe_boundary * direction_unit
-        
-        # Verify the adjusted position is actually outside the boundary
-        # (due to floating point precision, recalculate distance)
-        final_distance = np.linalg.norm(adjusted_position - self.swarm.target_position)
-        if final_distance < self.swarm.respect_boundary:
-            # If still inside (shouldn't happen, but safety check), push out further
-            # Normalize direction vector from target to adjusted position
-            correction_direction = adjusted_position - self.swarm.target_position
-            if np.linalg.norm(correction_direction) > 1e-10:
-                correction_direction /= np.linalg.norm(correction_direction)
-            else:
-                # If direction is degenerate, use random direction
-                correction_direction = self.swarm.rng.standard_normal((self.swarm.dims,))
-                correction_direction /= np.linalg.norm(correction_direction)
-            adjusted_position = self.swarm.target_position + safe_boundary * correction_direction
-        
-        return adjusted_position
+        return self.swarm._enforce_respect_boundary_position(position)
     
     def apply_variation(self, current_iter: int):
         """Apply variation to particle position"""

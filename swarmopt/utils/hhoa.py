@@ -25,7 +25,9 @@ class Horse:
     Represents a single horse in the herd
     """
     
-    def __init__(self, position: np.ndarray, obj_func: Callable, bounds: Tuple[float, float]):
+    def __init__(self, position: np.ndarray, obj_func: Callable,
+                 bounds: Tuple[float, float],
+                 position_repair: Optional[Callable] = None):
         """
         Initialize a horse
         
@@ -38,9 +40,10 @@ class Horse:
         bounds : Tuple[float, float]
             Search space bounds
         """
-        self.pos = position.copy()
+        self.position_repair = position_repair
         self.obj_func = obj_func
         self.bounds = bounds
+        self.pos = self._repair_position(position)
         
         # Evaluate initial fitness
         self.fitness = self.obj_func(self.pos)
@@ -52,6 +55,12 @@ class Horse:
         self.energy = 1.0  # Energy level (affects behavior)
         self.age = 0  # Iterations since last improvement
         self.velocity = np.zeros_like(position)
+
+    def _repair_position(self, position: np.ndarray) -> np.ndarray:
+        repaired = np.clip(position, self.bounds[0], self.bounds[1])
+        if self.position_repair is not None:
+            repaired = self.position_repair(repaired)
+        return repaired.copy()
         
     def update_fitness(self):
         """Update fitness and personal best"""
@@ -80,7 +89,8 @@ class HHOA:
                  grazing_rate: float = 0.3,
                  leadership_rate: float = 0.4,
                  following_rate: float = 0.3,
-                 epochs: int = 100):
+                 epochs: int = 100,
+                 position_repair: Optional[Callable] = None):
         """
         Initialize HHOA
         
@@ -110,6 +120,7 @@ class HHOA:
         self.obj_func = obj_func
         self.bounds = bounds
         self.epochs = epochs
+        self.position_repair = position_repair
         
         # Behavior rates (should sum to 1.0)
         total_rate = grazing_rate + leadership_rate + following_rate
@@ -140,7 +151,7 @@ class HHOA:
         """Initialize the horse herd"""
         for _ in range(self.n_horses):
             position = get_rng().uniform(self.bounds[0], self.bounds[1], self.dims)
-            horse = Horse(position, self.obj_func, self.bounds)
+            horse = Horse(position, self.obj_func, self.bounds, self.position_repair)
             self.horses.append(horse)
     
     def _update_global_best(self):
@@ -177,8 +188,7 @@ class HHOA:
         new_pos = horse.pos + step_size * grazing_direction
         
         # Apply bounds
-        new_pos = np.clip(new_pos, self.bounds[0], self.bounds[1])
-        horse.pos = new_pos
+        horse.pos = horse._repair_position(new_pos)
         horse.update_fitness()
     
     def _leadership_behavior(self, horse: Horse, leaders: List[Horse], current_iter: int, max_iter: int):
@@ -199,8 +209,7 @@ class HHOA:
         new_pos = horse.best_pos + perturbation
         
         # Apply bounds
-        new_pos = np.clip(new_pos, self.bounds[0], self.bounds[1])
-        horse.pos = new_pos
+        horse.pos = horse._repair_position(new_pos)
         horse.update_fitness()
     
     def _following_behavior(self, horse: Horse, leaders: List[Horse], current_iter: int, max_iter: int):
@@ -239,8 +248,7 @@ class HHOA:
             new_pos = horse.pos + get_rng().standard_normal((self.dims,)) * (self.bounds[1] - self.bounds[0]) * 0.01
         
         # Apply bounds
-        new_pos = np.clip(new_pos, self.bounds[0], self.bounds[1])
-        horse.pos = new_pos
+        horse.pos = horse._repair_position(new_pos)
         horse.update_fitness()
     
     def _assign_roles(self, leaders: List[Horse], current_iter: int, max_iter: int):

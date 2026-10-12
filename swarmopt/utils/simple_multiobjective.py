@@ -18,7 +18,8 @@ class SimpleMultiObjectivePSO:
     def __init__(self, n_particles: int, dims: int, obj_func: Callable,
                  bounds: Tuple[float, float] = (-5, 5),
                  c1: float = 2.0, c2: float = 2.0, w: float = 0.9,
-                 epochs: int = 100, archive_size: int = 100):
+                 epochs: int = 100, archive_size: int = 100,
+                 position_repair: Optional[Callable] = None):
         """
         Initialize Simple Multiobjective PSO
         
@@ -48,6 +49,7 @@ class SimpleMultiObjectivePSO:
         self.w = w
         self.epochs = epochs
         self.archive_size = archive_size
+        self.position_repair = position_repair
         
         # Initialize particles
         self.particles = []
@@ -58,11 +60,19 @@ class SimpleMultiObjectivePSO:
         
         # Statistics
         self.hypervolume_history = []
+
+    def _repair_position(self, position: np.ndarray) -> np.ndarray:
+        repaired = np.clip(position, self.bounds[0], self.bounds[1])
+        if self.position_repair is not None:
+            repaired = self.position_repair(repaired)
+        return repaired.copy()
     
     def _initialize_particles(self):
         """Initialize particle swarm"""
         for _ in range(self.n_particles):
-            position = get_rng().uniform(self.bounds[0], self.bounds[1], self.dims)
+            position = self._repair_position(
+                get_rng().uniform(self.bounds[0], self.bounds[1], self.dims)
+            )
             velocity = get_rng().uniform(-abs(self.bounds[1] - self.bounds[0]), 
                                        abs(self.bounds[1] - self.bounds[0]), self.dims)
             
@@ -94,7 +104,7 @@ class SimpleMultiObjectivePSO:
             particle['pos'] += particle['velocity']
             
             # Apply bounds
-            particle['pos'] = np.clip(particle['pos'], self.bounds[0], self.bounds[1])
+            particle['pos'] = self._repair_position(particle['pos'])
             
             # Evaluate new objectives
             particle['objectives'] = self.obj_func(particle['pos'])

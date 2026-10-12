@@ -178,23 +178,31 @@ class ProactiveParticle:
     def __init__(self, position: np.ndarray, velocity: np.ndarray, 
                  obj_func: Callable, bounds: Tuple[float, float],
                  knowledge_calculator: KnowledgeGainCalculator,
-                 exploration_weight: float = 0.5):
-        self.pos = position.copy()
-        self.velocity = velocity.copy()
+                 exploration_weight: float = 0.5,
+                 position_repair: Optional[Callable] = None):
+        self.position_repair = position_repair
         self.obj_func = obj_func
         self.bounds = bounds
+        self.pos = self._repair_position(position)
+        self.velocity = velocity.copy()
         self.knowledge_calculator = knowledge_calculator
         self.exploration_weight = exploration_weight
         
         # Traditional PSO attributes
-        self.best_pos = position.copy()
-        self.best_cost = obj_func(position)
+        self.best_pos = self.pos.copy()
+        self.best_cost = obj_func(self.pos)
         self.cost = self.best_cost
         
         # Proactive-specific attributes
         self.knowledge_gain = 0.0
         self.exploration_direction = np.zeros_like(position)
         self.adaptation_rate = 0.1
+
+    def _repair_position(self, position: np.ndarray) -> np.ndarray:
+        repaired = np.clip(position, self.bounds[0], self.bounds[1])
+        if self.position_repair is not None:
+            repaired = self.position_repair(repaired)
+        return repaired.copy()
         
     def update(self, global_best_pos: np.ndarray, global_best_cost: float,
                c1: float, c2: float, w: float, current_iter: int, max_iter: int):
@@ -225,7 +233,7 @@ class ProactiveParticle:
         self.pos += self.velocity
         
         # Apply bounds
-        self.pos = np.clip(self.pos, self.bounds[0], self.bounds[1])
+        self.pos = self._repair_position(self.pos)
         
         # Evaluate fitness
         self.cost = self.obj_func(self.pos)
@@ -251,7 +259,7 @@ class ProactiveParticle:
         
         for direction in directions:
             test_position = self.pos + step_size * direction
-            test_position = np.clip(test_position, self.bounds[0], self.bounds[1])
+            test_position = self._repair_position(test_position)
             kg = self.knowledge_calculator.calculate_knowledge_gain(test_position)
             knowledge_gains.append(kg)
         
@@ -282,15 +290,23 @@ class ReactiveParticle:
     """
     
     def __init__(self, position: np.ndarray, velocity: np.ndarray, 
-                 obj_func: Callable, bounds: Tuple[float, float]):
-        self.pos = position.copy()
-        self.velocity = velocity.copy()
+                 obj_func: Callable, bounds: Tuple[float, float],
+                 position_repair: Optional[Callable] = None):
+        self.position_repair = position_repair
         self.obj_func = obj_func
         self.bounds = bounds
+        self.pos = self._repair_position(position)
+        self.velocity = velocity.copy()
         
-        self.best_pos = position.copy()
-        self.best_cost = obj_func(position)
+        self.best_pos = self.pos.copy()
+        self.best_cost = obj_func(self.pos)
         self.cost = self.best_cost
+
+    def _repair_position(self, position: np.ndarray) -> np.ndarray:
+        repaired = np.clip(position, self.bounds[0], self.bounds[1])
+        if self.position_repair is not None:
+            repaired = self.position_repair(repaired)
+        return repaired.copy()
     
     def update(self, global_best_pos: np.ndarray, global_best_cost: float,
                c1: float, c2: float, w: float, current_iter: int, max_iter: int):
@@ -300,7 +316,7 @@ class ReactiveParticle:
         
         self.velocity = w * self.velocity + cognitive_component + social_component
         self.pos += self.velocity
-        self.pos = np.clip(self.pos, self.bounds[0], self.bounds[1])
+        self.pos = self._repair_position(self.pos)
         
         self.cost = self.obj_func(self.pos)
         
@@ -319,7 +335,8 @@ class PPSO:
                  knowledge_method: str = 'gaussian',
                  exploration_weight: float = 0.5,
                  c1: float = 2.0, c2: float = 2.0, w: float = 0.9,
-                 epochs: int = 100):
+                 epochs: int = 100,
+                 position_repair: Optional[Callable] = None):
         """
         Initialize PPSO
         
@@ -349,10 +366,12 @@ class PPSO:
         self.obj_func = obj_func
         self.bounds = bounds
         self.proactive_ratio = proactive_ratio
+        self.exploration_weight = exploration_weight
         self.c1 = c1
         self.c2 = c2
         self.w = w
         self.epochs = epochs
+        self.position_repair = position_repair
         
         # Calculate number of proactive particles
         self.n_proactive = int(n_particles * proactive_ratio)
@@ -393,14 +412,17 @@ class PPSO:
         for i in range(self.n_proactive):
             particle = ProactiveParticle(
                 positions[i], velocities[i], self.obj_func, self.bounds,
-                self.knowledge_calculator, exploration_weight=0.5
+                self.knowledge_calculator,
+                exploration_weight=self.exploration_weight,
+                position_repair=self.position_repair
             )
             self.particles.append(particle)
         
         # Create reactive particles
         for i in range(self.n_proactive, self.n_particles):
             particle = ReactiveParticle(
-                positions[i], velocities[i], self.obj_func, self.bounds
+                positions[i], velocities[i], self.obj_func, self.bounds,
+                position_repair=self.position_repair
             )
             self.particles.append(particle)
     

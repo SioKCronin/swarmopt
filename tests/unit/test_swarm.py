@@ -1,4 +1,5 @@
 import unittest
+import warnings
 import numpy as np
 from context import Swarm
 from context import functions
@@ -107,6 +108,52 @@ class TestSwarm(unittest.TestCase):
         self.assertIsNotNone(s.best_cost)
         self.assertFalse(np.isnan(s.best_cost))
         self.assertEqual(len(s.best_pos), 3)
+
+    def test_respect_boundary_applies_to_standalone_optimizers(self):
+        target = np.zeros(2)
+        boundary = 0.75
+        multiobjective_func = lambda x: np.array([np.sum(x ** 2), np.sum((x - 1) ** 2)])
+        configs = {
+            "cpso": {"algo": "cpso", "n_swarms": 2},
+            "hhoa": {"algo": "hhoa"},
+            "ppso": {"ppso_enabled": True},
+            "multiobjective": {"multiobjective": True, "obj_func": multiobjective_func},
+        }
+
+        for name, overrides in configs.items():
+            cfg = overrides.copy()
+            obj_func = cfg.pop("obj_func", functions.sphere)
+            with self.subTest(mode=name), warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                s = Swarm(
+                    n_particles=20,
+                    dims=2,
+                    c1=2.0,
+                    c2=2.0,
+                    w=0.9,
+                    epochs=20,
+                    obj_func=obj_func,
+                    velocity_clamp=(0, 2),
+                    target_position=target,
+                    respect_boundary=boundary,
+                    seed=1,
+                    **cfg
+                )
+                s.optimize()
+
+            self.assertIsNotNone(s.best_pos)
+            self.assertGreaterEqual(np.linalg.norm(s.best_pos - target), boundary)
+            if name == "ppso":
+                for particle in s.ppso.particles:
+                    self.assertGreaterEqual(np.linalg.norm(particle.pos - target), boundary)
+                    self.assertGreaterEqual(np.linalg.norm(particle.best_pos - target), boundary)
+            elif name == "hhoa":
+                for horse in s.hhoa.horses:
+                    self.assertGreaterEqual(np.linalg.norm(horse.pos - target), boundary)
+                    self.assertGreaterEqual(np.linalg.norm(horse.best_pos - target), boundary)
+            elif name == "multiobjective":
+                for solution in s.mo_optimizer.archive:
+                    self.assertGreaterEqual(np.linalg.norm(solution["pos"] - target), boundary)
 
 if __name__ == "__main__":
     unittest.main()
