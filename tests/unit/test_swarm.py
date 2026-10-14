@@ -108,5 +108,29 @@ class TestSwarm(unittest.TestCase):
         self.assertFalse(np.isnan(s.best_cost))
         self.assertEqual(len(s.best_pos), 3)
 
+    def test_cpso_respects_search_bounds(self):
+        def bounded_sphere(x):
+            arr = np.asarray(x)
+            self.assertTrue(np.all(arr >= 0.0), arr)
+            self.assertTrue(np.all(arr <= 1.0), arr)
+            return float(np.sum(arr ** 2))
+
+        s = Swarm(
+            n_particles=8,
+            dims=4,
+            c1=1.0,
+            c2=1.0,
+            w=0.5,
+            epochs=4,
+            obj_func=bounded_sphere,
+            algo='cpso',
+            n_swarms=2,
+            velocity_clamp=(0.0, 1.0),
+            seed=123,
+        )
+        s.optimize()
+        self.assertTrue(np.all(s.best_pos >= 0.0), s.best_pos)
+        self.assertTrue(np.all(s.best_pos <= 1.0), s.best_pos)
+
 if __name__ == "__main__":
     unittest.main()
