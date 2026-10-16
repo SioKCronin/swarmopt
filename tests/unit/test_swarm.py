@@ -108,5 +108,32 @@ class TestSwarm(unittest.TestCase):
         self.assertFalse(np.isnan(s.best_cost))
         self.assertEqual(len(s.best_pos), 3)
 
+    def test_cpso_delegate_assignments_do_not_require_standard_swarm(self):
+        s = Swarm(
+            n_particles=5,
+            dims=2,
+            c1=1.0,
+            c2=1.0,
+            w=0.5,
+            epochs=1,
+            obj_func=functions.sphere,
+            algo='cpso',
+            target_position=[0.0, 0.0],
+            respect_boundary=1.0,
+            n_delegates=2,
+            seed=0
+        )
+
+        # CPSO initializes cooperative particles inside optimize(), so there
+        # are no particle-to-delegate assignments immediately after __init__.
+        self.assertEqual(s.get_delegate_assignments(), {})
+
+        s.optimize()
+        assignments = s.get_delegate_assignments()
+        self.assertEqual(len(assignments), 2)
+        for assignment in assignments.values():
+            self.assertEqual(len(assignment['particle_pos']), 2)
+            self.assertEqual(len(assignment['target_pos']), 2)
+
 if __name__ == "__main__":
     unittest.main()

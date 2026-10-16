@@ -348,6 +348,22 @@ class Swarm:
         """
         if len(self.delegate_positions) == 0:
             return {}
+
+        candidate_positions = []
+        if hasattr(self, 'swarm'):
+            candidate_positions = [
+                (j, particle.pos) for j, particle in enumerate(self.swarm)
+            ]
+        elif self.cpso is not None:
+            base_context = self.cpso.global_context
+            for cooperative_swarm in self.cpso.swarms:
+                for particle in cooperative_swarm.particles:
+                    full_pos = base_context.copy()
+                    full_pos[particle.dimensions] = particle.pos
+                    candidate_positions.append((len(candidate_positions), full_pos))
+
+        if len(candidate_positions) == 0:
+            return {}
         
         assignments = {}
         used_particles = set()
@@ -356,20 +372,22 @@ class Swarm:
         for i, delegate_pos in enumerate(self.delegate_positions):
             best_particle = None
             best_distance = float('inf')
+            best_pos = None
             
-            for j, particle in enumerate(self.swarm):
-                if j in used_particles:
+            for particle_index, particle_pos in candidate_positions:
+                if particle_index in used_particles:
                     continue
                 
-                distance = np.linalg.norm(particle.pos - delegate_pos)
+                distance = np.linalg.norm(particle_pos - delegate_pos)
                 if distance < best_distance:
                     best_distance = distance
-                    best_particle = j
+                    best_particle = particle_index
+                    best_pos = particle_pos
             
             if best_particle is not None:
                 assignments[i] = {
                     'particle_index': best_particle,
-                    'particle_pos': self.swarm[best_particle].pos,
+                    'particle_pos': best_pos,
                     'target_pos': delegate_pos,
                     'distance': best_distance
                 }
