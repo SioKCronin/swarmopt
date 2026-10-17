@@ -3,6 +3,8 @@
 Test script to demonstrate and compare different inertia weight variations
 """
 
+from pathlib import Path
+
 import numpy as np
 from swarmopt import Swarm
 from swarmopt.functions import sphere, rosenbrock, ackley
@@ -172,8 +174,9 @@ def visualize_inertia_weights():
         plt.grid(True, alpha=0.3)
         
         plt.tight_layout()
-        plt.savefig('/Users/siobhan/code/swarmopt/inertia_weights_comparison.png', dpi=150, bbox_inches='tight')
-        print("✅ Visualization saved as 'inertia_weights_comparison.png'")
+        output_path = Path.cwd() / 'inertia_weights_comparison.png'
+        plt.savefig(output_path, dpi=150, bbox_inches='tight')
+        print(f"✅ Visualization saved as '{output_path}'")
         
     else:
         print("❌ Matplotlib not available - skipping visualization")
