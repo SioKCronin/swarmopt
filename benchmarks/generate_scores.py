@@ -4,8 +4,12 @@ Legacy entry point. Prefer:
     python benchmarks/run_benchmarks.py
 """
 
+import csv
+import os
 import sys
 from pathlib import Path
+
+import numpy as np
 
 BENCH = Path(__file__).resolve().parent
 ROOT = BENCH.parent
