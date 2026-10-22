@@ -95,5 +95,43 @@ class TestRespectBoundary(unittest.TestCase):
             run(0, respect_boundary=1.0)
 
 
+class TestNeighborhoodBest(unittest.TestCase):
+
+    def test_local_best_position_matches_neighbor_best_cost(self):
+        swarm = Swarm(
+            n_particles=3,
+            dims=2,
+            c1=2.0,
+            c2=2.0,
+            w=0.9,
+            epochs=0,
+            obj_func=sphere,
+            algo="local",
+            k=2,
+            seed=0,
+        )
+
+        particle, best_neighbor, other_neighbor = swarm.swarm
+        particle.pos = np.array([0.0, 0.0])
+        particle.best_pos = np.array([7.0, 7.0])
+        particle.best_cost = sphere(particle.best_pos)
+
+        best_neighbor.pos = np.array([10.0, 10.0])
+        best_neighbor.best_pos = np.array([1.0, 1.0])
+        best_neighbor.best_cost = sphere(best_neighbor.best_pos)
+
+        other_neighbor.pos = np.array([9.0, 9.0])
+        other_neighbor.best_pos = np.array([2.0, 2.0])
+        other_neighbor.best_cost = sphere(other_neighbor.best_pos)
+
+        swarm.update_local_best_pos()
+
+        np.testing.assert_array_equal(particle.local_best_pos, best_neighbor.best_pos)
+        self.assertEqual(particle.local_best_cost, sphere(particle.local_best_pos))
+
+        best_neighbor.best_pos[:] = 99.0
+        np.testing.assert_array_equal(particle.local_best_pos, np.array([1.0, 1.0]))
+
+
 if __name__ == "__main__":
     unittest.main()
