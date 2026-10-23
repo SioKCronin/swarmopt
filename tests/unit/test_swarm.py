@@ -45,6 +45,24 @@ class TestSwarm(unittest.TestCase):
         #self.assertLess(s.best_cost, 1)
         #self.assertEqual(s.best_pos, [1,1])
 
+    def test_sa_tracks_worst_particle(self):
+        s = Swarm(
+            n_particles=10,
+            dims=2,
+            c1=self.c1,
+            c2=self.c2,
+            w=self.w,
+            epochs=self.epochs,
+            obj_func=self.obj_func,
+            algo='sa',
+            velocity_clamp=self.v_clamp,
+            seed=0,
+        )
+        s.update_global_worst_pos()
+        expected_worst = max(p.best_cost for p in s.swarm)
+        self.assertEqual(s.worst_cost, expected_worst)
+        self.assertIsNotNone(s.worst_pos)
+
     def test_swarm_with_velocity_clamping(self):
         # Test with different velocity clamping functions
         clamping_types = ['none', 'basic', 'adaptive']

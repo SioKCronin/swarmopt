@@ -211,7 +211,7 @@ class Swarm:
         self.obj_func = obj_func
         self.best_cost = float('inf')
         self.best_pos = None
-        self.worst_cost = float('inf')
+        self.worst_cost = float('-inf')
         self.worst_pos = None
         self.local_best_cost = float('inf')
         self.local_best_pos = None
