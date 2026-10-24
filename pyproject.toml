@@ -12,7 +12,7 @@ license-files = ["LICENSE.md"]
 authors = [{ name = "Siobhan K Cronin", email = "siobhankcronin@gmail.com" }]
 requires-python = ">=3.10"
 dependencies = [
-    "numpy>=1.23",
+    "numpy>=2.2.6",
     "scipy>=1.9",
 ]
 keywords = [
