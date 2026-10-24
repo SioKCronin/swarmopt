@@ -36,7 +36,7 @@ classifiers = [
 
 [project.optional-dependencies]
 viz = ["matplotlib>=3.5"]
-tda = ["giotto-tda>=0.5.0"]
+tda = ["giotto-tda>=0.6.2"]
 examples = ["matplotlib>=3.5"]
 dev = ["pytest>=7", "build", "twine"]
 
