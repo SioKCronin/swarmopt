@@ -94,6 +94,26 @@ class TestRespectBoundary(unittest.TestCase):
         with self.assertRaises(ValueError):
             run(0, respect_boundary=1.0)
 
+    def test_single_3d_delegate_constructs(self):
+        target = np.array([0.0, 0.0, 0.0])
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            swarm = Swarm(
+                n_particles=4,
+                dims=3,
+                c1=2.0,
+                c2=2.0,
+                w=0.9,
+                epochs=1,
+                obj_func=sphere,
+                target_position=target,
+                respect_boundary=1.5,
+                n_delegates=1,
+                seed=0,
+            )
+        self.assertEqual(len(swarm.delegate_positions), 1)
+        self.assertAlmostEqual(np.linalg.norm(swarm.delegate_positions[0] - target), 1.5)
+
 
 if __name__ == "__main__":
     unittest.main()

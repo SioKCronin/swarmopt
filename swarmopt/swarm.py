@@ -279,11 +279,12 @@ class Swarm:
         
         elif self.dims == 3:
             # 3D: Position delegates on sphere around target
+            uniform_denominator = max(1, self.n_delegates - 1)
             for i in range(self.n_delegates):
                 if self.delegate_spread == 'uniform':
                     # Fibonacci sphere for uniform distribution
                     phi = np.pi * (3. - np.sqrt(5.))  # Golden angle
-                    y = 1 - (i / float(self.n_delegates - 1)) * 2  # y from 1 to -1
+                    y = 1 - (i / float(uniform_denominator)) * 2  # y from 1 to -1
                     radius = np.sqrt(1 - y * y)
                     theta = phi * i
                     
@@ -312,7 +313,7 @@ class Swarm:
                 else:
                     # Default to uniform
                     phi = np.pi * (3. - np.sqrt(5.))
-                    y = 1 - (i / float(self.n_delegates - 1)) * 2
+                    y = 1 - (i / float(uniform_denominator)) * 2
                     radius = np.sqrt(1 - y * y)
                     theta = phi * i
                     
