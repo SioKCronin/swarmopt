@@ -95,5 +95,43 @@ class TestRespectBoundary(unittest.TestCase):
             run(0, respect_boundary=1.0)
 
 
+class TestParticleBestState(unittest.TestCase):
+
+    def test_particle_best_positions_are_snapshots(self):
+        swarm = run(0, n_particles=1, dims=2, epochs=0, obj_func=sphere)
+        particle = swarm.swarm[0]
+        initial_best_pos = particle.best_pos.copy()
+        initial_local_best_pos = particle.local_best_pos.copy()
+        initial_best_cost = particle.best_cost
+
+        particle.pos += np.array([10.0, -10.0])
+
+        np.testing.assert_array_equal(particle.best_pos, initial_best_pos)
+        np.testing.assert_array_equal(particle.local_best_pos, initial_local_best_pos)
+        self.assertEqual(particle.best_cost, initial_best_cost)
+
+    def test_swarm_best_positions_are_snapshots(self):
+        swarm = run(0, n_particles=1, dims=2, epochs=0, obj_func=sphere)
+        particle = swarm.swarm[0]
+        initial_global_best_pos = swarm.best_pos.copy()
+
+        particle.best_pos += np.array([10.0, -10.0])
+
+        np.testing.assert_array_equal(swarm.best_pos, initial_global_best_pos)
+        self.assertFalse(np.shares_memory(swarm.best_pos, particle.best_pos))
+
+    def test_local_best_positions_are_snapshots(self):
+        swarm = run(0, n_particles=3, dims=2, epochs=0, obj_func=sphere, algo="local")
+        swarm.update_local_best_pos()
+        local_best_positions = [particle.local_best_pos.copy() for particle in swarm.swarm]
+
+        for particle in swarm.swarm:
+            particle.pos += np.array([5.0, -5.0])
+
+        for particle, expected in zip(swarm.swarm, local_best_positions):
+            np.testing.assert_array_equal(particle.local_best_pos, expected)
+            self.assertFalse(np.shares_memory(particle.local_best_pos, particle.pos))
+
+
 if __name__ == "__main__":
     unittest.main()
