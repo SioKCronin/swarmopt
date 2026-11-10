@@ -110,6 +110,7 @@ def run_single(algorithm_id, preset, function_name, obj_func, dims, n_particles,
         velocity_clamp=velocity_clamp,
         w_start=0.9,
         w_end=0.4,
+        seed=seed,
         **preset,
     )
     swarm.optimize()
