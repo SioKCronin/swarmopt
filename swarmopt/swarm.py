@@ -181,6 +181,11 @@ class Swarm:
             if respect_boundary is None:
                 # Default: 10% of the search space diagonal
                 search_space_diagonal = np.sqrt(self.dims * (self.val_max - self.val_min)**2)
+                if not np.isfinite(search_space_diagonal) or search_space_diagonal <= 0:
+                    raise ValueError(
+                        "Cannot infer default respect_boundary from a non-positive or non-finite "
+                        "search-space diagonal; provide a positive respect_boundary explicitly"
+                    )
                 self.respect_boundary = 0.1 * search_space_diagonal
             else:
                 if not np.isfinite(respect_boundary) or respect_boundary <= 0:

@@ -90,6 +90,10 @@ class TestRespectBoundary(unittest.TestCase):
             with self.subTest(value=bad), self.assertRaises(ValueError):
                 run(0, target_position=[0, 0, 0, 0], respect_boundary=bad)
 
+    def test_rejects_degenerate_default_distance(self):
+        with self.assertRaisesRegex(ValueError, "Cannot infer default respect_boundary"):
+            run(0, target_position=[0, 0, 0, 0], velocity_clamp=(0.0, 0.0))
+
     def test_rejects_boundary_without_target(self):
         with self.assertRaises(ValueError):
             run(0, respect_boundary=1.0)
