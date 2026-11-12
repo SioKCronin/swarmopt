@@ -133,7 +133,9 @@ class Swarm:
         
         # Velocity clamping parameters
         self.velocity_clamp_func = velocity_clamp_func
-        self.val_min, self.val_max = velocity_clamp
+        val_min, val_max = velocity_clamp
+        self.val_min = self._normalize_bound(val_min)
+        self.val_max = self._normalize_bound(val_max)
         self.velocity_bounds = 0.2 * (self.val_max - self.val_min)
         self.velocity_z = 0.5  # For chaotic clamping
         
@@ -180,8 +182,8 @@ class Swarm:
         if target_position is not None:
             if respect_boundary is None:
                 # Default: 10% of the search space diagonal
-                search_space_diagonal = np.sqrt(self.dims * (self.val_max - self.val_min)**2)
-                self.respect_boundary = 0.1 * search_space_diagonal
+                search_space_diagonal = self._search_space_diagonal()
+                self.respect_boundary = float(0.1 * search_space_diagonal)
             else:
                 if not np.isfinite(respect_boundary) or respect_boundary <= 0:
                     raise ValueError("respect_boundary must be a positive, finite distance")
@@ -240,6 +242,19 @@ class Swarm:
 
     def shape(self):
         return [self.n_particles, self.dims]
+
+    @staticmethod
+    def _normalize_bound(bound):
+        bound_array = np.asarray(bound, dtype=float)
+        if bound_array.ndim == 0:
+            return float(bound_array)
+        return bound_array
+
+    def _search_space_diagonal(self):
+        span = np.asarray(self.val_max, dtype=float) - np.asarray(self.val_min, dtype=float)
+        if span.ndim == 0:
+            return np.sqrt(self.dims * float(span) ** 2)
+        return np.linalg.norm(span)
     
     def _generate_delegate_positions(self):
         """

@@ -85,6 +85,13 @@ class TestRespectBoundary(unittest.TestCase):
         diagonal = np.sqrt(s.dims * (s.val_max - s.val_min) ** 2)
         self.assertAlmostEqual(s.respect_boundary, 0.1 * diagonal)
 
+    def test_default_distance_with_dimension_wise_bounds(self):
+        bounds = ([-5.0, 0.0], [10.0, 15.0])
+        s = run(0, dims=2, target_position=[0, 0], velocity_clamp=bounds)
+        diagonal = np.linalg.norm(np.array(bounds[1]) - np.array(bounds[0]))
+        self.assertAlmostEqual(s.respect_boundary, 0.1 * diagonal)
+        self.assertGreaterEqual(np.linalg.norm(s.best_pos), s.respect_boundary - 1e-9)
+
     def test_rejects_invalid_distance(self):
         for bad in (0, -1, float("inf"), float("nan")):
             with self.subTest(value=bad), self.assertRaises(ValueError):
