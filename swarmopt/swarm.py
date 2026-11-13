@@ -640,6 +640,11 @@ class Swarm:
 
     # --- Diversity interventions (swarm-level) ---
 
+    def _repair_diversity_intervention_position(self, particle):
+        """Restore hard safety constraints after diversity-only position changes."""
+        if self.use_respect_boundary:
+            particle.pos = particle._enforce_respect_boundary(particle.pos)
+
     def _apply_diversity_intervention(self, diversity_result: dict, current_iter: int):
         """Apply diversity-based intervention to improve swarm diversity"""
         intervention = diversity_result['recommended_intervention']
@@ -700,6 +705,7 @@ class Swarm:
                     bounds=(self.val_min, self.val_max),
                     escape_strength=2.0
                 )
+                self._repair_diversity_intervention_position(particle)
     
     def _apply_diversity_variations(self):
         """Apply diversity-preserving variations"""
@@ -711,6 +717,7 @@ class Swarm:
                 particle.pos, 'diversity_preserving',
                 population=positions, variation_rate=0.3
             )
+            self._repair_diversity_intervention_position(particle)
     
     def _apply_opposition_variations(self):
         """Apply opposition-based variations"""
@@ -722,6 +729,7 @@ class Swarm:
                 bounds=(self.val_min, self.val_max),
                 variation_rate=0.2
             )
+            self._repair_diversity_intervention_position(particle)
     
     def _increase_variation_strength(self):
         """Increase variation strength for all particles"""
@@ -736,6 +744,7 @@ class Swarm:
                 base_strength=self.variation_strength * 2,
                 bounds=(self.val_min, self.val_max)
             )
+            self._repair_diversity_intervention_position(particle)
 
 
 class Particle:

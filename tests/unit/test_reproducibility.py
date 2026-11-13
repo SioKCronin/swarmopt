@@ -7,6 +7,7 @@ import warnings
 import numpy as np
 
 from swarmopt import Swarm
+from swarmopt._random import using_rng
 from swarmopt.functions import rastrigin, sphere
 
 BASE = dict(n_particles=12, dims=4, c1=2.0, c2=2.0, w=0.9, epochs=15, obj_func=rastrigin)
@@ -93,6 +94,35 @@ class TestRespectBoundary(unittest.TestCase):
     def test_rejects_boundary_without_target(self):
         with self.assertRaises(ValueError):
             run(0, respect_boundary=1.0)
+
+    def test_diversity_intervention_preserves_respect_boundary(self):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            s = Swarm(
+                n_particles=3,
+                dims=2,
+                c1=1.0,
+                c2=1.0,
+                w=0.5,
+                epochs=1,
+                obj_func=sphere,
+                velocity_clamp=(-5, 5),
+                target_position=[0.0, 0.0],
+                respect_boundary=1.0,
+                seed=0,
+            )
+
+        for particle in s.swarm:
+            particle.pos = np.array([2.0, 0.0])
+
+        with using_rng(np.random.default_rng(3)):
+            s._apply_opposition_variations()
+
+        for particle in s.swarm:
+            self.assertGreaterEqual(
+                np.linalg.norm(particle.pos - s.target_position),
+                s.respect_boundary,
+            )
 
 
 if __name__ == "__main__":
