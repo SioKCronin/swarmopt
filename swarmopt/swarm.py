@@ -225,7 +225,7 @@ class Swarm:
                     n_swarms=self.n_swarms,
                     n_particles_per_swarm=self.n_particles,
                     total_dimensions=self.dims,
-                    obj_func=self.obj_func,
+                    obj_func=self._optimizer_objective(),
                     c1=self.c1, c2=self.c2, w=self.w,
                     velocity_clamp=(self.val_min, self.val_max),
                     communication_strategy=self.communication_strategy
@@ -412,10 +412,50 @@ class Swarm:
         violation = self.respect_boundary - distance_to_target
         penalty_factor = (violation / self.respect_boundary) ** 2
         
-        # Scale penalty by base cost magnitude to be relative
-        penalty = base_cost * (1.0 + 10.0 * penalty_factor)
-        
-        return penalty
+        # Add a strictly positive penalty. Multiplying by base_cost rewards
+        # unsafe positions when the objective is zero or negative at the target.
+        base_array = np.asarray(base_cost)
+        penalty = 10.0 * penalty_factor * (1.0 + np.abs(base_array))
+        penalized_cost = base_array + penalty
+        if np.isscalar(base_cost):
+            return float(penalized_cost)
+        return penalized_cost
+
+    def _enforce_respect_boundary_position(self, position: np.ndarray) -> np.ndarray:
+        """Return a position outside the respect boundary."""
+        if not self.use_respect_boundary:
+            return position
+
+        SAFETY_MARGIN = 1e-6
+        safe_boundary = self.respect_boundary + SAFETY_MARGIN
+        adjusted_position = np.asarray(position, dtype=float).copy()
+
+        distance_to_target = np.linalg.norm(adjusted_position - self.target_position)
+        if distance_to_target > safe_boundary:
+            return adjusted_position
+
+        if distance_to_target < 1e-10:
+            random_direction = self.rng.standard_normal((self.dims,))
+            random_direction /= np.linalg.norm(random_direction)
+            return self.target_position + safe_boundary * random_direction
+
+        direction_unit = (adjusted_position - self.target_position) / distance_to_target
+        return self.target_position + safe_boundary * direction_unit
+
+    def _optimizer_objective(self):
+        """Objective function to pass into delegated optimizers."""
+        if self.use_respect_boundary:
+            return self.objective_with_respect_boundary
+        return self.obj_func
+
+    def _set_optimizer_result(self, best_pos, best_cost, runtime):
+        """Store delegated optimizer results without exposing unsafe best_pos."""
+        if self.use_respect_boundary and best_pos is not None:
+            best_pos = self._enforce_respect_boundary_position(best_pos)
+            best_cost = self.objective_with_respect_boundary(best_pos)
+        self.best_pos = best_pos
+        self.best_cost = best_cost
+        self.runtime = runtime
 
     def initialize_swarm(self):
         swarm = []
@@ -447,9 +487,9 @@ class Swarm:
         # Handle Cooperative PSO
         if self.algo == 'cpso':
             results = self.cpso.optimize(self.epochs, verbose=False)
-            self.best_cost = results['best_cost']
-            self.best_pos = results['best_pos']
-            self.runtime = results['runtime']
+            self._set_optimizer_result(
+                results['best_pos'], results['best_cost'], results['runtime']
+            )
             return
         
         # Initialize diversity monitoring if enabled
@@ -463,7 +503,7 @@ class Swarm:
             self.ppso = PPSO(
                 n_particles=self.n_particles,
                 dims=self.dims,
-                obj_func=self.obj_func,
+                obj_func=self._optimizer_objective(),
                 bounds=(self.val_min, self.val_max),
                 proactive_ratio=self.proactive_ratio,
                 knowledge_method=self.knowledge_method,
@@ -474,9 +514,9 @@ class Swarm:
             
             # Run PPSO optimization
             results = self.ppso.optimize()
-            self.best_cost = results['best_cost']
-            self.best_pos = results['best_pos']
-            self.runtime = results['runtime']
+            self._set_optimizer_result(
+                results['best_pos'], results['best_cost'], results['runtime']
+            )
             return
         
         # Initialize HHOA if enabled
@@ -484,16 +524,16 @@ class Swarm:
             self.hhoa = HHOA(
                 n_horses=self.n_particles,
                 dims=self.dims,
-                obj_func=self.obj_func,
+                obj_func=self._optimizer_objective(),
                 bounds=(self.val_min, self.val_max),
                 epochs=self.epochs
             )
             
             # Run HHOA optimization
             results = self.hhoa.optimize()
-            self.best_cost = results['best_cost']
-            self.best_pos = results['best_pos']
-            self.runtime = results['runtime']
+            self._set_optimizer_result(
+                results['best_pos'], results['best_cost'], results['runtime']
+            )
             return
         
         # Initialize multiobjective optimization if enabled
@@ -507,7 +547,7 @@ class Swarm:
             self.mo_optimizer = SimpleMultiObjectivePSO(
                 n_particles=self.n_particles,
                 dims=self.dims,
-                obj_func=self.obj_func,
+                obj_func=self._optimizer_objective(),
                 bounds=(self.val_min, self.val_max),
                 c1=self.c1, c2=self.c2, w=self.w,
                 epochs=self.epochs,
@@ -516,9 +556,15 @@ class Swarm:
             
             # Run multiobjective optimization
             results = self.mo_optimizer.optimize()
-            self.best_cost = results['pareto_front'][0]['objectives'] if results['pareto_front'] else np.array([float('inf')])
-            self.best_pos = results['pareto_front'][0]['pos'] if results['pareto_front'] else None
-            self.runtime = results['runtime']
+            if results['pareto_front']:
+                best_solution = results['pareto_front'][0]
+                self._set_optimizer_result(
+                    best_solution['pos'], best_solution['objectives'], results['runtime']
+                )
+            else:
+                self.best_cost = np.array([float('inf')])
+                self.best_pos = None
+                self.runtime = results['runtime']
             return
         
         # Standard PSO algorithms
