@@ -94,6 +94,69 @@ class TestRespectBoundary(unittest.TestCase):
         with self.assertRaises(ValueError):
             run(0, respect_boundary=1.0)
 
+    def test_penalty_is_positive_for_zero_and_negative_objectives(self):
+        def negative_objective(_):
+            return -1.0
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            s = Swarm(
+                n_particles=1,
+                dims=2,
+                c1=2.0,
+                c2=2.0,
+                w=0.9,
+                epochs=1,
+                obj_func=negative_objective,
+                target_position=[0.0, 0.0],
+                respect_boundary=1.0,
+                seed=0,
+            )
+
+        inside_cost = s.objective_with_respect_boundary(np.array([0.0, 0.0]))
+        outside_cost = s.objective_with_respect_boundary(np.array([2.0, 0.0]))
+        self.assertGreater(inside_cost, outside_cost)
+
+    def test_respect_boundary_applies_to_delegated_optimizers(self):
+        target = np.zeros(2)
+        boundary = 1.0
+
+        def distance_to_target(x):
+            return float(np.linalg.norm(x - target))
+
+        def multiobjective_distance(x):
+            distance = float(np.linalg.norm(x - target))
+            return np.array([distance, distance + 0.1 * np.sum((x - 1.0) ** 2)])
+
+        configs = {
+            "cpso": dict(algo="cpso", obj_func=distance_to_target),
+            "ppso": dict(ppso_enabled=True, obj_func=distance_to_target),
+            "hhoa": dict(algo="hhoa", obj_func=distance_to_target),
+            "multiobjective": dict(multiobjective=True, obj_func=multiobjective_distance),
+        }
+
+        for name, cfg in configs.items():
+            with self.subTest(config=name), warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                s = Swarm(
+                    n_particles=20,
+                    dims=2,
+                    c1=2.0,
+                    c2=2.0,
+                    w=0.7,
+                    epochs=40,
+                    velocity_clamp=(-5, 5),
+                    target_position=target,
+                    respect_boundary=boundary,
+                    seed=0,
+                    **cfg,
+                )
+                s.optimize()
+                self.assertGreaterEqual(
+                    np.linalg.norm(s.best_pos - target),
+                    boundary - 1e-9,
+                )
+
 
 if __name__ == "__main__":
     unittest.main()
