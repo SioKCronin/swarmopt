@@ -73,6 +73,31 @@ class TestMultiswarmUnavailable(unittest.TestCase):
             run(0, algo="multiswarm")
 
 
+class TestCPSOBounds(unittest.TestCase):
+
+    def test_cpso_respects_swarm_search_bounds(self):
+        def bounded_objective(x):
+            x = np.asarray(x)
+            if np.any((x < 0.0) | (x > 1.0)):
+                return -1000.0
+            return float(np.sum((x - 0.5) ** 2))
+
+        s = run(
+            0,
+            n_particles=8,
+            dims=3,
+            epochs=5,
+            obj_func=bounded_objective,
+            algo="cpso",
+            n_swarms=2,
+            velocity_clamp=(0.0, 1.0),
+        )
+
+        self.assertGreater(s.best_cost, -1000.0)
+        self.assertTrue(np.all(s.best_pos >= 0.0))
+        self.assertTrue(np.all(s.best_pos <= 1.0))
+
+
 class TestRespectBoundary(unittest.TestCase):
 
     def test_explicit_distance(self):
