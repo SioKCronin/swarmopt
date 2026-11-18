@@ -547,7 +547,8 @@ class Swarm:
     def get_best_neighbor(self, particle):
         distances = []
         for other in self.swarm:
-            distances.append((other.pos, other.best_cost, euclideanDistance(other.pos, particle.pos)))
+            # Pair each neighbour's best cost with the position that earned it.
+            distances.append((other.best_pos, other.best_cost, euclideanDistance(other.pos, particle.pos)))
         sorted_distances = sorted(distances, key=lambda x: x[2])
         return sorted(sorted_distances[:self.k+1], key=lambda x: x[1])
 
@@ -565,7 +566,7 @@ class Swarm:
                 # (though particle.best_pos should already be enforced)
                 if self.use_respect_boundary:
                     best_pos = particle._enforce_respect_boundary(best_pos)
-                self.best_pos = best_pos
+                self.best_pos = best_pos.copy()
 
     def update_local_best_pos(self):
         for particle in self.swarm:
@@ -575,13 +576,13 @@ class Swarm:
             # Enforce respect boundary on local best position if enabled
             if self.use_respect_boundary:
                 local_best_pos = particle._enforce_respect_boundary(local_best_pos)
-            particle.local_best_pos = local_best_pos
+            particle.local_best_pos = local_best_pos.copy()
 
     def update_global_worst_pos(self):
         for particle in self.swarm:
             if particle.best_cost > self.worst_cost:
                 self.worst_cost = particle.best_cost
-                self.worst_pos = particle.best_pos
+                self.worst_pos = particle.best_pos.copy()
 
     def get_inertia_weight(self, current_iter):
         """Calculate current inertia weight based on the selected function"""
@@ -742,9 +743,15 @@ class Particle:
     def __init__(self, swarm):
         self.swarm = swarm
         self.dims = swarm.dims
-        self.pos = self.best_pos = self.local_best_pos = self.swarm.rng.uniform(
+        # Each of these must be its own array: ``pos`` is updated in place
+        # (``pos += velocity``), and sharing one buffer used to drag
+        # ``best_pos`` along with it, so ``best_pos`` stopped matching
+        # ``best_cost``.
+        self.pos = self.swarm.rng.uniform(
             swarm.val_min, swarm.val_max, swarm.dims
         )
+        self.best_pos = self.pos.copy()
+        self.local_best_pos = self.pos.copy()
         self.velocity = self.swarm.rng.uniform(
             -swarm.velocity_bounds, swarm.velocity_bounds, swarm.dims
         )
@@ -803,13 +810,15 @@ class Particle:
                 if new_cost < self.best_cost:
                     self.best_cost = new_cost
                     self.pos = new_pos
+                    self.best_pos = new_pos.copy()
                 if self.best_cost >= getattr(self.swarm, 'alpha', 0.5):
                     best_neighbor = self.swarm.get_best_neighbor(self)
-                    self.pos = best_neighbor[0][0]
+                    self.pos = best_neighbor[0][0].copy()
                     # Enforce boundary after setting neighbor position
                     if self.swarm.use_respect_boundary:
                         self.pos = self._enforce_respect_boundary(self.pos)
                     self.best_cost = best_neighbor[0][1]
+                    self.best_pos = self.pos.copy()
 
             self.velocity = (current_w * self.velocity) + (self.cognitive_weight() + self.global_weight())
 
