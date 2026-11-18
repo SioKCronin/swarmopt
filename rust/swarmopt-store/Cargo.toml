@@ -1,0 +1,32 @@
+[package]
+name = "swarmopt-store"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.89"
+description = "Crash-safe, corruption-tolerant persistence for SwarmOpt runs on unattended hardware"
+license = "MIT"
+repository = "https://github.com/SioKCronin/swarmopt"
+readme = "README.md"
+publish = false
+
+[lib]
+name = "swarmopt_store"
+# rlib for Rust users and the test suite, cdylib for the Python extension.
+crate-type = ["rlib", "cdylib"]
+
+[features]
+default = []
+# Builds the `swarmopt_store` Python extension module (used by maturin).
+python = ["dep:pyo3"]
+
+[dependencies]
+# The core has no dependencies at all, so it can be audited end to end and
+# cross-compiled for flight computers. PyO3 is only pulled in for the
+# Python bindings.
+pyo3 = { version = "0.30", features = ["abi3-py310", "extension-module"], optional = true }
+
+[profile.release]
+# Fail loudly on arithmetic overflow in release builds too: a wrapped length
+# or sequence number is a data-integrity bug, not something to run through.
+overflow-checks = true
+panic = "unwind"
