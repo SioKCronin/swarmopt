@@ -436,12 +436,112 @@ class Swarm:
             multiswarm.append(self.initialize_swarm())
         return multiswarm
 
-    def optimize(self):
-        """Run the optimization, drawing all randomness from ``self.rng``."""
-        with using_rng(self.rng):
-            return self._optimize()
+    def optimize(self, checkpoint=None, checkpoint_every=None):
+        """Run the optimization, drawing all randomness from ``self.rng``.
 
-    def _optimize(self):
+        checkpoint: swarmopt.persist.SwarmCheckpoint, optional
+            Save the full swarm state (including the random generator) to
+            this store every ``checkpoint_every`` epochs and at the end. If
+            it already holds a checkpoint for this same configuration, the
+            run resumes from it and finishes exactly as an uninterrupted
+            run would. Supported for algo 'global', 'local', 'unified' and
+            'sa'.
+        checkpoint_every: int, optional
+            Epochs between checkpoints (default: every 10 epochs).
+        """
+        if checkpoint is None and checkpoint_every is not None:
+            raise ValueError("checkpoint_every needs a checkpoint store")
+        if checkpoint is not None:
+            self._check_checkpointable()
+            if checkpoint_every is None:
+                checkpoint_every = 10
+            if int(checkpoint_every) < 1:
+                raise ValueError("checkpoint_every must be at least 1")
+        with using_rng(self.rng):
+            return self._optimize(checkpoint, checkpoint_every)
+
+    # -- checkpointing ---------------------------------------------------
+
+    # Set from the constructor and never changed by a run. They go into the
+    # checkpoint fingerprint instead of being restored.
+    _CONFIG_KEYS = (
+        "algo", "epochs", "n_particles", "m_swarms", "hueristic_change", "r",
+        "dims", "c1", "c2", "w", "k", "u", "decrement", "inertia_func",
+        "w_start", "w_end", "z", "velocity_clamp_func", "val_min", "val_max",
+        "velocity_bounds", "n_swarms", "communication_strategy",
+        "variation_strategy", "variation_rate", "variation_strength",
+        "diversity_monitoring", "diversity_threshold", "ppso_enabled",
+        "proactive_ratio", "knowledge_method", "exploration_weight",
+        "hhoa_enabled", "multiobjective", "mo_algorithm", "archive_size",
+        "target_position", "n_delegates", "delegate_spread",
+        "respect_boundary", "use_respect_boundary",
+    )
+    # Not data, or rebuilt rather than restored.
+    _NOT_STATE = ("swarm", "rng", "obj_func", "seed", "cpso", "mo_optimizer",
+                  "diversity_monitor", "ppso", "hhoa", "runtime")
+    _CHECKPOINT_ALGOS = ("global", "local", "unified", "sa")
+
+    def _check_checkpointable(self):
+        if self.algo not in self._CHECKPOINT_ALGOS:
+            raise NotImplementedError(
+                f"checkpointing supports algo in {self._CHECKPOINT_ALGOS}, not {self.algo!r}")
+        if self.multiobjective or self.diversity_monitoring or self.ppso_enabled:
+            raise NotImplementedError(
+                "checkpointing doesn't yet cover multiobjective, diversity "
+                "monitoring or PPSO runs")
+
+    def _checkpoint_config(self):
+        from . import __version__
+        cfg = {k: getattr(self, k) for k in self._CONFIG_KEYS}
+        func = self.obj_func
+        # Name, not identity: a callable object is named by its class.
+        named = func if hasattr(func, "__qualname__") else type(func)
+        cfg["obj_func"] = f"{getattr(named, '__module__', '?')}.{named.__qualname__}"
+        cfg["seed"] = self.seed if isinstance(self.seed, int) else type(self.seed).__name__
+        cfg["swarmopt_version"] = __version__
+        return cfg
+
+    def _snapshot(self, next_epoch):
+        from .persist import CHECKPOINT_SCHEMA, fingerprint
+        config = self._checkpoint_config()
+        skip = set(self._CONFIG_KEYS) | set(self._NOT_STATE)
+        swarm_state = {k: v for k, v in vars(self).items()
+                       if k not in skip and not k.startswith("_")}
+        particles = [{k: v for k, v in vars(p).items() if k != "swarm"}
+                     for p in self.swarm]
+        return {
+            "schema": CHECKPOINT_SCHEMA,
+            "fingerprint": fingerprint(config),
+            "config": config,
+            "next_epoch": int(next_epoch),
+            "runtime": float(self.runtime),
+            "rng": self.rng.bit_generator.state,
+            "swarm": swarm_state,
+            "particles": particles,
+        }
+
+    def _restore(self, state):
+        from .persist import CheckpointMismatch, fingerprint
+        expected = fingerprint(self._checkpoint_config())
+        if state.get("fingerprint") != expected:
+            raise CheckpointMismatch(
+                "checkpoint was written by a run with a different configuration; "
+                "use a fresh checkpoint directory for this run")
+        if len(state["particles"]) != self.n_particles:
+            raise CheckpointMismatch("checkpoint has the wrong number of particles")
+        next_epoch = int(state["next_epoch"])
+        if not 0 <= next_epoch <= self.epochs:
+            raise CheckpointMismatch("checkpoint epoch is outside this run")
+        self.rng.bit_generator.state = state["rng"]
+        for k, v in state["swarm"].items():
+            setattr(self, k, v)
+        for p, saved in zip(self.swarm, state["particles"]):
+            for k, v in saved.items():
+                setattr(p, k, v)
+        self.runtime = float(state["runtime"])
+        return next_epoch
+
+    def _optimize(self, checkpoint=None, checkpoint_every=None):
         start = timeit.default_timer()
         
         # Handle Cooperative PSO
@@ -522,7 +622,13 @@ class Swarm:
             return
         
         # Standard PSO algorithms
-        for i in range(self.epochs):
+        first_epoch, runtime_before = 0, 0.0
+        if checkpoint is not None:
+            state = checkpoint.load_state()
+            if state is not None:
+                first_epoch = self._restore(state)
+                runtime_before = self.runtime
+        for i in range(first_epoch, self.epochs):
             if i >= int(self.hueristic_change * self.epochs):
                 self.end = True
             if i % self.r == 0:
@@ -541,8 +647,17 @@ class Swarm:
                 # Apply diversity-based interventions
                 if diversity_result['needs_intervention']:
                     self._apply_diversity_intervention(diversity_result, i)
+
+            done = i + 1
+            if checkpoint is not None and (done % checkpoint_every == 0 or done == self.epochs):
+                self.runtime = runtime_before + (timeit.default_timer() - start)
+                gen = checkpoint.save_state(self._snapshot(done))
+                if checkpoint.log is not None:
+                    checkpoint.log.append({"event": "checkpoint", "epoch": done,
+                                           "generation": gen,
+                                           "best_cost": float(self.best_cost)})
         stop = timeit.default_timer()
-        self.runtime = stop - start
+        self.runtime = runtime_before + (stop - start)
 
     def get_best_neighbor(self, particle):
         distances = []
