@@ -15,6 +15,12 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List, Tuple
 
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from swarmopt._safe_io import atomic_write_text, finite_float  # noqa: E402
+
 
 # Minimum required for aggregation; new benchmark CSVs may include stratum, std_cost.
 REQUIRED_COLUMNS = ("algo", "function", "avg_cost", "avg_time")
@@ -43,8 +49,10 @@ def load_rows(csv_dir: Path) -> List[Dict[str, str]]:
                 if not row["algo"] or not row["function"]:
                     continue
                 try:
-                    float(row["avg_cost"])
-                    float(row["avg_time"])
+                    # float() accepts "nan"; a NaN cost compares False against
+                    # everything, so it would stick as "best" and take rank 1.
+                    finite_float(row["avg_cost"])
+                    finite_float(row["avg_time"])
                 except ValueError:
                     continue
                 rows.append(row)
@@ -244,7 +252,7 @@ def main() -> int:
     ranks = ranks_by_function(aggregated)
     html_doc = render_html(aggregated, ranks)
 
-    out_path.write_text(html_doc, encoding="utf-8")
+    atomic_write_text(out_path, html_doc)
     uri = file_uri_for_path(out_path)
     print(uri)
 
