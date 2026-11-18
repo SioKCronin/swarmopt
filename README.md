@@ -49,6 +49,25 @@ swarm = Swarm(n_particles=30, dims=2, c1=2.0, c2=2.0, w=0.9,
               epochs=100, obj_func=sphere, seed=42)
 ```
 
+### Surviving power cuts (checkpoint and resume)
+
+For long runs on hardware that can lose power, checkpoints let a run pick up
+where it stopped and finish exactly as if it had never been interrupted.
+They need the Rust storage extension in
+[`rust/swarmopt-store`](rust/swarmopt-store/):
+
+```python
+from swarmopt import Swarm, persist
+
+with persist.SwarmCheckpoint("run/ckpt") as ckpt:
+    swarm = Swarm(n_particles=30, dims=2, c1=2.0, c2=2.0, w=0.9,
+                  epochs=1000, obj_func=sphere, seed=42)
+    swarm.optimize(checkpoint=ckpt, checkpoint_every=25)  # resumes if a checkpoint exists
+```
+
+See [`docs/SECURITY_AUDIT.md`](docs/SECURITY_AUDIT.md) for the threat model
+behind it (unattended drones under the ice of Ganymede).
+
 ## Testing
 
 Run the comprehensive test suite:
