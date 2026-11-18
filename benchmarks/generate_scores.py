@@ -4,15 +4,19 @@ Legacy entry point. Prefer:
     python benchmarks/run_benchmarks.py
 """
 
+import csv
+import os
 import sys
 from pathlib import Path
+
+import numpy as np
 
 BENCH = Path(__file__).resolve().parent
 ROOT = BENCH.parent
 sys.path[:0] = [str(ROOT), str(BENCH)]
 
-if __name__ == "__main__":
-    from run_benchmarks import main
+from swarmopt._safe_io import finite_float  # noqa: E402
+
 
 def leaderboard(csv_dir="csvfiles"):
     """Compare algorithms across benchmark functions using normalized scores.
@@ -38,7 +42,7 @@ def leaderboard(csv_dir="csvfiles"):
                 algo = row.get("algo")
                 func = row.get("function")
                 try:
-                    cost = float(row["avg_cost"])
+                    cost = finite_float(row["avg_cost"])
                 except (ValueError, KeyError, TypeError):
                     continue
                 if algo and func:
@@ -91,6 +95,9 @@ def leaderboard(csv_dir="csvfiles"):
 
 if __name__ == '__main__':
     if "--leaderboard" in sys.argv:
-        leaderboard()
+        leaderboard(os.path.join(BENCH, "csvfiles"))
     else:
-        run_all_tests(30, 2, 0.5, 0.3, 0.9, 2000)
+        # run_all_tests() no longer exists; the stratified runner replaced it.
+        from run_benchmarks import main
+
+        raise SystemExit(main(sys.argv[1:]))

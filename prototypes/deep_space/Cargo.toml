@@ -1,0 +1,28 @@
+[package]
+name = "swarmopt-deep-space"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+description = "Research prototype: bounded, deterministic, safety-gated swarm autonomy runtime for long-duration deep-space missions"
+license = "MIT"
+publish = false
+
+[lib]
+name = "deep_space"
+path = "src/lib.rs"
+
+[[bin]]
+name = "deep-space-sim"
+path = "src/main.rs"
+
+[dependencies]
+# Intentionally empty: the core has no third-party dependencies, which keeps
+# the audit surface small and the build reproducible offline.
+
+[profile.release]
+# Panics abort instead of unwinding so behaviour matches embedded targets.
+panic = "abort"
+overflow-checks = true
+
+[profile.dev]
+panic = "abort"

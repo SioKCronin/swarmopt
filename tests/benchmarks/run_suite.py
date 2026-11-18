@@ -16,7 +16,9 @@ Usage:
 
 import argparse
 import csv
+import io
 import json
+import math
 import sys
 import time
 from pathlib import Path
@@ -29,6 +31,7 @@ if str(ROOT) not in sys.path:
 
 import numpy as np
 from swarmopt import Swarm
+from swarmopt._safe_io import atomic_write_text, csv_safe
 from swarmopt.functions import (
     FUNCTION_METADATA,
     sphere,
@@ -97,7 +100,6 @@ def get_bounds_for_function(name, dims=10):
 
 def run_single(algorithm_id, preset, function_name, obj_func, dims, n_particles, epochs, velocity_clamp, seed):
     """Run one optimization and return best_cost, runtime, seed."""
-    np.random.seed(seed)
     t0 = time.perf_counter()
     swarm = Swarm(
         n_particles=n_particles,
@@ -110,6 +112,7 @@ def run_single(algorithm_id, preset, function_name, obj_func, dims, n_particles,
         velocity_clamp=velocity_clamp,
         w_start=0.9,
         w_end=0.4,
+        seed=seed,  # Swarm ignores NumPy's global state
         **preset,
     )
     swarm.optimize()
@@ -224,15 +227,19 @@ def run_benchmark_suite(config, output_dir=None, verbose=True):
         output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
         csv_path = output_dir / "benchmark_results.csv"
-        with open(csv_path, "w", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=list(results[0].keys()))
-            w.writeheader()
-            w.writerows(results)
+        buf = io.StringIO()
+        w = csv.DictWriter(buf, fieldnames=list(results[0].keys()))
+        w.writeheader()
+        w.writerows({k: csv_safe(v) for k, v in r.items()} for r in results)
+        atomic_write_text(csv_path, buf.getvalue())
         if verbose:
             print(f"\n  Wrote {csv_path}")
         json_path = output_dir / "benchmark_results.json"
-        with open(json_path, "w") as f:
-            json.dump(results, f, indent=2)
+        # Strict JSON: NaN/Infinity aren't valid JSON, so a diverged run is
+        # written as null instead of a token other tools will reject.
+        clean = [{k: (None if isinstance(v, float) and not math.isfinite(v) else v)
+                  for k, v in r.items()} for r in results]
+        atomic_write_text(json_path, json.dumps(clean, indent=2, allow_nan=False))
         if verbose:
             print(f"  Wrote {json_path}")
     return results

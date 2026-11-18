@@ -5,6 +5,41 @@ All notable changes to SwarmOpt will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+Security and data-integrity audit (`docs/SECURITY_AUDIT.md`) and crash-safe
+persistence for unattended hardware.
+
+### Added
+- `rust/swarmopt-store`: a Rust crate with Python bindings providing a
+  replicated, CRC-checked, append-only run log and power-cut-safe A/B
+  checkpoints. It has storage budgets, needs no clock, and has no
+  dependencies in the core.
+- `swarmopt.persist`: strict-JSON payload encoding (never pickle),
+  `RunLog`, `read_run_log` and `SwarmCheckpoint`.
+- `Swarm.optimize(checkpoint=..., checkpoint_every=N)` resumes an
+  interrupted run so it finishes bit-for-bit as if uninterrupted (algo
+  `global`, `local`, `unified`, `sa`).
+- `benchmarks/run_benchmarks.py --log-dir` writes every trial to a durable
+  run log.
+- CI: `store.yml` (fmt, clippy, fault-injection tests, Python bindings);
+  Dependabot for Cargo.
+
+### Fixed
+- **`best_pos` could disagree with `best_cost`.** Particle position arrays
+  were aliased and updated in place. Results that relied on `best_pos` may
+  have been wrong. Seeded results change with this fix.
+- Local-neighbourhood bests paired a neighbour's best cost with its current
+  position; the `sa` branch updated `best_cost` without `best_pos`.
+- The benchmark runners recorded a seed that had no effect on the run
+  (they seeded NumPy's global state, which `Swarm` ignores). The seed is
+  now passed to `Swarm`, and recorded seeds reproduce results.
+- Benchmark and leaderboard outputs are written atomically and never
+  silently overwritten. CSV cells are protected against formula injection.
+  NaN/inf rows can no longer top the leaderboard. JSON output is
+  standards-compliant.
+- `benchmarks/generate_scores.py` no longer crashes.
+
 ## [0.3.0] - 2026-11-16
 
 Foundation release: correctness, reproducibility, and supply-chain hygiene.
