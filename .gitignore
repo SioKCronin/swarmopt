@@ -24,3 +24,6 @@ examples_output/
 
 # Plots written by the integration scripts
 /*.png
+
+# Rust prototype build output
+prototypes/deep_space/target/
