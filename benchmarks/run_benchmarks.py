@@ -12,13 +12,12 @@ Run from the repository root:
 import argparse
 import csv
 import hashlib
-import random
+import io
 import sys
 from pathlib import Path
 from time import gmtime, strftime
 from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
 
 BENCH = Path(__file__).resolve().parent
 ROOT = BENCH.parent
@@ -29,6 +28,7 @@ if str(BENCH) not in sys.path:
 
 try:
     from swarmopt import Swarm  # noqa: E402
+    from swarmopt._safe_io import atomic_write_text, csv_safe, unique_path  # noqa: E402
 except ImportError as e:
     print(
         "Failed to import Swarm (benchmarks need the same dependencies as the library; "
@@ -51,11 +51,6 @@ def _algorithm_registry():
     }
 
 
-def _apply_seed(seed: int) -> None:
-    random.seed(seed)
-    np.random.seed(seed)
-
-
 def _stable_trial_salt(algo: str, fname: str) -> int:
     """Deterministic 31-bit int (hash() is randomized per process in Python 3.3+)."""
     h = hashlib.md5(("{}\0{}".format(algo, fname)).encode("utf-8")).hexdigest()
@@ -73,7 +68,6 @@ def _run_trial(
     epochs: int,
     seed: int,
 ) -> Tuple[float, float]:
-    _apply_seed(seed)
     display_name, extra = _algorithm_registry()[algo_key]
     d = int(problem["fixed_dims"] or dims)
     lo, hi = problem["bounds"]
@@ -86,6 +80,10 @@ def _run_trial(
         "epochs": epochs,
         "obj_func": problem["func"],
         "velocity_clamp": (lo, hi),
+        # Swarm draws only from its own Generator, so the seed has to go to
+        # Swarm itself; seeding NumPy's global state has no effect on the run
+        # and made the recorded seed_base a false provenance claim.
+        "seed": seed,
     }
     kwargs.update(extra)
     s = Swarm(**kwargs)
@@ -126,6 +124,13 @@ def main(argv: Optional[List[str]] = None) -> int:
         help="Output directory for CSV (default: benchmarks/csvfiles).",
     )
     ap.add_argument(
+        "--log-dir",
+        type=Path,
+        default=None,
+        help="Also append every trial to a crash-safe, replicated run log here "
+        "(needs the swarmopt-store extension; read it with swarmopt.persist.read_run_log).",
+    )
+    ap.add_argument(
         "--quick",
         action="store_true",
         help="Shorter run: 2 trials, 3 epochs, first problem only, global+hhoa only.",
@@ -161,11 +166,19 @@ def main(argv: Optional[List[str]] = None) -> int:
     out_dir = (args.out_dir or (Path(__file__).resolve().parent / "csvfiles")).resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
     stamp = strftime("%Y-%m-%d-%H-%M-%S")
-    path = out_dir / ("benchmark_stratified_%s.csv" % stamp)
+    path = unique_path(out_dir, "benchmark_stratified_%s" % stamp, ".csv")
 
     base_seed = int(args.seed)
     n_trials = int(args.n_trials)
     rows_out: List[dict] = []
+
+    run_log = None
+    if args.log_dir is not None:
+        from swarmopt import persist
+
+        run_log = persist.RunLog(args.log_dir)
+        run_log.append({"event": "benchmark_start", "argv": list(argv or sys.argv[1:]),
+                        "seed_base": base_seed, "n_trials": n_trials})
 
     fieldnames = [
         "algo",
@@ -208,6 +221,10 @@ def main(argv: Optional[List[str]] = None) -> int:
                 )
                 costs.append(c)
                 times.append(rtime)
+                if run_log is not None:
+                    run_log.append({"event": "trial", "algo": algo, "function": fname,
+                                    "trial": t, "seed": seed_t, "best_cost": c,
+                                    "runtime": rtime})
                 gr = metrics.simple_regret(c, opt)
                 if gr is not None:
                     regrets.append(gr)
@@ -236,36 +253,27 @@ def main(argv: Optional[List[str]] = None) -> int:
             }
             rows_out.append(row)
 
-    with path.open("w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
+    def _csv_text(fields, rows):
+        buf = io.StringIO()
+        w = csv.DictWriter(buf, fieldnames=fields, extrasaction="ignore")
         w.writeheader()
-        for r in rows_out:
-            w.writerow({k: r.get(k, "") for k in fieldnames})
+        for r in rows:
+            w.writerow({k: csv_safe(r.get(k, "")) for k in fields})
+        return buf.getvalue()
+
+    # Written atomically and never over an existing file, so a crash or a
+    # second run in the same second can't leave a truncated or clobbered CSV.
+    atomic_write_text(path, _csv_text(fieldnames, rows_out), overwrite=False)
 
     # Add legacy rows with avg_time column name for leaderboard (same as avg_time)
-    legacy_path = out_dir / ("legacy_leaderboard_%s.csv" % stamp)
-    with legacy_path.open("w", newline="", encoding="utf-8") as f:
-        leg_fields = [
-            "algo",
-            "function",
-            "stratum",
-            "avg_cost",
-            "avg_time",
-            "std_cost",
-        ]
-        w = csv.DictWriter(f, fieldnames=leg_fields, extrasaction="ignore")
-        w.writeheader()
-        for r in rows_out:
-            w.writerow(
-                {
-                    "algo": r["algo"],
-                    "function": r["function"],
-                    "stratum": r["stratum"],
-                    "avg_cost": r["avg_cost"],
-                    "avg_time": r["avg_time"],
-                    "std_cost": r["std_cost"],
-                }
-            )
+    legacy_path = unique_path(out_dir, "legacy_leaderboard_%s" % stamp, ".csv")
+    leg_fields = ["algo", "function", "stratum", "avg_cost", "avg_time", "std_cost"]
+    atomic_write_text(legacy_path, _csv_text(leg_fields, rows_out), overwrite=False)
+
+    if run_log is not None:
+        run_log.append({"event": "benchmark_end", "csv": str(path)})
+        run_log.close()
+        print("Logged %d trials to %s" % (len(rows_out) * n_trials, args.log_dir))
 
     print("Wrote %s" % path)
     print("Wrote %s (leaderboard-compatible: algo, function, stratum, avg_*, std_cost)" % legacy_path)

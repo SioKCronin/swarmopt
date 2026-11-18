@@ -26,6 +26,10 @@ def build_example_html_page(
     image_alt: str = "Swarm visualization",
 ) -> str:
     """
+    intro_html is inserted as raw HTML and must be trusted, author-written
+    markup. Never pass text that came from a data file, a config, or another
+    machine; escape it with ``html.escape`` first. Every other field is escaped.
+
     leaderboard_rows: dicts with keys
       rank, algorithm, best_cost, runtime_s, cost_score, time_score, composite_score
     """
@@ -136,7 +140,7 @@ def build_example_html_page(
     <h1>{html.escape(title)}</h1>
     <div class="intro">{intro_html}</div>
     <figure class="figure">
-      <img src="{image_data_uri}" alt="{html.escape(image_alt)}" />
+      <img src="{html.escape(image_data_uri, quote=True)}" alt="{html.escape(image_alt)}" />
       <figcaption>3D trajectories (subset), final swarm, delegate sites, and standoff boundary.</figcaption>
     </figure>
     <h2>Algorithm leaderboard</h2>
