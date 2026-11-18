@@ -3,7 +3,8 @@
 **Scope:** SwarmOpt 0.3.0 (`26ba07e`): the library, benchmark and test
 tooling, CI/CD, and everything that reads or writes data.
 **Date:** 2026-11-18.
-**Outcome:** fixes and the host persistence crate `rust/swarmopt-store`.
+**Outcome:** fixes and the host persistence crate `rust/persist`
+(`swarmopt-persist`).
 That crate is the host half of the Rust split; the onboard research core is
 separate. See [`RUST_ARCHITECTURE.md`](RUST_ARCHITECTURE.md).
 
@@ -139,19 +140,19 @@ A power cut lost the entire optimisation. See *New persistence layer*.
 - **CI/CD:** actions pinned by SHA, `persist-credentials: false`,
   least-privilege `permissions`, no `pull_request_target`, PyPI trusted
   publishing (no stored tokens), a tag/version check, build-provenance
-  attestations, Scorecard and Dependabot. The new `store.yml` follows the
+  attestations, Scorecard and Dependabot. The new `persist.yml` follows the
   same rules and adds Cargo to Dependabot.
 - **Config loading** (`run_suite.load_config`): reads a user-supplied local
   path. That's acceptable for a CLI, though note that a relative name falls
   back to the working directory.
 
-## New persistence layer (`rust/swarmopt-store`)
+## New persistence layer (`rust/persist`)
 
-The durable host data paths are implemented in `rust/swarmopt-store`, a
-`std`-only, dependency-free core with PyO3 bindings. This is not the onboard
-research core (`prototypes/deep_space`); see
+The durable host data paths are implemented in `rust/persist`
+(`swarmopt-persist`), a `std`-only, dependency-free core with PyO3 bindings.
+This is not the onboard research core (`prototypes/deep_space`); see
 [`RUST_ARCHITECTURE.md`](RUST_ARCHITECTURE.md). Full format spec:
-`rust/swarmopt-store/README.md`.
+`rust/persist/README.md`.
 
 - **Run log:** append-only and segmented. CRC-32C covers each record header
   (checked before the length is trusted) and each body. A sync marker lets

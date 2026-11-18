@@ -1,8 +1,8 @@
 """Durable run logs and resumable checkpoints for SwarmOpt.
 
-Storage goes through the Rust ``swarmopt-store`` extension, which handles
+Storage goes through the Rust ``swarmopt-persist`` extension, which handles
 power loss, bit flips, storage budgets and replication (see
-``rust/swarmopt-store/README.md``). This module adds:
+``rust/persist/README.md``). This module adds:
 
 * a strict, self-describing JSON encoding for payloads, with NumPy arrays
   stored as exact little-endian bytes. It never uses pickle, so loading a
@@ -15,7 +15,7 @@ power loss, bit flips, storage budgets and replication (see
 Install the extension with::
 
     pip install maturin
-    cd rust/swarmopt-store && maturin build --release && pip install target/wheels/*.whl
+    cd rust/persist && maturin build --release && pip install target/wheels/*.whl
 """
 
 from __future__ import annotations
@@ -29,7 +29,7 @@ from typing import Any, Dict, Iterator, List, Optional, Tuple
 import numpy as np
 
 try:
-    import swarmopt_store as _store
+    import swarmopt_persist as _store
 except ImportError:  # pragma: no cover - exercised only without the extension
     _store = None
 
@@ -68,8 +68,8 @@ def available() -> bool:
 def _require_store():
     if _store is None:
         raise ImportError(
-            "swarmopt.persist needs the swarmopt-store extension: "
-            "cd rust/swarmopt-store && maturin build --release && "
+            "swarmopt.persist needs the swarmopt-persist extension: "
+            "cd rust/persist && maturin build --release && "
             "pip install target/wheels/*.whl"
         )
     return _store

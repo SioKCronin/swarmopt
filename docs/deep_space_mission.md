@@ -22,8 +22,9 @@ incomplete observations and hardware degradation?
 Python SwarmOpt stays the home for research, benchmarks and reference
 behaviour. Alongside it, `prototypes/deep_space/` is the onboard research
 core, built for the constraints of long-lived embedded systems. Host logs
-and checkpoints are a different crate, `rust/swarmopt-store`. The boundary
-is [`RUST_ARCHITECTURE.md`](RUST_ARCHITECTURE.md).
+and checkpoints are a different crate, `rust/persist`
+(`swarmopt-persist`). The boundary is
+[`RUST_ARCHITECTURE.md`](RUST_ARCHITECTURE.md).
 
 | Constraint | How the prototype addresses it |
 |---|---|
@@ -48,13 +49,13 @@ standard.
  Python SwarmOpt                     baseline ─┐
  algorithm research            ┌──── pso ──────┼──► planner ──► safety gate ──► execute
  compare_python.py       ◄─────┤               │                    ▲
- swarmopt-store (std)          │     envelope ─┴── replay guard     │
+ swarmopt-persist (std)        │     envelope ─┴── replay guard     │
    logs + checkpoints          │     state (fixed A/B snapshot)     │
                                └──── adapters (future): sensors, comms, NVM,
                                      power, clocks, watchdog
 ```
 
-`swarmopt-store` keeps host-side run data. It does not store the onboard
+`swarmopt-persist` keeps host-side run data. It does not store the onboard
 snapshot format, and the onboard core does not link it.
 
 The simulation in `sim.rs` stands in for the adapters at Stage 1.

@@ -1,5 +1,5 @@
 [package]
-name = "swarmopt-store"
+name = "swarmopt-persist"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.89"
@@ -10,13 +10,13 @@ readme = "README.md"
 publish = false
 
 [lib]
-name = "swarmopt_store"
+name = "swarmopt_persist"
 # rlib for Rust users and the test suite, cdylib for the Python extension.
 crate-type = ["rlib", "cdylib"]
 
 [features]
 default = []
-# Builds the `swarmopt_store` Python extension module (used by maturin).
+# Builds the `swarmopt_persist` Python extension module (used by maturin).
 python = ["dep:pyo3"]
 
 [dependencies]

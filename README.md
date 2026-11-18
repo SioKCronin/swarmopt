@@ -54,7 +54,7 @@ swarm = Swarm(n_particles=30, dims=2, c1=2.0, c2=2.0, w=0.9,
 For long runs on hardware that can lose power, checkpoints let a run pick up
 where it stopped and finish exactly as if it had never been interrupted.
 They need the Rust storage extension in
-[`rust/swarmopt-store`](rust/swarmopt-store/):
+[`rust/persist`](rust/persist/) (`swarmopt-persist`):
 
 ```python
 from swarmopt import Swarm, persist
@@ -66,7 +66,7 @@ with persist.SwarmCheckpoint("run/ckpt") as ckpt:
 ```
 
 See [`docs/SECURITY_AUDIT.md`](docs/SECURITY_AUDIT.md) for the threat model
-behind it (unattended drones under the ice of Ganymede). How this store sits
+behind it (unattended drones under the ice of Ganymede). How this crate sits
 next to the onboard research core is in
 [`docs/RUST_ARCHITECTURE.md`](docs/RUST_ARCHITECTURE.md).
 

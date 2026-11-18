@@ -1,4 +1,4 @@
-# swarmopt-store
+# swarmopt-persist
 
 Crash-safe, corruption-tolerant persistence for SwarmOpt, written in Rust.
 
@@ -11,13 +11,13 @@ Ganymede. Those drones:
 - have a fixed amount of storage, and
 - reach the surface only now and then, to send data up.
 
-The store is built for exactly those conditions, and it works the same way
+This crate is built for exactly those conditions, and it works the same way
 on a laptop. It is the host half of the Rust split: anything with `std` and
 a filesystem. The bare-metal onboard core is
 [`prototypes/deep_space`](../../prototypes/deep_space/), and the boundary is
 [`docs/RUST_ARCHITECTURE.md`](../../docs/RUST_ARCHITECTURE.md).
 
-| Condition | What the store does |
+| Condition | What the crate does |
 | --- | --- |
 | Power cut mid-write | fsync per policy; torn tails cut on restart; checkpoints use A/B slots with atomic rename |
 | Bit flips (SEUs) | CRC-32C on every record header, record body, segment header and checkpoint; damaged bytes are never returned as data |
@@ -37,11 +37,11 @@ with the `python` feature.
 
 ```bash
 pip install maturin
-cd rust/swarmopt-store && maturin build --release && pip install target/wheels/*.whl
+cd rust/persist && maturin build --release && pip install target/wheels/*.whl
 ```
 
 ```python
-import swarmopt_store as st
+import swarmopt_persist as st
 
 with st.LogWriter("mission/log", stream_id=0x4A55, replicas=2) as log:
     seq = log.append(1, b'{"epoch": 10, "best_cost": 0.02}')
