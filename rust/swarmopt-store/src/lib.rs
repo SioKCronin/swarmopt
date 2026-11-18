@@ -18,7 +18,10 @@
 //! 4. **Bounded and clock-free.** A fixed byte budget per replica, explicit
 //!    pruning after downlink, and ordering by sequence number only.
 //!
-//! The core uses only `std` and has no dependencies.
+//! The core uses only `std` and has no dependencies. It is the host store:
+//! a laptop, a ground station, or a payload computer with a filesystem.
+//! The `no_std` onboard research core is a separate crate
+//! (`prototypes/deep_space`). See `docs/RUST_ARCHITECTURE.md`.
 
 pub mod checkpoint;
 pub mod crc;

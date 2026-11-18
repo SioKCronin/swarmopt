@@ -20,8 +20,9 @@ default = []
 python = ["dep:pyo3"]
 
 [dependencies]
-# The core has no dependencies at all, so it can be audited end to end and
-# cross-compiled for flight computers. PyO3 is only pulled in for the
+# The core has no dependencies, so the audit surface stays small. It still
+# needs std and a filesystem, so it is not the bare-metal onboard core
+# (that crate is prototypes/deep_space). PyO3 is only pulled in for the
 # Python bindings.
 pyo3 = { version = "0.30", features = ["abi3-py310", "extension-module"], optional = true }
 

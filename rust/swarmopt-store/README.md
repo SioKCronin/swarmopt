@@ -12,7 +12,10 @@ Ganymede. Those drones:
 - reach the surface only now and then, to send data up.
 
 The store is built for exactly those conditions, and it works the same way
-on a laptop.
+on a laptop. It is the host half of the Rust split: anything with `std` and
+a filesystem. The bare-metal onboard core is
+[`prototypes/deep_space`](../../prototypes/deep_space/), and the boundary is
+[`docs/RUST_ARCHITECTURE.md`](../../docs/RUST_ARCHITECTURE.md).
 
 | Condition | What the store does |
 | --- | --- |

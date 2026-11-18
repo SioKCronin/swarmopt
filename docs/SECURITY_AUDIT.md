@@ -3,8 +3,9 @@
 **Scope:** SwarmOpt 0.3.0 (`26ba07e`): the library, benchmark and test
 tooling, CI/CD, and everything that reads or writes data.
 **Date:** 2026-11-18.
-**Outcome:** fixes and a new Rust persistence layer on branch
-`security/rust-persistence`.
+**Outcome:** fixes and the host persistence crate `rust/swarmopt-store`.
+That crate is the host half of the Rust split; the onboard research core is
+separate. See [`RUST_ARCHITECTURE.md`](RUST_ARCHITECTURE.md).
 
 ## Motivating case and threat model
 
@@ -146,8 +147,10 @@ A power cut lost the entire optimisation. See *New persistence layer*.
 
 ## New persistence layer (`rust/swarmopt-store`)
 
-The durable data paths are now implemented in Rust, with a `std`-only,
-dependency-free core and PyO3 bindings. Full format spec:
+The durable host data paths are implemented in `rust/swarmopt-store`, a
+`std`-only, dependency-free core with PyO3 bindings. This is not the onboard
+research core (`prototypes/deep_space`); see
+[`RUST_ARCHITECTURE.md`](RUST_ARCHITECTURE.md). Full format spec:
 `rust/swarmopt-store/README.md`.
 
 - **Run log:** append-only and segmented. CRC-32C covers each record header

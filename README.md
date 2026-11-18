@@ -66,7 +66,9 @@ with persist.SwarmCheckpoint("run/ckpt") as ckpt:
 ```
 
 See [`docs/SECURITY_AUDIT.md`](docs/SECURITY_AUDIT.md) for the threat model
-behind it (unattended drones under the ice of Ganymede).
+behind it (unattended drones under the ice of Ganymede). How this store sits
+next to the onboard research core is in
+[`docs/RUST_ARCHITECTURE.md`](docs/RUST_ARCHITECTURE.md).
 
 ## Testing
 
