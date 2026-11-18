@@ -102,21 +102,6 @@ results. In summary, the tests check:
 - warm restart, restart with corrupted latest snapshot (falls back to the
   older slot), and cold restart before any snapshot.
 
-## Findings so far
-
-- **The per-tick PSO planner does not beat the greedy baseline on science
-  value** in this mission model (see README table). A likely cause is that a
-  per-tick knapsack is myopic: it spends down to reserve on the current
-  candidate set, which forecloses better-ratio targets next tick, while the
-  ratio-greedy baseline is implicitly patient. That makes the next research
-  question a multi-tick or receding-horizon objective, not a better per-tick
-  optimizer.
-- PSO plans are rejected by the safety gate a few percent of the time (the
-  over-budget penalty is soft). The fallback path handles this, but it shows
-  why the gate must be independent of the optimizer.
-- PSO decisions cost roughly 60× more compute than the baseline (about 31 µs
-  vs. 0.5 µs on a desktop), always within a fixed evaluation bound.
-
 ## Hardware roadmap
 
 1. **Desktop deterministic simulation** (this PR).
@@ -127,16 +112,3 @@ results. In summary, the tests check:
    `riscv32imac-unknown-none-elf` to keep that path open.
 
 None of these stages is flight qualification.
-
-## Open questions
-
-- Cold start: with no valid snapshot, the craft cannot know which sequence
-  numbers it already used. A monotonic boot counter in separate NVM, or a
-  per-boot sender nonce in the envelope, would close this gap.
-- Envelopes are integrity-checked but not authenticated. CRC-32 catches
-  accidents, not adversaries; an authenticated MAC is the next step if the
-  threat model includes spoofing.
-- Sequence numbers are `u32`; at one message per second that wraps in ~136
-  years, so wrap handling is deferred rather than needed.
-- How should the planner value information shared by peers whose claims
-  arrive late (counted as `stale_claims`)?
