@@ -15,7 +15,7 @@
 //! This is not flight software. Memory safety from Rust does not by itself
 //! give real-time determinism, radiation tolerance or flight qualification.
 //!
-//! Host-side logs and checkpoints live in `swarmopt-store`, not here. The
+//! Host-side logs and checkpoints live in `swarmopt-persist`, not here. The
 //! split is documented in `docs/RUST_ARCHITECTURE.md`.
 
 #![cfg_attr(not(test), no_std)]

@@ -9,7 +9,7 @@ safely. The mission briefing and design rationale are in
 > here are not qualification tests.
 
 This crate is the onboard half of the Rust split. Logs and checkpoints for
-the Python library live in [`rust/swarmopt-store`](../../rust/swarmopt-store/).
+the Python library live in [`rust/persist`](../../rust/persist/).
 The boundary is [`docs/RUST_ARCHITECTURE.md`](../../docs/RUST_ARCHITECTURE.md).
 
 ## Layout

@@ -15,7 +15,7 @@ from swarmopt import Swarm
 from swarmopt import persist
 from swarmopt.functions import rastrigin
 
-needs_store = unittest.skipUnless(persist.available(), "swarmopt-store extension not installed")
+needs_store = unittest.skipUnless(persist.available(), "swarmopt-persist extension not installed")
 
 
 class PowerCut(Exception):
@@ -213,19 +213,19 @@ class TestRunLog(unittest.TestCase):
             self.assertEqual(stats["repaired_from_replica"], 0)
 
     def test_storage_full_is_an_exception(self):
-        import swarmopt_store
+        import swarmopt_persist
         with tempfile.TemporaryDirectory() as d:
             with persist.RunLog(Path(d) / "log", replicas=1, max_total_bytes=4096,
                                 segment_bytes=4096, max_record_bytes=1024) as log:
-                with self.assertRaises(swarmopt_store.StorageFullError):
+                with self.assertRaises(swarmopt_persist.StorageFullError):
                     for i in range(1000):
                         log.append({"i": i, "pad": "x" * 200})
 
     def test_second_writer_locked(self):
-        import swarmopt_store
+        import swarmopt_persist
         with tempfile.TemporaryDirectory() as d:
             with persist.RunLog(Path(d) / "log"):
-                with self.assertRaises(swarmopt_store.LockedError):
+                with self.assertRaises(swarmopt_persist.LockedError):
                     persist.RunLog(Path(d) / "log")
 
 

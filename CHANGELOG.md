@@ -11,7 +11,7 @@ Security and data-integrity audit (`docs/SECURITY_AUDIT.md`) and crash-safe
 persistence for unattended hardware.
 
 ### Added
-- `rust/swarmopt-store`: a Rust crate with Python bindings providing a
+- `rust/persist` (`swarmopt-persist`): a Rust crate with Python bindings providing a
   replicated, CRC-checked, append-only run log and power-cut-safe A/B
   checkpoints. It has storage budgets, needs no clock, and has no
   dependencies in the core.
@@ -22,7 +22,7 @@ persistence for unattended hardware.
   `global`, `local`, `unified`, `sa`).
 - `benchmarks/run_benchmarks.py --log-dir` writes every trial to a durable
   run log.
-- CI: `store.yml` (fmt, clippy, fault-injection tests, Python bindings);
+- CI: `persist.yml` (fmt, clippy, fault-injection tests, Python bindings);
   Dependabot for Cargo.
 
 ### Fixed

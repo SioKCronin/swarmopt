@@ -2,7 +2,7 @@
 
 These cover the plain-text outputs (CSV, JSON, HTML) that the benchmark and
 example tooling writes. Durable mission data, checkpoints and logs go through
-:mod:`swarmopt.persist`, which is backed by the Rust ``swarmopt-store`` crate.
+:mod:`swarmopt.persist`, which is backed by the Rust ``swarmopt-persist`` crate.
 """
 
 from __future__ import annotations

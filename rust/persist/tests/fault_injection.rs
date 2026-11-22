@@ -8,7 +8,7 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 
-use swarmopt_store::{
+use swarmopt_persist::{
     read_checkpoint, read_log, CheckpointStore, Error, FullPolicy, LogConfig, LogWriter,
     ReadOptions, SyncPolicy,
 };
@@ -21,7 +21,7 @@ impl TempDir {
     fn new(tag: &str) -> TempDir {
         static N: AtomicU64 = AtomicU64::new(0);
         let p = std::env::temp_dir().join(format!(
-            "swarmopt-store-{tag}-{}-{}",
+            "swarmopt-persist-{tag}-{}-{}",
             std::process::id(),
             N.fetch_add(1, Ordering::Relaxed)
         ));
@@ -147,7 +147,7 @@ fn power_cut_at_every_byte_of_the_tail() {
     write_n(base.path(), &cfg, 10);
     let seg = segments_of(&base.path().join("copy-0")).pop().unwrap();
     let full_len = fs::metadata(&seg).unwrap().len();
-    let last_frame = (payload(9).len() + swarmopt_store::log::RECORD_OVERHEAD) as u64;
+    let last_frame = (payload(9).len() + swarmopt_persist::log::RECORD_OVERHEAD) as u64;
 
     for cut in (full_len - last_frame)..=full_len {
         let d = TempDir::new("pc");

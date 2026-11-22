@@ -1,4 +1,4 @@
-//! Python bindings (`import swarmopt_store`). Payloads are plain `bytes`;
+//! Python bindings (`import swarmopt_persist`). Payloads are plain `bytes`;
 //! encoding is left to the caller (SwarmOpt uses strict JSON, never pickle).
 
 use pyo3::create_exception;
@@ -11,31 +11,31 @@ use crate::error::Error;
 use crate::log::{self, FullPolicy, LogConfig, LogWriter as RsLogWriter, ReadOptions, SyncPolicy};
 
 create_exception!(
-    swarmopt_store,
+    swarmopt_persist,
     StoreError,
     PyException,
     "Base class for store errors."
 );
 create_exception!(
-    swarmopt_store,
+    swarmopt_persist,
     StorageFullError,
     StoreError,
     "The storage budget is used up."
 );
 create_exception!(
-    swarmopt_store,
+    swarmopt_persist,
     LockedError,
     StoreError,
     "Another writer holds the lock."
 );
 create_exception!(
-    swarmopt_store,
+    swarmopt_persist,
     CorruptError,
     StoreError,
     "Damaged data where it can't be skipped."
 );
 create_exception!(
-    swarmopt_store,
+    swarmopt_persist,
     UnsafePathError,
     StoreError,
     "A symlink where a real path is required."
@@ -75,7 +75,7 @@ fn parse_sync(obj: &Bound<'_, PyAny>) -> PyResult<SyncPolicy> {
 }
 
 /// Append-only, replicated, CRC-checked record log.
-#[pyclass(module = "swarmopt_store")]
+#[pyclass(module = "swarmopt_persist")]
 pub struct LogWriter {
     inner: Option<RsLogWriter>,
 }
@@ -234,7 +234,7 @@ fn loaded_dict<'py>(py: Python<'py>, l: Loaded) -> PyResult<Bound<'py, PyDict>> 
 }
 
 /// Power-cut-safe A/B checkpoint slots.
-#[pyclass(module = "swarmopt_store")]
+#[pyclass(module = "swarmopt_persist")]
 pub struct CheckpointStore {
     inner: Option<RsCheckpointStore>,
 }
@@ -302,7 +302,7 @@ fn read_checkpoint<'py>(
 }
 
 #[pymodule]
-fn swarmopt_store(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn swarmopt_persist(m: &Bound<'_, PyModule>) -> PyResult<()> {
     let py = m.py();
     m.add_class::<LogWriter>()?;
     m.add_class::<CheckpointStore>()?;

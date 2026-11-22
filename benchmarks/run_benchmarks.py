@@ -128,7 +128,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         type=Path,
         default=None,
         help="Also append every trial to a crash-safe, replicated run log here "
-        "(needs the swarmopt-store extension; read it with swarmopt.persist.read_run_log).",
+        "(needs the swarmopt-persist extension; read it with swarmopt.persist.read_run_log).",
     )
     ap.add_argument(
         "--quick",

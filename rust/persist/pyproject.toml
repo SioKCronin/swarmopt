@@ -3,7 +3,7 @@ requires = ["maturin>=1.7,<2"]
 build-backend = "maturin"
 
 [project]
-name = "swarmopt-store"
+name = "swarmopt-persist"
 description = "Crash-safe, corruption-tolerant persistence for SwarmOpt (Rust)"
 requires-python = ">=3.10"
 license = "MIT"
@@ -11,4 +11,4 @@ dynamic = ["version"]
 
 [tool.maturin]
 features = ["python"]
-module-name = "swarmopt_store"
+module-name = "swarmopt_persist"

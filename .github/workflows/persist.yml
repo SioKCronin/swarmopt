@@ -1,27 +1,27 @@
-name: Store (Rust)
+name: Persist (Rust)
 
-# The swarmopt-store crate and its Python bindings. Uses the Rust toolchain
+# The swarmopt-persist crate and its Python bindings. Uses the Rust toolchain
 # preinstalled on GitHub runners, so no third-party actions beyond the
 # pinned checkout/setup-python ones the other workflows already trust.
 
 on:
   push:
     branches: [master]
-    paths: ["rust/**", "swarmopt/persist.py", "swarmopt/swarm.py", "tests/unit/test_persist.py", ".github/workflows/store.yml"]
+    paths: ["rust/**", "swarmopt/persist.py", "swarmopt/swarm.py", "tests/unit/test_persist.py", ".github/workflows/persist.yml"]
   pull_request:
-    paths: ["rust/**", "swarmopt/persist.py", "swarmopt/swarm.py", "tests/unit/test_persist.py", ".github/workflows/store.yml"]
+    paths: ["rust/**", "swarmopt/persist.py", "swarmopt/swarm.py", "tests/unit/test_persist.py", ".github/workflows/persist.yml"]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: store-${{ github.ref }}
+  group: persist-${{ github.ref }}
   cancel-in-progress: true
 
 defaults:
   run:
-    working-directory: rust/swarmopt-store
+    working-directory: rust/persist
 
 jobs:
   rust:

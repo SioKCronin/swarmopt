@@ -1,4 +1,4 @@
-# swarmopt-store
+# swarmopt-persist
 
 Crash-safe, corruption-tolerant persistence for SwarmOpt, written in Rust.
 
@@ -11,13 +11,13 @@ Ganymede. Those drones:
 - have a fixed amount of storage, and
 - reach the surface only now and then, to send data up.
 
-The store is built for exactly those conditions, and it works the same way
+This crate is built for exactly those conditions, and it works the same way
 on a laptop. It is the host half of the Rust split: anything with `std` and
 a filesystem. The bare-metal onboard core is
 [`prototypes/deep_space`](../../prototypes/deep_space/), and the boundary is
 [`docs/RUST_ARCHITECTURE.md`](../../docs/RUST_ARCHITECTURE.md).
 
-| Condition | What the store does |
+| Condition | What the crate does |
 | --- | --- |
 | Power cut mid-write | fsync per policy; torn tails cut on restart; checkpoints use A/B slots with atomic rename |
 | Bit flips (SEUs) | CRC-32C on every record header, record body, segment header and checkpoint; damaged bytes are never returned as data |
@@ -37,11 +37,11 @@ with the `python` feature.
 
 ```bash
 pip install maturin
-cd rust/swarmopt-store && maturin build --release && pip install target/wheels/*.whl
+cd rust/persist && maturin build --release && pip install target/wheels/*.whl
 ```
 
 ```python
-import swarmopt_store as st
+import swarmopt_persist as st
 
 with st.LogWriter("mission/log", stream_id=0x4A55, replicas=2) as log:
     seq = log.append(1, b'{"epoch": 10, "best_cost": 0.02}')
@@ -95,17 +95,3 @@ cargo clippy --all-targets --features python -- -D warnings
 - quarantine of damaged headers, storage budgets, locking, stream
   mismatch, symlink refusal and permissions.
 
-## Known limits
-
-- CRCs *detect* corruption; only replication *repairs* it. A record
-  damaged in every replica is lost, though it is reported in `missing_seqs`
-  and never silently returned. Forward error correction (e.g. Reed-Solomon
-  per segment) is the next step for single-copy storage.
-- There is no scrubber yet that rewrites a damaged replica from a good one.
-  Reads repair in memory only.
-- Payloads are not encrypted or authenticated. CRC protects against
-  accidents, not an adversary who can rewrite the file. If the threat model
-  includes tampering (e.g. on the downlink), add an HMAC or signature at the
-  transport or payload layer.
-- Locking is advisory (`flock`). It stops cooperating processes, not a
-  hostile process with the same permissions.
