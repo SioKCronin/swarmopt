@@ -35,6 +35,17 @@ class TestBenchmarkMetrics(unittest.TestCase):
         self.assertAlmostEqual(by_algo["x"], 1.5)
         self.assertAlmostEqual(by_algo["y"], 1.5)
 
+    def test_growth_exponent_is_linear_when_messages_track_n(self):
+        sizes = [100, 200, 400]
+        messages = [300, 600, 1200]
+        self.assertAlmostEqual(metrics.growth_exponent(sizes, messages), 1.0)
+        self.assertEqual(metrics.messages_per_particle(sizes, messages), [3.0, 3.0, 3.0])
+
+    def test_growth_exponent_is_quadratic_for_all_pairs(self):
+        sizes = [10, 20, 40]
+        messages = [n * n for n in sizes]
+        self.assertAlmostEqual(metrics.growth_exponent(sizes, messages), 2.0)
+
 
 if __name__ == "__main__":
     unittest.main()
