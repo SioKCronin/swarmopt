@@ -95,17 +95,3 @@ cargo clippy --all-targets --features python -- -D warnings
 - quarantine of damaged headers, storage budgets, locking, stream
   mismatch, symlink refusal and permissions.
 
-## Known limits
-
-- CRCs *detect* corruption; only replication *repairs* it. A record
-  damaged in every replica is lost, though it is reported in `missing_seqs`
-  and never silently returned. Forward error correction (e.g. Reed-Solomon
-  per segment) is the next step for single-copy storage.
-- There is no scrubber yet that rewrites a damaged replica from a good one.
-  Reads repair in memory only.
-- Payloads are not encrypted or authenticated. CRC protects against
-  accidents, not an adversary who can rewrite the file. If the threat model
-  includes tampering (e.g. on the downlink), add an HMAC or signature at the
-  transport or payload layer.
-- Locking is advisory (`flock`). It stops cooperating processes, not a
-  hostile process with the same permissions.
