@@ -53,7 +53,10 @@ class Swarm:
                  exploration_weight=0.5,
                  multiobjective=False, mo_algorithm='nsga2', archive_size=100,
                  target_position=None, respect_boundary=None, n_delegates=0,
-                 delegate_spread='uniform', seed=None):
+                 delegate_spread='uniform', seed=None,
+                 topology='knn-oracle', topology_radius=None,
+                 message_loss=0.0, message_delay=0, message_bandwidth=None,
+                 liar_fraction=0.0, liar_mode='independent', defense='trust'):
         """Intialize the swarm
 
         Attributes
@@ -95,7 +98,42 @@ class Swarm:
             10% of the search-space diagonal when target_position is set
         seed: int, numpy.random.SeedSequence, numpy.random.Generator, optional
             source of randomness; the same seed gives the same run
+        topology: str
+            ``knn-oracle`` keeps the all-pairs neighbourhood. ``ring``,
+            ``random-k``, ``geometric``, and ``dynamic`` limit each particle
+            to a neighbour list and a message channel.
+        topology_radius: float, optional
+            distance cutoff for ``geometric``. Default is a quarter of the
+            search-space span times sqrt(dims).
+        message_loss: float
+            probability a sent claim is dropped. Requires a communication
+            topology.
+        message_delay: int
+            extra epochs a claim waits after the epoch it was sent. A claim
+            sent at the end of an epoch is first readable on the next epoch.
+        message_bandwidth: int, optional
+            maximum claims one particle sends per epoch
+        liar_fraction: float
+            share of particles that advertise a false best. Requires a
+            communication topology.
+        liar_mode: str
+            ``independent`` (each liar invents its own point) or
+            ``colluding`` (every liar advertises one shared point)
+        defense: str
+            ``trust`` accepts the reported cost. ``spot-check`` re-evaluates
+            the claimed point and uses that cost.
         """
+
+        self.topology = topology
+        self.topology_radius = topology_radius
+        self.message_loss = float(message_loss)
+        self.message_delay = int(message_delay)
+        self.message_bandwidth = message_bandwidth
+        self.liar_fraction = float(liar_fraction)
+        self.liar_mode = liar_mode
+        self.defense = defense
+        self.channel = None
+        self.epoch_callback = None
 
         if algo == 'multiswarm':
             raise NotImplementedError(
@@ -107,6 +145,7 @@ class Swarm:
         self.rng = make_rng(seed)
 
         self.algo = algo
+        self._check_comms()
         self.epochs = epochs
         self.n_particles = n_particles
         self.m_swarms = m_swarms
@@ -234,6 +273,10 @@ class Swarm:
                 self.multiswarm = self.initialize_multiswarm()
             else:
                 self.swarm = self.initialize_swarm()
+                if self.topology != 'knn-oracle':
+                    from .comms import MessageChannel
+                    self.channel = MessageChannel(self)
+                    self.channel.build()
 
         if self.algo != 'cpso' and not self.multiobjective:
             self.update_global_best_pos()
@@ -419,14 +462,17 @@ class Swarm:
 
     def initialize_swarm(self):
         swarm = []
-        for particle in range(self.n_particles):
+        for index in range(self.n_particles):
             p = Particle(self)
+            p.index = index
             # Ensure initial particles respect boundary if enabled
             if self.use_respect_boundary:
                 p.pos = p._enforce_respect_boundary(p.pos)
                 p.best_pos = p.pos.copy()
                 # Re-evaluate cost with corrected position
                 p.best_cost = self.objective_with_respect_boundary(p.pos)
+                p.local_best_pos = p.pos.copy()
+                p.local_best_cost = p.best_cost
             swarm.append(p)
         return swarm
 
@@ -475,16 +521,64 @@ class Swarm:
         "hhoa_enabled", "multiobjective", "mo_algorithm", "archive_size",
         "target_position", "n_delegates", "delegate_spread",
         "respect_boundary", "use_respect_boundary",
+        "topology", "topology_radius", "message_loss", "message_delay",
+        "message_bandwidth", "liar_fraction", "liar_mode", "defense",
     )
     # Not data, or rebuilt rather than restored.
     _NOT_STATE = ("swarm", "rng", "obj_func", "seed", "cpso", "mo_optimizer",
-                  "diversity_monitor", "ppso", "hhoa", "runtime")
+                  "diversity_monitor", "ppso", "hhoa", "runtime", "channel",
+                  "epoch_callback")
     _CHECKPOINT_ALGOS = ("global", "local", "unified", "sa")
+
+    def _check_comms(self):
+        from .comms import DEFENSES, TOPOLOGIES
+        if self.topology not in TOPOLOGIES:
+            raise ValueError(
+                f"topology must be one of {TOPOLOGIES}, not {self.topology!r}")
+        if self.defense not in DEFENSES:
+            raise ValueError(f"defense must be one of {DEFENSES}, not {self.defense!r}")
+        if self.liar_mode not in ("independent", "colluding"):
+            raise ValueError("liar_mode must be 'independent' or 'colluding'")
+        if not 0.0 <= self.message_loss <= 1.0:
+            raise ValueError("message_loss must be between 0 and 1")
+        if self.message_delay < 0:
+            raise ValueError("message_delay must be >= 0")
+        if not 0.0 <= self.liar_fraction <= 1.0:
+            raise ValueError("liar_fraction must be between 0 and 1")
+        if self.message_bandwidth is not None and int(self.message_bandwidth) < 1:
+            raise ValueError("message_bandwidth must be at least 1")
+        uses_channel = (
+            self.message_loss > 0 or self.message_delay > 0
+            or self.liar_fraction > 0 or self.defense != "trust"
+            or self.message_bandwidth is not None
+        )
+        if self.topology == "knn-oracle" and uses_channel:
+            raise ValueError(
+                "loss, delay, bandwidth, liars, and spot-check need a "
+                "communication topology (ring, random-k, geometric, or dynamic)")
+        if self.topology != "knn-oracle" and self.algo not in ("global", "local", "unified", "sa"):
+            raise ValueError(
+                "communication topologies support algo global, local, unified, and sa")
+
+    @property
+    def messages_sent(self):
+        return 0 if self.channel is None else self.channel.sent
+
+    @property
+    def messages_delivered(self):
+        return 0 if self.channel is None else self.channel.delivered
+
+    @property
+    def messages_lost(self):
+        return 0 if self.channel is None else self.channel.lost
 
     def _check_checkpointable(self):
         if self.algo not in self._CHECKPOINT_ALGOS:
             raise NotImplementedError(
                 f"checkpointing supports algo in {self._CHECKPOINT_ALGOS}, not {self.algo!r}")
+        if self.topology != 'knn-oracle':
+            raise NotImplementedError(
+                "checkpointing doesn't yet cover communication topologies")
         if self.multiobjective or self.diversity_monitoring or self.ppso_enabled:
             raise NotImplementedError(
                 "checkpointing doesn't yet cover multiobjective, diversity "
@@ -629,15 +723,22 @@ class Swarm:
                 first_epoch = self._restore(state)
                 runtime_before = self.runtime
         for i in range(first_epoch, self.epochs):
+            if self.epoch_callback is not None:
+                self.epoch_callback(i, self)
+            if self.channel is not None:
+                self.channel.begin_epoch(i)
             if i >= int(self.hueristic_change * self.epochs):
                 self.end = True
             if i % self.r == 0:
                 self.regroup = True
             for particle in self.swarm:
                 particle.update(i)  # Pass current iteration for inertia weight calculation
-                self.update_local_best_pos()
+                if self.channel is None:
+                    self.update_local_best_pos()
                 self.update_global_best_pos()
                 self.update_global_worst_pos()
+            if self.channel is not None:
+                self.channel.send(i)
             
             # Monitor diversity and apply interventions if needed
             if self.diversity_monitoring:
@@ -660,6 +761,8 @@ class Swarm:
         self.runtime = runtime_before + (stop - start)
 
     def get_best_neighbor(self, particle):
+        if self.channel is not None:
+            return self.channel.best_known(particle)
         distances = []
         for other in self.swarm:
             # Pair each neighbour's best cost with the position that earned it.
@@ -875,6 +978,7 @@ class Particle:
             self.best_cost = swarm.objective_with_respect_boundary(self.best_pos)
         else:
             self.best_cost = swarm.obj_func(self.best_pos)
+        self.local_best_cost = self.best_cost
 
     def cognitive_weight(self):
         return (self.swarm.c1 * self.swarm.rng.uniform(0, 1, self.dims)) * (

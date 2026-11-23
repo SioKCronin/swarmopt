@@ -11,6 +11,10 @@ Security and data-integrity audit (`docs/SECURITY_AUDIT.md`) and crash-safe
 persistence for unattended hardware.
 
 ### Added
+- Communication topologies (`ring`, `random-k`, `geometric`, `dynamic`) with a
+  counted message channel, loss, delay, a lying peer, and a spot-check
+  defence. `topology='knn-oracle'` keeps the previous all-pairs neighbourhood.
+  See `benchmarks/dice_first_figure.py`.
 - `rust/persist` (`swarmopt-persist`): a Rust crate with Python bindings providing a
   replicated, CRC-checked, append-only run log and power-cut-safe A/B
   checkpoints. It has storage budgets, needs no clock, and has no

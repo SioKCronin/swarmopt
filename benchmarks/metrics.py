@@ -38,6 +38,29 @@ def summarize_costs(values: Sequence[float]) -> Tuple[float, float, float]:
     return (mean, std, med)
 
 
+def growth_exponent(sizes: Sequence[float], messages: Sequence[float]) -> float:
+    """Power-law exponent of messages against swarm size.
+
+    Fits ``log(messages) = a + b log(size)`` and returns ``b``. A value near
+    1 is linear in N. A value near 2 is the all-pairs cost the oracle pays.
+    """
+    if len(sizes) != len(messages) or len(sizes) < 2:
+        raise ValueError("need at least two (size, messages) pairs")
+    log_n = [math.log(float(n)) for n in sizes]
+    log_m = [math.log(float(m)) for m in messages]
+    mean_n = sum(log_n) / len(log_n)
+    mean_m = sum(log_m) / len(log_m)
+    numer = sum((n - mean_n) * (m - mean_m) for n, m in zip(log_n, log_m))
+    denom = sum((n - mean_n) ** 2 for n in log_n)
+    if denom == 0.0:
+        raise ValueError("sizes must not all be equal")
+    return numer / denom
+
+
+def messages_per_particle(sizes: Sequence[float], messages: Sequence[float]) -> List[float]:
+    return [float(m) / float(n) for n, m in zip(sizes, messages)]
+
+
 def mean_ranks_by_stratum(
     rows: List[dict],
     stratum_key: str = "stratum",

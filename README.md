@@ -44,6 +44,24 @@ Pass `seed` to get the same result every time. SwarmOpt draws all randomness
 from its own `numpy.random.Generator` and never touches NumPy's or Python's
 global random state.
 
+### Neighbourhoods that do not see the whole swarm
+
+`topology='knn-oracle'` is the default: every particle can read every other
+particle. A communication topology gives each particle a neighbour list and
+counts the claims those neighbours actually send.
+
+```python
+swarm = Swarm(n_particles=30, dims=2, c1=2.0, c2=2.0, w=0.9,
+              epochs=100, obj_func=sphere, algo='local', seed=42,
+              topology='ring', k=4, message_loss=0.1, message_delay=1,
+              liar_fraction=0.2, defense='spot-check')
+swarm.optimize()
+print(swarm.messages_sent, swarm.best_cost)
+```
+
+`defense='spot-check'` re-evaluates a claimed point instead of trusting the
+cost a neighbour reports. `knn-oracle` does not take loss, delay, or liars.
+
 ```python
 swarm = Swarm(n_particles=30, dims=2, c1=2.0, c2=2.0, w=0.9,
               epochs=100, obj_func=sphere, seed=42)
