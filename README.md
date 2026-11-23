@@ -162,7 +162,7 @@ What doesn't yet: communication topologies (message loss, lying peers, spot-chec
 
 Each optimizer is grouped by the metaphor it comes from (`swarm`, `evolutionary`, `ecological`, `physical`). A metaphor is not a mechanism, and some metaphor-based methods reduce to familiar operators (Sörensen, 2015, ["Metaheuristics—the metaphor exposed"](https://doi.org/10.1111/itor.12001)). So every method can be compared at an equal number of objective evaluations: see [docs/nio_benchmarks.md](docs/nio_benchmarks.md) and `swarmopt.nio.compare`.
 
-`swarmopt.nio` also has the classic collective-motion models (Boids and Vicsek), grid pathfinders, and a small reinforcement-learning training environment, and uses only the Python standard library. [docs/nio.md](docs/nio.md) lists every algorithm with a free-to-read reference where one exists.
+`swarmopt.nio` also has the classic collective-motion models (Boids and Vicsek), grid pathfinders, and a small reinforcement-learning training environment, and uses only the Python standard library. [docs/nio.md](docs/nio.md) shows every algorithm as a silhouette that links to the paper that introduced it.
 
 ## Benchmark Functions
 
