@@ -19,11 +19,9 @@ SwarmOpt already contains most of the pieces. What it lacks is the **framing and
 | Heterogeneous agents | Many PSO variants that share one interface | All particles in a run use the same rule. |
 | Evaluation at scale (500 / 5K / 100K agents) | Benchmarks and leaderboard on standard functions, with seeds and regret | Benchmarks measure cost on a single objective, not how the collective behaves as it grows or is attacked. |
 
-## The research question SwarmOpt can own
+## Measurements that match the DICE framing
 
-> How much does a swarm have to say to stay coordinated, and how much can a lying member cost it?
-
-This splits into two measurable claims, each of which fits DICE's framing:
+Two claims follow from that framing:
 
 1. **Recovery cost scales sub-quadratically.** With sparse, local, lossy communication, a swarm recovers from a perturbation (moving optimum, lost agents, a communication blackout) in O(N log N) or O(N) messages. Those are the Phase 2 and Phase 3 targets in DICE Q139.
 2. **Costly signals beat free assertions under deception.** Q127 contrasts two ways of writing to a shared environment: a *sensing-coupled* write, where the signal is tied to work the agent did and costs it proportionally, and an *assertion* write, which is a free, unverified broadcast. Under Byzantine or deceptive members, the two should behave in opposite ways. A swarm whose "best position" broadcasts carry a check the receiver can verify cheaply (it re-evaluates the claimed point, or the claim is bound to an energy spend) should lose far less to liars than one that trusts reported costs. The safety gate's rule, "re-derive, never trust reported totals," is already the core of this idea.
@@ -76,4 +74,4 @@ DICE's agents are mainly foundation models, and DICE Q113 explicitly allows mixt
 3. Add a liar adversary and the spot-check defense, then plot regret against liar fraction on sphere and Rastrigin at N = 500.
 4. Add the recovery-messages-vs-N metric and run it at N = 500, 2,000, and 5,000 on a moving-peak function.
 
-These four steps are enough for a first figure: how many messages recovery takes as the swarm grows, and how much regret liars cause with and without the defense. That figure is the core of the pitch.
+These four steps are enough for a first figure: messages to recover as the swarm grows, and regret against liar fraction with and without the defense.
