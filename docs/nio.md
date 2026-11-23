@@ -6,6 +6,10 @@ My hope is we can use these algorithms as a meeting ground for refining our coll
 
 Run any of them from `Swarm` with `algo=<short name>` (see the main README), or directly as below. Every optimizer follows one step contract (`initialise()`, `step()`, `best_position`, `best_fitness`), driven by `swarmopt.nio.drive`, which adds checkpoint and resume. `swarmopt.nio.FAMILIES` groups them by metaphor (`swarm`, `evolutionary`, `ecological`, `physical`), and `swarmopt.nio.compare` runs them at an equal evaluation budget; results are in [nio_benchmarks.md](nio_benchmarks.md).
 
+### Reading the benchmark
+
+The [equal-budget comparison](nio_benchmarks.md) (10,000 evaluations, 10 dimensions, 5 seeds) is a reminder to read near-zero scores carefully. Three methods look exceptional when the minimum sits at the centre of the search space and ordinary once it moves: cuttlefish (`cfa`) goes from 1e-218 on sphere to 11.7 on shifted sphere, grey wolf (`gwo`) from 0 on rastrigin to 23.9 shifted, and chemical reaction (`acroa`) from 0 to 25.3. They are drawn toward the origin rather than toward the optimum. Spider monkey (`smo`), biogeography (`bbo`), the cultural algorithm (`ca`) and the core PSO hold up when the optimum moves. Several methods (`da`, `fa`, `oio`, `sda`, `gso`, nio's `ppso`) don't converge at this budget with their default settings; that is a prompt to check their parameters and implementations, not a verdict on the methods.
+
 Each link is free to read. Where the journal version is not openly licensed, the link is an author copy, a technical report, an open-access article, or an open overview of the same method.
 
 * [Genetic Algorithms (GA)](https://www.cs.colostate.edu/TechReports/Reports/1993/tr-103.pdf)
