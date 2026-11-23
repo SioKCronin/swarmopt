@@ -131,3 +131,45 @@ def get_optimizer(name: str) -> Type:
     except KeyError as exc:
         known = ", ".join(sorted(OPTIMIZERS))
         raise KeyError(f"unknown optimizer {name!r}. Known names: {known}") from exc
+
+
+#: Where each method's metaphor comes from. ``swarm``: collective animal or
+#: social behaviour. ``evolutionary``: selection, mating, inheritance or
+#: immunity. ``ecological``: plants, seeding and ecosystems. ``physical``:
+#: physics, chemistry or optics (cuttlefish is here because the method models
+#: light reflection in skin cells, not collective behaviour).
+#:
+#: The family names the metaphor, not the mechanism. Many metaphor-based
+#: methods reduce to familiar operators (weighted moves toward good points,
+#: crossover, random restarts); see Sörensen (2015), "Metaheuristics—the
+#: metaphor exposed", and compare methods at an equal evaluation budget with
+#: ``swarmopt.nio.compare``.
+FAMILIES: Dict[str, str] = {
+    **dict.fromkeys(
+        ["abc", "acor", "afs", "amo", "bat", "bc", "bco", "bfo", "cab", "cs",
+         "da", "eho", "fa", "gso", "gwo", "kh", "loa", "peo", "ppso", "pso",
+         "rio", "rroa", "sco", "sfla", "smo", "sso"], "swarm"),
+    **dict.fromkeys(
+        ["ais", "apa", "bbo", "bea", "bmo", "bull", "ca", "de", "ga", "hbmo",
+         "ma", "mhb"], "evolutionary"),
+    **dict.fromkeys(
+        ["aaa", "aea", "foa", "fpa", "iwo", "ppa", "strawberry"], "ecological"),
+    **dict.fromkeys(
+        ["acroa", "bha", "cfa", "fwa", "gbmo", "gsa", "iwdco", "mba", "oio",
+         "sda", "wca", "wwo"], "physical"),
+}
+
+FAMILY_NAMES = ("swarm", "evolutionary", "ecological", "physical")
+
+
+def family(name: str) -> str:
+    """The metaphor family of a registered optimizer."""
+    get_optimizer(name)
+    return FAMILIES[name.strip().lower()]
+
+
+def by_family(name: str) -> Dict[str, Type]:
+    """Registered optimizers in one family, by short name."""
+    if name not in FAMILY_NAMES:
+        raise ValueError(f"family must be one of {FAMILY_NAMES}, not {name!r}")
+    return {k: OPTIMIZERS[k] for k in sorted(OPTIMIZERS) if FAMILIES[k] == name}

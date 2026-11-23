@@ -262,7 +262,11 @@ class PPSO:
                 particle.velocity[i] *= -0.5  # Bounce back
 
     # ------------------------------------------------------------------
-    def step(self, iteration: int = 0, max_iterations: int = 100) -> None:
+    def step(self, iteration: int | None = None, max_iterations: int | None = None) -> None:
+        if iteration is None:
+            iteration = self.iteration
+        if max_iterations is None:
+            max_iterations = self.iterations
         """Perform one optimization step.
         
         Args:
@@ -308,13 +312,28 @@ class PPSO:
             self.sample_history.append((particle.position[:], particle.fitness))
 
     # ------------------------------------------------------------------
+    # Shared step contract (see swarmopt.nio.contract): the driver sets
+    # ``iteration``/``iterations`` and reads the best record through these.
+    iteration = 0
+    iterations = 1
+
+    @property
+    def best_position(self) -> Vector:
+        return self.best.best_position[:] if self.best is not None else []
+
+    @property
+    def best_fitness(self) -> float:
+        return self.best.best_fitness if self.best is not None else float("inf")
+
     def run(self, iterations: int = 100) -> Tuple[Vector, float]:
         """Run the optimization algorithm for specified iterations."""
         if iterations <= 0:
             raise ValueError("iterations must be positive")
 
         self.initialise()
+        self.iterations = iterations
         for iteration in range(iterations):
+            self.iteration = iteration
             # Update stateful objectives (e.g., contracting optimum)
             if hasattr(self.objective, 'update'):
                 self.objective.update(iteration)

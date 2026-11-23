@@ -64,7 +64,8 @@ from .plant_propagation import PlantPropagationAlgorithm
 from .ppso import PPSO, Particle
 from .pso import ParticleSwarmOptimization
 from .raven import RavenRoostingOptimization
-from .registry import OPTIMIZERS, get_optimizer
+from .registry import FAMILIES, FAMILY_NAMES, OPTIMIZERS, by_family, family, get_optimizer
+from .contract import drive
 from .roach import RoachInfestationOptimization
 from .sco import SocialCognitiveOptimization
 from .shuffled_frog import ShuffledFrogLeaping
@@ -79,6 +80,11 @@ from .rl import LinearPolicy, TrainingEnv, rollout, train_policy
 
 __all__ = [
     "OPTIMIZERS",
+    "FAMILIES",
+    "FAMILY_NAMES",
+    "by_family",
+    "drive",
+    "family",
     "get_optimizer",
     "AntColonyOptimization",
     "AntColonyPath",

@@ -4,6 +4,8 @@ My goal with this project is to celebrate optimization strategies from our blue 
 documentation of strategies from nature as a heritage we can all observe, document, and celebrate together. 
 My hope is we can use these algorithms as a meeting ground for refining our collective understanding.
 
+Run any of them from `Swarm` with `algo=<short name>` (see the main README), or directly as below. Every optimizer follows one step contract (`initialise()`, `step()`, `best_position`, `best_fitness`), driven by `swarmopt.nio.drive`, which adds checkpoint and resume. `swarmopt.nio.FAMILIES` groups them by metaphor (`swarm`, `evolutionary`, `ecological`, `physical`), and `swarmopt.nio.compare` runs them at an equal evaluation budget; results are in [nio_benchmarks.md](nio_benchmarks.md).
+
 Each link is free to read. Where the journal version is not openly licensed, the link is an author copy, a technical report, an open-access article, or an open overview of the same method.
 
 * [Genetic Algorithms (GA)](https://www.cs.colostate.edu/TechReports/Reports/1993/tr-103.pdf)

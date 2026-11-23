@@ -8,6 +8,8 @@ Discrete Dynamics in Nature and Society.
 
 from __future__ import annotations
 
+import copy
+
 from .base import PopulationOptimizer
 
 
@@ -15,7 +17,10 @@ class CollectiveAnimalBehavior(PopulationOptimizer):
     """Animals move toward a small memory of dominant neighbors, then the herd is replaced."""
 
     def step(self) -> None:
-        memory = self.sorted_population()[: max(2, self.population_size // 4)]
+        # The memory holds copies of the dominant animals, so moving the herd
+        # below doesn't move the memory, and the rebuilt herd has no duplicates.
+        memory = [copy.deepcopy(agent) for agent in
+                  self.sorted_population()[: max(2, self.population_size // 4)]]
         for agent in self.population:
             nearest = min(memory, key=lambda other: self.distance(agent.position, other.position))
             if self.rand() < 0.5:

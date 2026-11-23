@@ -120,7 +120,11 @@ class DragonflyAlgorithm:
         predicted = [prey_position[i] + prey_velocity[i] * time_to_intercept for i in range(self.dimension)]
         return self._clip_position(predicted)
 
-    def step(self, iteration: int, total_iterations: int) -> None:
+    def step(self, iteration: int | None = None, total_iterations: int | None = None) -> None:
+        if iteration is None:
+            iteration = self.iteration
+        if total_iterations is None:
+            total_iterations = self.iterations
         if self.best is None or self.worst is None:
             raise RuntimeError("Call initialise() before step().")
 
@@ -190,12 +194,27 @@ class DragonflyAlgorithm:
         self.worst = max(self.population, key=lambda d: d.fitness)
         self._previous_best_position = prey_position
 
+    # Shared step contract (see swarmopt.nio.contract): the driver sets
+    # ``iteration``/``iterations`` and reads the best record through these.
+    iteration = 0
+    iterations = 1
+
+    @property
+    def best_position(self) -> Vector:
+        return self.best.position[:] if self.best is not None else []
+
+    @property
+    def best_fitness(self) -> float:
+        return self.best.fitness if self.best is not None else float("inf")
+
     def run(self, iterations: int = 100) -> Tuple[Vector, float]:
         if iterations <= 0:
             raise ValueError("iterations must be positive")
 
         self.initialise()
+        self.iterations = iterations
         for iteration in range(iterations):
+            self.iteration = iteration
             if hasattr(self.objective, "update"):
                 self.objective.update(iteration)
             self.step(iteration=iteration, total_iterations=iterations)

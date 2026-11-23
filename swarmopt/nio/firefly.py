@@ -169,6 +169,19 @@ class FireflyAlgorithm:
                 self.best = Firefly(new_pos[:], new_intensity)
 
     # ------------------------------------------------------------------
+    # Shared step contract (see swarmopt.nio.contract): the driver sets
+    # ``iteration``/``iterations`` and reads the best record through these.
+    iteration = 0
+    iterations = 1
+
+    @property
+    def best_position(self) -> Vector:
+        return self.best.position[:] if self.best is not None else []
+
+    @property
+    def best_fitness(self) -> float:
+        return self.best.intensity if self.best is not None else float("inf")
+
     def run(self, iterations: int = 100) -> Tuple[Vector, float]:
         """Run the Firefly Algorithm optimization.
         
@@ -182,7 +195,9 @@ class FireflyAlgorithm:
             raise ValueError("iterations must be positive")
         
         self.initialise()
+        self.iterations = iterations
         for iteration in range(iterations):
+            self.iteration = iteration
             # Update stateful objectives (e.g., contracting optimum)
             if hasattr(self.objective, 'update'):
                 self.objective.update(iteration)
