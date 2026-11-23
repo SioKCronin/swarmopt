@@ -41,6 +41,18 @@ except ImportError:
     from utils.hhoa import HHOA
 
 
+def _nio_name(algo):
+    """The swarmopt.nio registry key for ``algo``, or None for a core algorithm."""
+    if not isinstance(algo, str):
+        return None
+    try:
+        from .nio.registry import OPTIMIZERS
+    except ImportError:  # imported as a plain module, outside the package
+        return None
+    key = algo.strip().lower()
+    return key if key in OPTIMIZERS else None
+
+
 class Swarm:
     def __init__(self, n_particles, dims, c1, c2, w, epochs, obj_func,
                  algo='global', inertia_func='linear', velocity_clamp=(0,2),
@@ -56,7 +68,8 @@ class Swarm:
                  delegate_spread='uniform', seed=None,
                  topology='knn-oracle', topology_radius=None,
                  message_loss=0.0, message_delay=0, message_bandwidth=None,
-                 liar_fraction=0.0, liar_mode='independent', defense='trust'):
+                 liar_fraction=0.0, liar_mode='independent', defense='trust',
+                 algo_params=None):
         """Intialize the swarm
 
         Attributes
@@ -76,7 +89,12 @@ class Swarm:
         obj_func: string
             name of objective function
         algo: string
-            name of swarm algorithm
+            name of swarm algorithm. The core PSO family is ``global``,
+            ``local``, ``unified``, ``sa``, ``cpso``, ``hhoa``; ``pso`` is an
+            alias for ``global`` and ``ppso`` turns on proactive PSO. Any
+            short name in ``swarmopt.nio.OPTIMIZERS`` (for example ``gwo``,
+            ``de``, ``fa``) runs that nature-inspired optimizer over the same
+            search space; see ``swarmopt.algorithms()``.
         intertia_func: string
             name of inertia function
         velocity_clamp: 2-tuple
@@ -122,6 +140,11 @@ class Swarm:
         defense: str
             ``trust`` accepts the reported cost. ``spot-check`` re-evaluates
             the claimed point and uses that cost.
+        algo_params: dict, optional
+            extra keyword arguments for a ``swarmopt.nio`` optimizer, such as
+            ``{'num_rivers': 4}`` for ``wca``. Ignored by the core PSO family.
+            For nio optimizers ``c1``, ``c2``, ``w`` and the velocity clamp
+            schedule don't apply; ``velocity_clamp`` still sets the bounds.
         """
 
         self.topology = topology
@@ -134,6 +157,18 @@ class Swarm:
         self.defense = defense
         self.channel = None
         self.epoch_callback = None
+
+        # One implementation per algorithm at this front door: 'pso' is the
+        # core global-best PSO and 'ppso' the core proactive PSO.
+        if algo == 'pso':
+            algo = 'global'
+        elif algo == 'ppso':
+            algo = 'global'
+            ppso_enabled = True
+        self.nio_algo = _nio_name(algo)
+        self.algo_params = dict(algo_params or {})
+        if self.algo_params and self.nio_algo is None:
+            raise ValueError("algo_params only applies to swarmopt.nio algorithms")
 
         if algo == 'multiswarm':
             raise NotImplementedError(
@@ -254,6 +289,24 @@ class Swarm:
         self.worst_pos = None
         self.local_best_cost = float('inf')
         self.local_best_pos = None
+
+        if self.nio_algo is not None:
+            # These are PSO-family features. Refuse them rather than
+            # silently running without them; respect_boundary in particular
+            # is a safety constraint.
+            unsupported = [name for name, on in (
+                ("target_position/respect_boundary", self.use_respect_boundary),
+                ("multiobjective", self.multiobjective),
+                ("diversity_monitoring", self.diversity_monitoring),
+                ("variation_strategy", self.variation_strategy is not None),
+                ("n_delegates", self.n_delegates > 0),
+                ("ppso_enabled", self.ppso_enabled),
+            ) if on]
+            if unsupported:
+                raise ValueError(
+                    f"algo {algo!r} is a swarmopt.nio optimizer and doesn't support: "
+                    + ", ".join(unsupported))
+            return
 
         with using_rng(self.rng):
             if self.algo == 'cpso':
@@ -558,7 +611,8 @@ class Swarm:
                 "communication topology (ring, random-k, geometric, or dynamic)")
         if self.topology != "knn-oracle" and self.algo not in ("global", "local", "unified", "sa"):
             raise ValueError(
-                "communication topologies support algo global, local, unified, and sa")
+                "communication topologies support algo global, local, unified, and sa; "
+                "swarmopt.nio algorithms share their best point directly")
 
     @property
     def messages_sent(self):
@@ -573,6 +627,8 @@ class Swarm:
         return 0 if self.channel is None else self.channel.lost
 
     def _check_checkpointable(self):
+        if self.nio_algo is not None:
+            return
         if self.algo not in self._CHECKPOINT_ALGOS:
             raise NotImplementedError(
                 f"checkpointing supports algo in {self._CHECKPOINT_ALGOS}, not {self.algo!r}")
@@ -638,6 +694,11 @@ class Swarm:
     def _optimize(self, checkpoint=None, checkpoint_every=None):
         start = timeit.default_timer()
         
+        if self.nio_algo is not None:
+            self._optimize_nio(checkpoint, checkpoint_every)
+            self.runtime = timeit.default_timer() - start
+            return
+
         # Handle Cooperative PSO
         if self.algo == 'cpso':
             results = self.cpso.optimize(self.epochs, verbose=False)
@@ -759,6 +820,47 @@ class Swarm:
                                            "best_cost": float(self.best_cost)})
         stop = timeit.default_timer()
         self.runtime = runtime_before + (stop - start)
+
+    def _nio_optimizer(self):
+        """Build the swarmopt.nio optimizer this swarm stands for."""
+        from .nio.registry import get_optimizer
+        if isinstance(self.seed, (int, np.integer)) and not isinstance(self.seed, bool):
+            seed = int(self.seed)
+        elif self.seed is None:
+            seed = None
+        else:
+            # A SeedSequence or Generator: derive one integer from it, so the
+            # same seed still gives the same run.
+            seed = int(self.rng.integers(0, 2**63 - 1))
+        func = self.obj_func
+
+        def objective(position):
+            return func(np.asarray(position, dtype=float))
+
+        # A stable name for checkpoint fingerprints: the caller's function.
+        objective.__module__ = getattr(func, "__module__", "?")
+        objective.__qualname__ = getattr(func, "__qualname__", type(func).__qualname__)
+        if hasattr(func, "update"):
+            objective.update = func.update
+        return get_optimizer(self.nio_algo)(
+            objective=objective,
+            bounds=[(float(self.val_min), float(self.val_max))] * self.dims,
+            population_size=self.n_particles,
+            seed=seed,
+            **self.algo_params,
+        )
+
+    def _optimize_nio(self, checkpoint=None, checkpoint_every=None):
+        from .nio.contract import drive
+        self.nio_optimizer = self._nio_optimizer()
+        callback = None
+        if self.epoch_callback is not None:
+            def callback(_optimizer, epoch):
+                self.epoch_callback(epoch, self)
+        position, cost = drive(self.nio_optimizer, self.epochs, checkpoint=checkpoint,
+                               checkpoint_every=checkpoint_every, callback=callback)
+        self.best_pos = np.asarray(position, dtype=float)
+        self.best_cost = float(cost)
 
     def get_best_neighbor(self, particle):
         if self.channel is not None:

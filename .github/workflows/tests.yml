@@ -61,4 +61,4 @@ jobs:
         run: |
           python -m pip install dist/*.whl
           cd "$RUNNER_TEMP"
-          python -c "import swarmopt; from swarmopt import Swarm; from swarmopt.functions import sphere; s = Swarm(10, 2, 2.0, 2.0, 0.9, 10, sphere, seed=0); s.optimize(); print(swarmopt.__version__, s.best_cost)"
+          python -c "import swarmopt; from swarmopt import Swarm; from swarmopt.functions import sphere; s = Swarm(10, 2, 2.0, 2.0, 0.9, 10, sphere, seed=0); s.optimize(); print(swarmopt.__version__, s.best_cost); g = Swarm(10, 2, 2.0, 2.0, 0.9, 10, sphere, algo='gwo', seed=0); g.optimize(); print(len(swarmopt.algorithms()), g.best_cost)"

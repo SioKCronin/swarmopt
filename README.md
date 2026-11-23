@@ -132,6 +132,38 @@ Stratified empirical comparisons (repeated trials, spread, ranks per function cl
 ### Multiobjective
 * Multiobjective PSO - Handles multiple conflicting objectives simultaneously 
 
+## Every algorithm, one interface
+
+`Swarm` runs the core PSO family above and 55 more nature-inspired optimizers from `swarmopt.nio`: grey wolf, firefly, ant colony, differential evolution, water cycle and the rest. Name one as `algo` and it searches the same space, with the same seed giving the same run:
+
+```python
+import swarmopt
+from swarmopt import Swarm
+from swarmopt.functions import rastrigin
+
+swarmopt.algorithms()                  # every algo name, with its family
+swarmopt.algorithms("evolutionary")    # just one family
+
+swarm = Swarm(n_particles=30, dims=5, c1=2.0, c2=2.0, w=0.9, epochs=200,
+              obj_func=rastrigin, algo="gwo", velocity_clamp=(-5.12, 5.12), seed=1)
+swarm.optimize()
+print(swarm.best_cost, swarm.best_pos)
+```
+
+What carries across:
+
+* **Reproducibility.** The same seed (an int, `SeedSequence` or `Generator`) gives the same run.
+* **Checkpoint and resume.** `swarm.optimize(checkpoint=..., checkpoint_every=N)` works for every nio algorithm, and a resumed run finishes exactly as an uninterrupted one.
+* **Per-algorithm settings.** Pass them as `algo_params`, for example `algo_params={"num_rivers": 4}` for `wca`.
+
+What doesn't yet: communication topologies (message loss, compromised or faulty peers, spot-check), `respect_boundary`, diversity monitoring and variation operators are PSO-family features. `Swarm` refuses them for nio algorithms rather than silently running without them. Bringing the communication layer to every algorithm is the next piece of work.
+
+`pso` and `ppso` run the core global-best PSO and proactive PSO. The standard-library versions in `swarmopt.nio` remain for the RL environment and for use without NumPy.
+
+Each optimizer is grouped by the metaphor it comes from (`swarm`, `evolutionary`, `ecological`, `physical`). A metaphor is not a mechanism, and some metaphor-based methods reduce to familiar operators (Sörensen, 2015, ["Metaheuristics—the metaphor exposed"](https://doi.org/10.1111/itor.12001)). So every method can be compared at an equal number of objective evaluations: see [docs/nio_benchmarks.md](docs/nio_benchmarks.md) and `swarmopt.nio.compare`.
+
+`swarmopt.nio` also has the classic collective-motion models (Boids and Vicsek), grid pathfinders, and a small reinforcement-learning training environment, and uses only the Python standard library. [docs/nio.md](docs/nio.md) shows every algorithm as a silhouette that links to the paper that introduced it.
+
 ## Benchmark Functions
 
 ### Single Objective

@@ -11,6 +11,23 @@ Security and data-integrity audit (`docs/SECURITY_AUDIT.md`) and crash-safe
 persistence for unattended hardware.
 
 ### Added
+- `swarmopt.nio`: the nature-inspired extension pack, merged from
+  `nature-inspired-optimisation`. 57 population optimizers behind one
+  `run(iterations)` contract and a name registry (`OPTIMIZERS`), Boids and
+  Vicsek collective-motion steps, ant-colony and river-formation pathfinders,
+  and `swarmopt.nio.rl.TrainingEnv` with a trainable linear policy. Standard
+  library only. References in `docs/nio.md`.
+- `Swarm(algo=...)` runs any `swarmopt.nio` optimizer by short name over the
+  same bounds, seed and epochs, with `algo_params` for per-algorithm
+  settings. `swarmopt.algorithms(family=None)` lists every name.
+- One step contract for all 57 nio optimizers (`initialise`, argument-free
+  `step`, `best_position`, `best_fitness`) and `swarmopt.nio.drive`, which
+  adds checkpoint and resume (bit-for-bit, strict JSON, classes allow-listed
+  to `swarmopt.nio`). Works through `Swarm.optimize(checkpoint=...)`.
+- `swarmopt.nio.FAMILIES`: each optimizer's metaphor family.
+- `swarmopt.nio.compare` and `benchmarks/nio_comparison.py`: every algorithm
+  at an equal evaluation budget; results in `docs/nio_benchmarks.md`.
+
 - Communication topologies (`ring`, `random-k`, `geometric`, `dynamic`) with a
   counted message channel, loss, delay, a lying peer, and a spot-check
   defence. `topology='knn-oracle'` keeps the previous all-pairs neighbourhood.
@@ -29,7 +46,20 @@ persistence for unattended hardware.
 - CI: `persist.yml` (fmt, clippy, fault-injection tests, Python bindings);
   Dependabot for Cargo.
 
+### Changed
+- `Swarm(algo='pso')` is the core global-best PSO and `algo='ppso'` the core
+  proactive PSO, so each has one implementation behind `Swarm`.
+- Bat, Cultural, Dragonfly, Firefly, IWD-CO, Philippine Eagle, PPSO and Water
+  Cycle now follow the nio step contract, so they also work in
+  `nio.rl.rollout`, which previously failed for them.
+- `Swarm` refuses communication topologies, `respect_boundary`, diversity
+  monitoring, variation and delegates for nio algorithms instead of ignoring
+  them.
+
 ### Fixed
+- Collective Animal Behavior kept its "memory" as references to agents that
+  then moved, so the memory changed under it and the rebuilt herd could hold
+  the same agent twice. It now keeps copies, as in Cuevas et al. (2012).
 - **`best_pos` could disagree with `best_cost`.** Particle position arrays
   were aliased and updated in place. Results that relied on `best_pos` may
   have been wrong. Seeded results change with this fix.
