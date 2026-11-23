@@ -2,7 +2,7 @@
 
 Each mark is a small ink drawing on a paper tile, so the set stays
 legible on both the light and dark GitHub themes. Run this file to
-regenerate docs/logos/<slug>.svg.
+regenerate swarmopt/nio/logos/<slug>.svg.
 """
 
 from __future__ import annotations
