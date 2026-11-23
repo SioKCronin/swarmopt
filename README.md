@@ -134,6 +134,8 @@ Stratified empirical comparisons (repeated trials, spread, ranks per function cl
 
 ## Every algorithm, one interface
 
+**[See all the algorithms, each linked to its paper →](swarmopt/nio/README.md)**
+
 `Swarm` runs the core PSO family above and 55 more nature-inspired optimizers from `swarmopt.nio`: grey wolf, firefly, ant colony, differential evolution, water cycle and the rest. Name one as `algo` and it searches the same space, with the same seed giving the same run:
 
 ```python
@@ -162,7 +164,7 @@ What doesn't yet: communication topologies (message loss, compromised or faulty 
 
 Each optimizer is grouped by the metaphor it comes from (`swarm`, `evolutionary`, `ecological`, `physical`). A metaphor is not a mechanism, and some metaphor-based methods reduce to familiar operators (Sörensen, 2015, ["Metaheuristics—the metaphor exposed"](https://doi.org/10.1111/itor.12001)). So every method can be compared at an equal number of objective evaluations: see [docs/nio_benchmarks.md](docs/nio_benchmarks.md) and `swarmopt.nio.compare`.
 
-`swarmopt.nio` also has the classic collective-motion models (Boids and Vicsek), grid pathfinders, and a small reinforcement-learning training environment, and uses only the Python standard library. [docs/nio.md](docs/nio.md) shows every algorithm as a silhouette that links to the paper that introduced it.
+`swarmopt.nio` also has the classic collective-motion models (Boids and Vicsek), grid pathfinders, and a small reinforcement-learning training environment, and uses only the Python standard library. [swarmopt/nio/README.md](swarmopt/nio/README.md) shows every algorithm as a silhouette that links to the paper that introduced it.
 
 ## Benchmark Functions
 
