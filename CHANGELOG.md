@@ -11,6 +11,12 @@ Security and data-integrity audit (`docs/SECURITY_AUDIT.md`) and crash-safe
 persistence for unattended hardware.
 
 ### Added
+- `swarmopt.nio`: the nature-inspired extension pack, merged from
+  `nature-inspired-optimisation`. 57 population optimizers behind one
+  `run(iterations)` contract and a name registry (`OPTIMIZERS`), Boids and
+  Vicsek collective-motion steps, ant-colony and river-formation pathfinders,
+  and `swarmopt.nio.rl.TrainingEnv` with a trainable linear policy. Standard
+  library only. References in `docs/nio.md`.
 - Communication topologies (`ring`, `random-k`, `geometric`, `dynamic`) with a
   counted message channel, loss, delay, a lying peer, and a spot-check
   defence. `topology='knn-oracle'` keeps the previous all-pairs neighbourhood.

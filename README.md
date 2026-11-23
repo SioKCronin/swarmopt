@@ -132,6 +132,19 @@ Stratified empirical comparisons (repeated trials, spread, ranks per function cl
 ### Multiobjective
 * Multiobjective PSO - Handles multiple conflicting objectives simultaneously 
 
+## nio: the nature-inspired extension pack
+
+`swarmopt.nio` brings 57 nature-inspired optimizers (grey wolf, firefly, ant colony, water cycle, and more), the classic collective-motion models (Boids and Vicsek), grid pathfinders, and a small reinforcement-learning training environment. Every optimizer shares one contract, and most link to a free-to-read source paper, so the core literature on collective behaviour is something anyone can run, read and compare.
+
+```python
+from swarmopt.nio import GreyWolfOptimizer, OPTIMIZERS
+
+optimizer = GreyWolfOptimizer(bounds=[(-5.12, 5.12)] * 5, population_size=30, seed=1)
+position, value = optimizer.run(200)
+```
+
+It uses only the Python standard library. See [docs/nio.md](docs/nio.md) for the full algorithm list and its open-access references.
+
 ## Benchmark Functions
 
 ### Single Objective
