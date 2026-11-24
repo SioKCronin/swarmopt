@@ -8,12 +8,20 @@ Swarm intelligence leverages population-based search solutions to balance explor
 to specified cost functions. The PSO lineage was sparked by Eberhart and Kennedy in their original paper on PSOs in 1995, 
 and the intervening years have seen many variations spring from their central idea. 
 
+**One interface, 61 algorithms.** Alongside the PSO family, `Swarm` runs 57 nature-inspired optimizers from the built-in `swarmopt.nio` pack: grey wolf, firefly, ant colony, differential evolution, water cycle and more. To switch algorithms, change `algo`. You don't need a separate install or import, and seeding and checkpointing work the same way. See [Using nio](#using-nio-57-nature-inspired-algorithms).
+
 ## Installation
 
 To install SwarmOpt, run this command in your terminal:
 
 ```shell
 $ pip install swarmopt
+```
+
+The nio algorithms are on `master` and will ship in the next PyPI release. Until then, install from GitHub to get them:
+
+```shell
+$ pip install git+https://github.com/SioKCronin/swarmopt
 ```
 
 ## Quick Start
@@ -37,6 +45,16 @@ swarm = Swarm(
 swarm.optimize()
 print(f"Best cost: {swarm.best_cost}")
 ```
+
+To try a different algorithm, change `algo` and keep everything else the same:
+
+```python
+swarm = Swarm(n_particles=30, dims=2, c1=2.0, c2=2.0, w=0.9, epochs=100,
+              obj_func=sphere, algo='gwo')   # grey wolf, from nio
+swarm.optimize()
+```
+
+`swarmopt.algorithms()` lists every name `algo` accepts.
 
 ### Reproducible runs
 
@@ -134,7 +152,7 @@ Stratified empirical comparisons (repeated trials, spread, ranks per function cl
 
 ## Using nio: 57 nature-inspired algorithms
 
-`swarmopt.nio` is SwarmOpt's extension pack of nature-inspired optimizers: grey wolf, firefly, ant colony, differential evolution, water cycle and 52 more, along with the classic collective-motion models. It ships with `pip install swarmopt`, so you don't install anything extra. You can use it in two ways:
+`swarmopt.nio` is SwarmOpt's extension pack of nature-inspired optimizers: grey wolf, firefly, ant colony, differential evolution, water cycle and 52 more, along with the classic collective-motion models. It's part of SwarmOpt, so you don't install or import anything extra to use it from `Swarm`. (Until the next PyPI release, install from GitHub as shown under [Installation](#installation).) You can use it in two ways:
 
 * **Through `Swarm`**, with the same interface, seeding and checkpointing as the core PSO family. Use this when you already use `Swarm` or want NumPy speed.
 * **Directly from `swarmopt.nio`**, which needs only the Python standard library. Use this on minimal hardware, for teaching, or to step through an algorithm one iteration at a time.
