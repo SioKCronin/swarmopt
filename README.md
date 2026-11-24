@@ -8,12 +8,20 @@ Swarm intelligence leverages population-based search solutions to balance explor
 to specified cost functions. The PSO lineage was sparked by Eberhart and Kennedy in their original paper on PSOs in 1995, 
 and the intervening years have seen many variations spring from their central idea. 
 
+**One interface, 61 algorithms.** Alongside the PSO family, `Swarm` runs 57 nature-inspired optimizers from the built-in `swarmopt.nio` pack: grey wolf, firefly, ant colony, differential evolution, water cycle and more. To switch algorithms, change `algo`. You don't need a separate install or import, and seeding and checkpointing work the same way. See [Using nio](#using-nio-57-nature-inspired-algorithms).
+
 ## Installation
 
 To install SwarmOpt, run this command in your terminal:
 
 ```shell
 $ pip install swarmopt
+```
+
+The nio algorithms are on `master` and will ship in the next PyPI release. Until then, install from GitHub to get them:
+
+```shell
+$ pip install git+https://github.com/SioKCronin/swarmopt
 ```
 
 ## Quick Start
@@ -37,6 +45,16 @@ swarm = Swarm(
 swarm.optimize()
 print(f"Best cost: {swarm.best_cost}")
 ```
+
+To try a different algorithm, change `algo` and keep everything else the same:
+
+```python
+swarm = Swarm(n_particles=30, dims=2, c1=2.0, c2=2.0, w=0.9, epochs=100,
+              obj_func=sphere, algo='gwo')   # grey wolf, from nio
+swarm.optimize()
+```
+
+`swarmopt.algorithms()` lists every name `algo` accepts.
 
 ### Reproducible runs
 
@@ -132,9 +150,18 @@ Stratified empirical comparisons (repeated trials, spread, ranks per function cl
 ### Multiobjective
 * Multiobjective PSO - Handles multiple conflicting objectives simultaneously 
 
-## Every algorithm, one interface
+## Using nio: 57 nature-inspired algorithms
 
-`Swarm` runs the core PSO family above and 55 more nature-inspired optimizers from `swarmopt.nio`: grey wolf, firefly, ant colony, differential evolution, water cycle and the rest. Name one as `algo` and it searches the same space, with the same seed giving the same run:
+`swarmopt.nio` is SwarmOpt's extension pack of nature-inspired optimizers: grey wolf, firefly, ant colony, differential evolution, water cycle and 52 more, along with the classic collective-motion models. It's part of SwarmOpt, so you don't install or import anything extra to use it from `Swarm`. (Until the next PyPI release, install from GitHub as shown under [Installation](#installation).) You can use it in two ways:
+
+* **Through `Swarm`**, with the same interface, seeding and checkpointing as the core PSO family. Use this when you already use `Swarm` or want NumPy speed.
+* **Directly from `swarmopt.nio`**, which needs only the Python standard library. Use this on minimal hardware, for teaching, or to step through an algorithm one iteration at a time.
+
+[docs/nio.md](docs/nio.md) shows every algorithm as a silhouette that links to the paper that introduced it.
+
+### 1. Through `Swarm`
+
+Pass a nio short name as `algo`:
 
 ```python
 import swarmopt
@@ -150,19 +177,83 @@ swarm.optimize()
 print(swarm.best_cost, swarm.best_pos)
 ```
 
-What carries across:
+These features carry across to nio algorithms:
 
 * **Reproducibility.** The same seed (an int, `SeedSequence` or `Generator`) gives the same run.
-* **Checkpoint and resume.** `swarm.optimize(checkpoint=..., checkpoint_every=N)` works for every nio algorithm, and a resumed run finishes exactly as an uninterrupted one.
+* **Checkpoint and resume.** `swarm.optimize(checkpoint=..., checkpoint_every=N)` works for every nio algorithm, and a resumed run finishes exactly like an uninterrupted one.
 * **Per-algorithm settings.** Pass them as `algo_params`, for example `algo_params={"num_rivers": 4}` for `wca`.
 
-What doesn't yet: communication topologies (message loss, compromised or faulty peers, spot-check), `respect_boundary`, diversity monitoring and variation operators are PSO-family features. `Swarm` refuses them for nio algorithms rather than silently running without them. Bringing the communication layer to every algorithm is the next piece of work.
+### 2. Directly, standard library only
 
-`pso` and `ppso` run the core global-best PSO and proactive PSO. The standard-library versions in `swarmopt.nio` remain for the RL environment and for use without NumPy.
+Every continuous optimizer takes an objective, bounds, a population size and a seed, then minimises with `run(iterations)`:
 
-Each optimizer is grouped by the metaphor it comes from (`swarm`, `evolutionary`, `ecological`, `physical`). A metaphor is not a mechanism, and some metaphor-based methods reduce to familiar operators (Sörensen, 2015, ["Metaheuristics—the metaphor exposed"](https://doi.org/10.1111/itor.12001)). So every method can be compared at an equal number of objective evaluations: see [docs/nio_benchmarks.md](docs/nio_benchmarks.md) and `swarmopt.nio.compare`.
+```python
+from swarmopt.nio import GreyWolfOptimizer, rastrigin
 
-`swarmopt.nio` also has the classic collective-motion models (Boids and Vicsek), grid pathfinders, and a small reinforcement-learning training environment, and uses only the Python standard library. [docs/nio.md](docs/nio.md) shows every algorithm as a silhouette that links to the paper that introduced it.
+opt = GreyWolfOptimizer(objective=rastrigin, bounds=[(-5.12, 5.12)] * 5,
+                        population_size=30, seed=1)
+best_position, best_value = opt.run(iterations=200)
+```
+
+To look algorithms up by short name or by family:
+
+```python
+from swarmopt.nio import OPTIMIZERS, get_optimizer, by_family
+
+Firefly = get_optimizer("fa")   # the class registered under "fa"
+by_family("ecological")         # {"aaa": ..., "foa": ..., "iwo": ..., ...}
+```
+
+Optimizers also follow a step contract (`initialise()`, `step()`, `best_position`, `best_fitness`). To watch a run, or to checkpoint it, drive it with `drive`:
+
+```python
+from swarmopt.nio import WaterCycleAlgorithm, drive, rastrigin
+
+opt = WaterCycleAlgorithm(objective=rastrigin, bounds=[(-5.12, 5.12)] * 5,
+                          num_rivers=4, seed=42)
+history = []
+position, value = drive(opt, iterations=100,
+                        callback=lambda o, i: history.append(o.best_fitness))
+# drive(opt, ..., checkpoint=store, checkpoint_every=10) resumes from `store`
+```
+
+For a quick demo from the command line, run `python -m swarmopt.nio --iterations 200 --dimension 5`.
+
+### 3. Compare algorithms fairly
+
+Iteration counts aren't a fair basis for comparison, because one iteration of fireworks can cost many times the evaluations of one iteration of grey wolf. `compare` gives every method the same evaluation budget instead:
+
+```python
+from swarmopt.nio import rastrigin
+from swarmopt.nio.compare import compare
+
+results = compare({"rastrigin": rastrigin}, bounds=[(-5.12, 5.12)] * 5,
+                  budget=2000, names=["gwo", "de", "smo", "wca"], seeds=(0, 1, 2))
+for r in sorted(results, key=lambda r: r.median):
+    print(r.name, r.family, r.median)
+```
+
+Each optimizer is grouped by the metaphor it comes from (`swarm`, `evolutionary`, `ecological`, `physical`). A metaphor is not a mechanism, and some metaphor-based methods reduce to familiar operators (Sörensen, 2015, ["Metaheuristics—the metaphor exposed"](https://doi.org/10.1111/itor.12001)). Read near-zero scores carefully: some methods look exceptional when the optimum sits at the centre of the search space and ordinary once it moves. [docs/nio_benchmarks.md](docs/nio_benchmarks.md) has the full equal-budget results on shifted and unshifted functions.
+
+### 4. Collective motion and pathfinding
+
+nio also has the classic collective-motion models, Reynolds' Boids and Vicsek's self-propelled particles, plus grid pathfinders:
+
+```python
+import random
+from swarmopt.nio import boids_step, OccupancyGrid, AntColonyPath
+
+rng = random.Random(0)
+positions = [[rng.uniform(0, 100), rng.uniform(0, 100)] for _ in range(50)]
+velocities = [[rng.uniform(-1, 1), rng.uniform(-1, 1)] for _ in range(50)]
+for _ in range(100):
+    positions, velocities = boids_step(positions, velocities)   # or vicsek_step
+
+grid = OccupancyGrid.from_obstacles(100, 100, obstacles=[(50, 50, 20)], resolution=16)
+path = AntColonyPath(grid, start=(0, 0), goal=(15, 15), seed=0).run()
+```
+
+`RiverFormationDynamics` takes the same arguments as `AntColonyPath`. A small reinforcement-learning environment (`TrainingEnv`, `LinearPolicy`, `train_policy`) is in `swarmopt.nio.rl`. There are runnable scripts in [tests/examples/nio](tests/examples/nio/).
 
 ## Benchmark Functions
 
