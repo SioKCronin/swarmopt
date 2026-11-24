@@ -183,10 +183,6 @@ These features carry across to nio algorithms:
 * **Checkpoint and resume.** `swarm.optimize(checkpoint=..., checkpoint_every=N)` works for every nio algorithm, and a resumed run finishes exactly like an uninterrupted one.
 * **Per-algorithm settings.** Pass them as `algo_params`, for example `algo_params={"num_rivers": 4}` for `wca`.
 
-These don't carry across yet: communication topologies (message loss, compromised or faulty peers, spot-check), `respect_boundary`, diversity monitoring and variation operators are PSO-family features. `Swarm` raises an error if you ask for them with a nio algorithm, so a run never silently goes without them. Bringing the communication layer to every algorithm is the next piece of work.
-
-`algo="pso"` and `algo="ppso"` run the core global-best PSO and proactive PSO. The standard-library versions in `swarmopt.nio` stay available for the RL environment and for use without NumPy.
-
 ### 2. Directly, standard library only
 
 Every continuous optimizer takes an objective, bounds, a population size and a seed, then minimises with `run(iterations)`:
