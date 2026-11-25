@@ -30,9 +30,11 @@ class TestKnnOracleUnchanged(unittest.TestCase):
     def test_default_local_run_matches_the_recorded_oracle(self):
         swarm = _swarm(n_particles=20, epochs=12, k=5)
         swarm.optimize()
-        self.assertAlmostEqual(swarm.best_cost, 0.0003919938136770123)
+        # Recorded after positions were clipped to velocity_clamp; before that
+        # this run let particles leave the search box.
+        self.assertAlmostEqual(swarm.best_cost, 0.0023932803075623686)
         np.testing.assert_allclose(
-            swarm.best_pos, [0.010712040607886053, 0.016650705681502287]
+            swarm.best_pos, [0.0488729032434006, -0.0021724723527750123]
         )
         self.assertEqual(swarm.messages_sent, 0)
 
