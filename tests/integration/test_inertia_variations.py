@@ -95,6 +95,8 @@ def test_inertia_variations():
             rank = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else "  "
             print(f"  {rank} {inertia_name:20} | Cost: {result['best_cost']:8.6f} | Time: {result['runtime']:6.3f}s")
 
+    return results
+
 def visualize_inertia_weights():
     """Visualize how different inertia weights change over time"""
     print("\n📊 Creating Inertia Weight Visualization...")
@@ -172,7 +174,7 @@ def visualize_inertia_weights():
         plt.grid(True, alpha=0.3)
         
         plt.tight_layout()
-        plt.savefig('/Users/siobhan/code/swarmopt/inertia_weights_comparison.png', dpi=150, bbox_inches='tight')
+        plt.savefig('inertia_weights_comparison.png', dpi=150, bbox_inches='tight')
         print("✅ Visualization saved as 'inertia_weights_comparison.png'")
         
     else:

@@ -48,6 +48,9 @@ def test_diversity_measurement():
     
     # Test crisis detection
     crisis = detect_diversity_crisis(particles, diversity_threshold=0.1)
+    for method in methods:
+        value = calculate_swarm_diversity(particles, method)
+        assert np.isfinite(value) and value > 0, (method, value)
     print(f"Diversity crisis detected: {crisis}")
     
     return True
@@ -220,6 +223,7 @@ def test_diversity_metrics_comparison():
     ]
     
     methods = ['euclidean', 'manhattan', 'variance', 'radius', 'entropy']
+    measured = {}
     
     print("Diversity metrics comparison:")
     print(f"{'Config':<15} {'Euclidean':<10} {'Manhattan':<10} {'Variance':<10} {'Radius':<10} {'Entropy':<10}")
@@ -230,9 +234,14 @@ def test_diversity_metrics_comparison():
         for method in methods:
             diversity = calculate_swarm_diversity(particles, method)
             metrics.append(f"{diversity:.4f}")
+            measured[(config_name, method)] = diversity
         
         print(f"{config_name:<15} {metrics[0]:<10} {metrics[1]:<10} {metrics[2]:<10} {metrics[3]:<10} {metrics[4]:<10}")
     
+    # 'entropy' is scale-invariant (its bins span the swarm's own range), so
+    # it is left out here; see tests/unit/test_diversity_metrics.py.
+    for method in [m for m in methods if m != 'entropy']:
+        assert measured[('High Diversity', method)] > measured[('Low Diversity', method)], method
     return True
 
 def test_diversity_trend_analysis():
@@ -277,6 +286,9 @@ def test_diversity_trend_analysis():
                 trend = "stable"
             print(f"   Recent trend: {trend}")
     
+    assert len(swarm.diversity_history) == swarm.epochs
+    diversities = [d['stats']['diversity'] for d in swarm.diversity_history]
+    assert all(np.isfinite(d) and d >= 0 for d in diversities)
     return True
 
 def main():

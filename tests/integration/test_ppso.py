@@ -296,6 +296,7 @@ def test_knowledge_gain_visualization():
         # Plot knowledge gain over time
         knowledge_history = swarm.ppso.knowledge_gain_history
         exploration_history = swarm.ppso.exploration_history
+        assert len(knowledge_history) > 0 and len(exploration_history) > 0
         
         plt.figure(figsize=(12, 4))
         
@@ -323,6 +324,7 @@ def test_knowledge_gain_visualization():
         print("⚠️  Matplotlib not available, skipping visualization")
     except Exception as e:
         print(f"⚠️  Visualization error: {e}")
+        raise
 
 def main():
     """Run all PPSO tests"""

@@ -32,7 +32,29 @@ python tests/benchmarks/run_suite.py --list-functions
 
 ## **Quick Start**
 
-### Run All Tests
+### Run the test suites
+```bash
+pip install -e ".[dev,viz]"
+
+# Unit tests (under half a minute; the default `pytest` run, coverage-gated in CI)
+python -m pytest
+
+# Integration tests: the scripts below, run under pytest so their returned
+# results are checked (see tests/integration/conftest.py)
+python -m pytest tests/integration
+
+# Slow statistical tests (every algorithm against random search)
+python -m pytest tests/unit -m slow
+
+# After an intended change to seeded results, re-record them
+SWARMOPT_REGEN_GOLDEN=1 python -m pytest tests/unit/test_golden.py
+```
+
+Known bugs are recorded as `xfail(strict=True)`: when a fix lands, the test
+passes unexpectedly and fails the run, so the marker gets removed.
+
+### Run the scripts directly
+
 ```bash
 # Test basic installation
 python test_installation.py
