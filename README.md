@@ -157,7 +157,7 @@ Stratified empirical comparisons (repeated trials, spread, ranks per function cl
 * **Through `Swarm`**, with the same interface, seeding and checkpointing as the core PSO family. Use this when you already use `Swarm` or want NumPy speed.
 * **Directly from `swarmopt.nio`**, which needs only the Python standard library. Use this on minimal hardware, for teaching, or to step through an algorithm one iteration at a time.
 
-[docs/nio.md](docs/nio.md) shows every algorithm as a silhouette that links to the paper that introduced it.
+[swarmopt/nio/README.md](swarmopt/nio/README.md) shows every algorithm as a silhouette that links to the paper that introduced it.
 
 ### 1. Through `Swarm`
 

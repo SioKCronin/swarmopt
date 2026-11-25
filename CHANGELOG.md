@@ -16,7 +16,7 @@ persistence for unattended hardware.
   `run(iterations)` contract and a name registry (`OPTIMIZERS`), Boids and
   Vicsek collective-motion steps, ant-colony and river-formation pathfinders,
   and `swarmopt.nio.rl.TrainingEnv` with a trainable linear policy. Standard
-  library only. References in `docs/nio.md`.
+  library only. References in `swarmopt/nio/README.md`.
 - `Swarm(algo=...)` runs any `swarmopt.nio` optimizer by short name over the
   same bounds, seed and epochs, with `algo_params` for per-algorithm
   settings. `swarmopt.algorithms(family=None)` lists every name.
