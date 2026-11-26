@@ -143,6 +143,7 @@ def test_multiple_respect_distances():
         print(f"   Boundary respected: {final_distance >= respect_dist}")
         print(f"   Best position: {swarm.best_pos}")
     
+    assert all(r['boundary_respected'] for r in results)
     return results
 
 def test_standoff_distance():
@@ -176,11 +177,15 @@ def test_standoff_distance():
         obj_func=orbit_energy,
         algo='global',
         respect_boundary=min_safe_distance,
-        target_position=earth_center
+        target_position=earth_center,
+        # The search box has to reach the orbit; the default (0, 2) lies
+        # entirely inside the boundary, so no point in it is feasible.
+        velocity_clamp=(-10000.0, 10000.0),
     )
     
     swarm.optimize()
     final_distance = np.linalg.norm(swarm.best_pos - earth_center)
+    assert final_distance >= min_safe_distance
     altitude = final_distance - earth_radius
     
     print(f"\n✅ Optimal position found: {swarm.best_pos}")
@@ -299,6 +304,7 @@ def test_visualization():
         
         # Plot 2: Distance from target over particles
         distances = [np.linalg.norm(p.pos - target) for p in swarm.swarm]
+        assert min(distances) >= respect_distance
         ax2.hist(distances, bins=15, edgecolor='black', alpha=0.7)
         ax2.axvline(respect_distance, color='red', linestyle='--', 
                    linewidth=2, label=f'Respect Boundary ({respect_distance})')

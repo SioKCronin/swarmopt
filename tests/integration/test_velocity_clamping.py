@@ -91,6 +91,8 @@ def test_velocity_clamping_variations():
             rank = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else "  "
             print(f"  {rank} {clamp_name:20} | Cost: {result['best_cost']:8.6f} | Time: {result['runtime']:6.3f}s")
 
+    return results
+
 def benchmark_velocity_clamping_performance():
     """Benchmark performance of different velocity clamping methods"""
     print("\n⚡ Velocity Clamping Performance Benchmark")
@@ -136,6 +138,7 @@ def benchmark_velocity_clamping_performance():
 
 def test_velocity_clamping_with_inertia():
     """Test velocity clamping combined with different inertia weights"""
+    swarms = []
     print("\n🔄 Testing Velocity Clamping + Inertia Weight Combinations")
     print("=" * 60)
     
@@ -163,8 +166,11 @@ def test_velocity_clamping_with_inertia():
             )
             
             swarm.optimize()
+            swarms.append(swarm)
             
             print(f"{inertia_type:12} + {clamp_type:12} | Cost: {swarm.best_cost:8.6f} | Time: {swarm.runtime:.3f}s")
+
+    return swarms
 
 def demonstrate_velocity_clamping_effects():
     """Demonstrate the effects of different velocity clamping methods"""

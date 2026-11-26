@@ -168,7 +168,7 @@ def visualize_optimization():
         ax.set_ylim(-5, 5)
         
         plt.tight_layout()
-        plt.savefig('/Users/siobhan/code/swarmopt/optimization_visualization.png', dpi=150, bbox_inches='tight')
+        plt.savefig('optimization_visualization.png', dpi=150, bbox_inches='tight')
         print("Visualization saved as 'optimization_visualization.png'")
         
     else:

@@ -234,6 +234,12 @@ def test_pareto_dominance():
     # Check rank distribution (simplified version doesn't have ranks)
     print(f"✅ Rank distribution: Simplified version (no ranks)")
     
+    assert pareto_front, "empty Pareto archive"
+    objs = [np.asarray(sol['objectives']) for sol in pareto_front]
+    for i, a in enumerate(objs):
+        for j, b in enumerate(objs):
+            dominates = np.all(a <= b) and np.any(a < b)
+            assert i == j or not dominates, f"archive member {i} dominates {j}"
     return pareto_front, all_solutions
 
 def test_archive_size_impact():
@@ -308,6 +314,7 @@ def test_multiobjective_visualization():
         
         # Pareto front plot
         pareto_front = swarm.mo_optimizer.archive
+        assert pareto_front, "empty Pareto archive"
         if pareto_front:
             objectives = np.array([sol['objectives'] for sol in pareto_front])
             ax1.scatter(objectives[:, 0], objectives[:, 1], c='red', s=50, alpha=0.7, label='Pareto Front')
@@ -335,6 +342,7 @@ def test_multiobjective_visualization():
         print("⚠️  Matplotlib not available, skipping visualization")
     except Exception as e:
         print(f"⚠️  Visualization error: {e}")
+        raise
 
 def test_three_objective_optimization():
     """Test three-objective optimization"""
