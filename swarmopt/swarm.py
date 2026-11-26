@@ -3,7 +3,6 @@ import timeit
 
 try:
     from ._random import make_rng, using_rng
-    from .utils.distance import euclideanDistance
     from .utils.inertia import (
         constant_inertia_weight, linear_inertia_weight, chaotic_inertia_weight,
         random_inertia_weight, adaptive_inertia_weight, chaotic_random_inertia_weight,
@@ -22,7 +21,6 @@ try:
     from .utils.hhoa import HHOA
 except ImportError:
     from _random import make_rng, using_rng
-    from utils.distance import euclideanDistance
     from utils.inertia import (
         constant_inertia_weight, linear_inertia_weight, chaotic_inertia_weight,
         random_inertia_weight, adaptive_inertia_weight, chaotic_random_inertia_weight,
@@ -39,6 +37,31 @@ except ImportError:
     from utils.ppso import PPSO
     from utils.simple_multiobjective import SimpleMultiObjectivePSO
     from utils.hhoa import HHOA
+
+
+INERTIA_FUNCS = ('constant', 'linear', 'chaotic', 'random', 'adaptive',
+                 'chaotic_random', 'exponential', 'sigmoid')
+VELOCITY_CLAMP_FUNCS = ('none', 'basic', 'adaptive', 'exponential', 'sigmoid',
+                        'random', 'chaotic', 'dimension_wise', 'soft', 'hybrid',
+                        'convergence_based')
+
+
+def _check_config(n_particles, dims, epochs, velocity_clamp, inertia_func,
+                  velocity_clamp_func):
+    """Refuse settings that would otherwise run and return a meaningless result."""
+    for name, value in (("n_particles", n_particles), ("dims", dims), ("epochs", epochs)):
+        if isinstance(value, bool) or not isinstance(value, (int, np.integer)) or value < 1:
+            raise ValueError(f"{name} must be a positive integer, not {value!r}")
+    lo, hi = velocity_clamp
+    if not (np.isfinite(lo) and np.isfinite(hi) and lo < hi):
+        raise ValueError(
+            f"velocity_clamp must be a finite (min, max) with min < max, not {velocity_clamp!r}")
+    if inertia_func not in INERTIA_FUNCS:
+        raise ValueError(f"inertia_func must be one of {INERTIA_FUNCS}, not {inertia_func!r}")
+    if velocity_clamp_func not in VELOCITY_CLAMP_FUNCS:
+        raise ValueError(
+            f"velocity_clamp_func must be one of {VELOCITY_CLAMP_FUNCS}, "
+            f"not {velocity_clamp_func!r}")
 
 
 def _nio_name(algo):
@@ -175,6 +198,9 @@ class Swarm:
                 "Dynamic Multi-Swarm PSO (algo='multiswarm') is being reworked and is "
                 "not available in this release. Use algo='cpso' for a multi-swarm approach."
             )
+
+        _check_config(n_particles, dims, epochs, velocity_clamp, inertia_func,
+                      velocity_clamp_func)
 
         self.seed = seed
         self.rng = make_rng(seed)
@@ -490,7 +516,7 @@ class Swarm:
         float : Modified objective value
         """
         # Calculate base objective
-        base_cost = self.obj_func(position)
+        base_cost = self._raw_cost(position)
         
         # If no respect boundary, return base cost
         if not self.use_respect_boundary:
@@ -508,10 +534,25 @@ class Swarm:
         violation = self.respect_boundary - distance_to_target
         penalty_factor = (violation / self.respect_boundary) ** 2
         
-        # Scale penalty by base cost magnitude to be relative
-        penalty = base_cost * (1.0 + 10.0 * penalty_factor)
-        
-        return penalty
+        # Additive penalty, scaled by the cost's magnitude. Multiplying the
+        # cost instead turned the penalty into a reward whenever the cost was
+        # negative, and into nothing when it was zero.
+        return base_cost + 10.0 * penalty_factor * (1.0 + abs(base_cost))
+
+    def _raw_cost(self, position):
+        """Objective value with NaN mapped to +inf, so it never wins a comparison."""
+        value = self.obj_func(position)
+        if np.ndim(value) == 0:
+            value = float(value)
+            if np.isnan(value):
+                return float('inf')
+        return value
+
+    def _cost(self, position):
+        """The cost the swarm optimizes: the objective plus any boundary penalty."""
+        if self.use_respect_boundary:
+            return self.objective_with_respect_boundary(position)
+        return self._raw_cost(position)
 
     def initialize_swarm(self):
         swarm = []
@@ -523,7 +564,7 @@ class Swarm:
                 p.pos = p._enforce_respect_boundary(p.pos)
                 p.best_pos = p.pos.copy()
                 # Re-evaluate cost with corrected position
-                p.best_cost = self.objective_with_respect_boundary(p.pos)
+                p.best_cost = self._cost(p.pos)
                 p.local_best_pos = p.pos.copy()
                 p.local_best_cost = p.best_cost
             swarm.append(p)
@@ -792,12 +833,15 @@ class Swarm:
                 self.end = True
             if i % self.r == 0:
                 self.regroup = True
+            if self.algo == 'sa':
+                self.update_global_worst_pos()
             for particle in self.swarm:
                 particle.update(i)  # Pass current iteration for inertia weight calculation
-                if self.channel is None:
+                # Only local and unified read local_best_pos. Each update
+                # changes one particle, so only it can beat the global best.
+                if self.channel is None and self.algo in ('local', 'unified'):
                     self.update_local_best_pos()
-                self.update_global_best_pos()
-                self.update_global_worst_pos()
+                self._consider_global_best(particle)
             if self.channel is not None:
                 self.channel.send(i)
             
@@ -865,28 +909,34 @@ class Swarm:
     def get_best_neighbor(self, particle):
         if self.channel is not None:
             return self.channel.best_known(particle)
-        distances = []
-        for other in self.swarm:
-            # Pair each neighbour's best cost with the position that earned it.
-            distances.append((other.best_pos, other.best_cost, euclideanDistance(other.pos, particle.pos)))
-        sorted_distances = sorted(distances, key=lambda x: x[2])
-        return sorted(sorted_distances[:self.k+1], key=lambda x: x[1])
+        # The k+1 nearest particles (self included), best cost first. Ties
+        # break by swarm order, as the stable sorts below guarantee.
+        positions = np.array([other.pos for other in self.swarm])
+        distances = np.sqrt(((positions - particle.pos) ** 2).sum(axis=1))
+        nearest = np.argsort(distances, kind='stable')[:self.k + 1]
+        # Pair each neighbour's best cost with the position that earned it.
+        neighbours = [(self.swarm[j].best_pos, self.swarm[j].best_cost, float(distances[j]))
+                      for j in nearest]
+        return sorted(neighbours, key=lambda x: x[1])
+
+    def _consider_global_best(self, particle):
+        if self.multiobjective:
+            # For multiobjective, we'll handle this in the multiobjective optimizer
+            return
+        # The first particle always seeds best_pos, so a swarm whose costs are
+        # all inf (or NaN) still reports a position.
+        if self.best_pos is None or particle.best_cost < self.best_cost:
+            self.best_cost = particle.best_cost
+            best_pos = particle.best_pos
+            # Enforce respect boundary on global best position if enabled
+            # (though particle.best_pos should already be enforced)
+            if self.use_respect_boundary:
+                best_pos = particle._enforce_respect_boundary(best_pos)
+            self.best_pos = best_pos.copy()
 
     def update_global_best_pos(self):
         for particle in self.swarm:
-            # Handle multiobjective case
-            if self.multiobjective:
-                # For multiobjective, we'll handle this in the multiobjective optimizer
-                continue
-            
-            if particle.best_cost < self.best_cost:
-                self.best_cost = particle.best_cost
-                best_pos = particle.best_pos
-                # Enforce respect boundary on global best position if enabled
-                # (though particle.best_pos should already be enforced)
-                if self.use_respect_boundary:
-                    best_pos = particle._enforce_respect_boundary(best_pos)
-                self.best_pos = best_pos.copy()
+            self._consider_global_best(particle)
 
     def update_local_best_pos(self):
         for particle in self.swarm:
@@ -899,10 +949,16 @@ class Swarm:
             particle.local_best_pos = local_best_pos.copy()
 
     def update_global_worst_pos(self):
-        for particle in self.swarm:
-            if particle.best_cost > self.worst_cost:
-                self.worst_cost = particle.best_cost
-                self.worst_pos = particle.best_pos.copy()
+        """Find the particle whose personal best is currently the worst.
+
+        ``worst_cost`` used to start at +inf, so no particle ever beat it and
+        ``worst_pos`` stayed None: ``sa`` never restarted its worst particle
+        and ran exactly as ``global``.
+        """
+        costs = [particle.best_cost for particle in self.swarm]
+        self.worst_index = int(np.argmax(costs))
+        self.worst_cost = costs[self.worst_index]
+        self.worst_pos = self.swarm[self.worst_index].best_pos.copy()
 
     def get_inertia_weight(self, current_iter):
         """Calculate current inertia weight based on the selected function"""
@@ -985,6 +1041,10 @@ class Swarm:
         elif intervention == 'adaptive_strength':
             # Increase variation strength for all particles
             self._increase_variation_strength()
+
+        # Variation operators don't all respect the bounds.
+        for particle in self.swarm:
+            np.clip(particle.pos, self.val_min, self.val_max, out=particle.pos)
     
     def _restart_worst_particles(self, restart_ratio: float):
         """Restart worst performing particles"""
@@ -1002,10 +1062,7 @@ class Swarm:
             if self.use_respect_boundary:
                 particle.pos = particle._enforce_respect_boundary(particle.pos)
             particle.best_pos = particle.pos.copy()
-            if self.use_respect_boundary:
-                particle.best_cost = self.objective_with_respect_boundary(particle.pos)
-            else:
-                particle.best_cost = self.obj_func(particle.pos)
+            particle.best_cost = self._cost(particle.pos)
             particle.velocity = self.rng.uniform(-self.velocity_bounds, self.velocity_bounds, self.dims)
             particle.stagnation_count = 0
     
@@ -1075,11 +1132,7 @@ class Particle:
         self.velocity = self.swarm.rng.uniform(
             -swarm.velocity_bounds, swarm.velocity_bounds, swarm.dims
         )
-        # Use respect boundary aware objective if enabled
-        if swarm.use_respect_boundary:
-            self.best_cost = swarm.objective_with_respect_boundary(self.best_pos)
-        else:
-            self.best_cost = swarm.obj_func(self.best_pos)
+        self.best_cost = swarm._cost(self.best_pos)
         self.local_best_cost = self.best_cost
 
     def cognitive_weight(self):
@@ -1120,14 +1173,12 @@ class Particle:
             self.velocity = g_velocity + l_velocity
 
         if self.swarm.algo == 'sa':
-            if np.array_equal(self.pos, self.swarm.worst_pos):
+            if self.index == getattr(self.swarm, 'worst_index', None):
                 new_pos = self.swarm.rng.uniform(self.swarm.val_min, self.swarm.val_max, self.swarm.dims)
                 # Enforce respect boundary if enabled
                 if self.swarm.use_respect_boundary:
                     new_pos = self._enforce_respect_boundary(new_pos)
-                    new_cost = self.swarm.objective_with_respect_boundary(new_pos)
-                else:
-                    new_cost = self.swarm.obj_func(new_pos)
+                new_cost = self.swarm._cost(new_pos)
                 if new_cost < self.best_cost:
                     self.best_cost = new_cost
                     self.pos = new_pos
@@ -1167,14 +1218,16 @@ class Particle:
         old_pos = self.pos.copy()
         
         self.pos += self.velocity
-        
+
         # Apply variation if enabled
         if self.swarm.variation_strategy is not None:
             self.pos = self.apply_variation(current_iter)
-            # Enforce boundary after variation (variations might violate boundary)
-            if self.swarm.use_respect_boundary:
-                self.pos = self._enforce_respect_boundary(self.pos)
-        
+
+        # Stay inside the search box, as every other optimizer in the library
+        # does. This comes after variation, since most variation operators
+        # don't respect the bounds.
+        np.clip(self.pos, self.swarm.val_min, self.swarm.val_max, out=self.pos)
+
         # Enforce respect boundary: hard constraint to keep particles outside boundary
         # This ensures particles never enter the unsafe zone
         if self.swarm.use_respect_boundary:
@@ -1219,10 +1272,7 @@ class Particle:
         
         # Update best position if current position is better
         # Use respect boundary aware objective if enabled
-        if self.swarm.use_respect_boundary:
-            current_cost = self.swarm.objective_with_respect_boundary(self.pos)
-        else:
-            current_cost = self.swarm.obj_func(self.pos)
+        current_cost = self.swarm._cost(self.pos)
         if current_cost < self.best_cost:
             self.best_cost = current_cost
             self.best_pos = self.pos.copy()

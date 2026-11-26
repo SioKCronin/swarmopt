@@ -57,6 +57,26 @@ persistence for unattended hardware.
   them.
 
 ### Fixed
+- The core PSO loop rescanned every particle's neighbourhood after each
+  particle moved, so one epoch cost O(n^3) even for `algo='global'`, which
+  never reads the local best. `global` and `sa` now skip that scan and the
+  global best is updated incrementally; `local` and `unified` keep the same
+  update order with a vectorized neighbour search. Seeded results are
+  unchanged by this fix.
+- Core PSO particles (`global`, `local`, `unified`, `sa`, `cpso`) could leave
+  the search box. Positions are now clipped to `velocity_clamp`, matching the
+  nio optimizers, PPSO and HHOA. This changes seeded results for runs that
+  reached the bounds.
+- The respect-boundary penalty multiplied the cost, so it rewarded entering
+  the boundary when the cost was negative and vanished at zero. It is now
+  additive: `cost + 10 * ((r - d) / r)^2 * (1 + |cost|)`.
+- `sa` never found its worst particle (`worst_cost` started at +inf), so it
+  ran exactly as `global`. The worst particle is now found each epoch.
+- An objective that returns NaN no longer crashes the core PSO; NaN is
+  treated as +inf and `best_pos` is always set.
+- `Swarm` rejects non-positive `n_particles`, `dims` or `epochs`, an empty or
+  infinite `velocity_clamp`, and unknown `inertia_func` or
+  `velocity_clamp_func` names, which used to fall back to a default silently.
 - Collective Animal Behavior kept its "memory" as references to agents that
   then moved, so the memory changed under it and the rebuilt herd could hold
   the same agent twice. It now keeps copies, as in Cuevas et al. (2012).

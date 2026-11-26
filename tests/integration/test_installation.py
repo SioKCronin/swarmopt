@@ -36,7 +36,7 @@ def test_installation():
         print("\n3. Testing different algorithms...")
         algorithms = ['global', 'local', 'unified']
         for algo in algorithms:
-            swarm = Swarm(10, 2, 2.0, 2.0, 0.9, 10, sphere, algo, (-2, 2))
+            swarm = Swarm(10, 2, 2.0, 2.0, 0.9, 10, sphere, algo, velocity_clamp=(-2, 2))
             swarm.optimize()
             print(f"   ✅ {algo.upper()} PSO: Cost = {swarm.best_cost:.6f}")
         
@@ -49,7 +49,7 @@ def test_installation():
         ]
         
         for func, name in functions:
-            swarm = Swarm(10, 2, 2.0, 2.0, 0.9, 10, func, 'global', (-2, 2))
+            swarm = Swarm(10, 2, 2.0, 2.0, 0.9, 10, func, 'global', velocity_clamp=(-2, 2))
             swarm.optimize()
             print(f"   ✅ {name} function: Cost = {swarm.best_cost:.6f}")
         

@@ -175,8 +175,10 @@ class CooperativeParticle:
             v_min, v_max = -5, 5  # Default bounds
         self.velocity = np.clip(self.velocity, v_min, v_max)
         
-        # Update position
+        # Update position. velocity_clamp is the search range the Swarm front
+        # door passes in, so keep positions inside it too.
         self.pos += self.velocity
+        np.clip(self.pos, v_min, v_max, out=self.pos)
 
 class CPSO:
     """
