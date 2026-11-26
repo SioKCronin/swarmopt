@@ -14,6 +14,7 @@ import pytest
 
 from swarmopt import Swarm
 from swarmopt.functions import sphere
+from swarmopt.utils.variation import VARIATION_STRATEGIES
 
 BOUNDS = (-5.0, 5.0)
 
@@ -83,6 +84,19 @@ class TestSearchBox:
         s = _swarm(algo=algo, obj_func=downhill, dims=4, epochs=30)
         s.optimize()
         assert np.all(s.best_pos >= BOUNDS[0]) and np.all(s.best_pos <= BOUNDS[1])
+
+    @pytest.mark.parametrize("strategy", sorted(VARIATION_STRATEGIES))
+    def test_variation_cannot_push_particles_out(self, strategy):
+        # Most variation operators ignore the bounds, so the clip has to come
+        # after variation. Before that, levy and cauchy put best_pos at |x| > 50.
+        s = _swarm(obj_func=downhill, epochs=25, velocity_clamp=(-1.0, 1.0),
+                   variation_strategy=strategy, variation_rate=1.0, variation_strength=0.5)
+        seen = []
+        s.epoch_callback = lambda epoch, swarm: seen.extend(p.pos.copy() for p in swarm.swarm)
+        s.optimize()
+        positions = np.array(seen + [p.pos for p in s.swarm])
+        assert positions.min() >= -1.0 and positions.max() <= 1.0
+        assert np.all(np.abs(s.best_pos) <= 1.0)
 
 
 # -- respect-boundary penalty -------------------------------------------------

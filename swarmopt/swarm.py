@@ -1041,6 +1041,10 @@ class Swarm:
         elif intervention == 'adaptive_strength':
             # Increase variation strength for all particles
             self._increase_variation_strength()
+
+        # Variation operators don't all respect the bounds.
+        for particle in self.swarm:
+            np.clip(particle.pos, self.val_min, self.val_max, out=particle.pos)
     
     def _restart_worst_particles(self, restart_ratio: float):
         """Restart worst performing particles"""
@@ -1214,16 +1218,16 @@ class Particle:
         old_pos = self.pos.copy()
         
         self.pos += self.velocity
-        # Stay inside the search box, as every other optimizer in the library does.
-        np.clip(self.pos, self.swarm.val_min, self.swarm.val_max, out=self.pos)
-        
+
         # Apply variation if enabled
         if self.swarm.variation_strategy is not None:
             self.pos = self.apply_variation(current_iter)
-            # Enforce boundary after variation (variations might violate boundary)
-            if self.swarm.use_respect_boundary:
-                self.pos = self._enforce_respect_boundary(self.pos)
-        
+
+        # Stay inside the search box, as every other optimizer in the library
+        # does. This comes after variation, since most variation operators
+        # don't respect the bounds.
+        np.clip(self.pos, self.swarm.val_min, self.swarm.val_max, out=self.pos)
+
         # Enforce respect boundary: hard constraint to keep particles outside boundary
         # This ensures particles never enter the unsafe zone
         if self.swarm.use_respect_boundary:
